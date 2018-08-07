@@ -1,4 +1,6 @@
-package io.joshatron.engine;
+package io.joshatron.takengine.board;
+
+import io.joshatron.takengine.engine.Player;
 
 public class Piece {
 

@@ -1,5 +1,12 @@
-package io.joshatron.engine;
+package io.joshatron.takengine.engine;
 
+import io.joshatron.takengine.board.BoardLocation;
+import io.joshatron.takengine.board.Direction;
+import io.joshatron.takengine.board.Piece;
+import io.joshatron.takengine.board.PieceType;
+import io.joshatron.takengine.turn.MoveTurn;
+import io.joshatron.takengine.turn.PlaceTurn;
+import io.joshatron.takengine.turn.Turn;
 import org.junit.Assert;
 import org.junit.Test;
 

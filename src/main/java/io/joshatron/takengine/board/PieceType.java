@@ -1,4 +1,4 @@
-package io.joshatron.engine;
+package io.joshatron.takengine.board;
 
 public enum PieceType {
     STONE,

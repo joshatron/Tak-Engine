@@ -1,4 +1,10 @@
-package io.joshatron.engine;
+package io.joshatron.takengine.engine;
+
+import io.joshatron.takengine.board.*;
+import io.joshatron.takengine.turn.MoveTurn;
+import io.joshatron.takengine.turn.PlaceTurn;
+import io.joshatron.takengine.turn.Turn;
+import io.joshatron.takengine.turn.TurnType;
 
 import java.util.ArrayList;
 
