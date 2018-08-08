@@ -1,6 +1,6 @@
-package io.joshatron.takengine.board;
+package io.joshatron.tak.engine.board;
 
-import io.joshatron.takengine.engine.Player;
+import io.joshatron.tak.engine.game.Player;
 
 public class Piece {
 

@@ -1,4 +1,4 @@
-package io.joshatron.takengine.engine;
+package io.joshatron.tak.engine.game;
 
 public class GameResult {
     private boolean finished;

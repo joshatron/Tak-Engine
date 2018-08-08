@@ -1,4 +1,4 @@
-package io.joshatron.takengine.board;
+package io.joshatron.tak.engine.board;
 
 public class BoardLocation {
 

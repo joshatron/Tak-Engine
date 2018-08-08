@@ -1,4 +1,4 @@
-package io.joshatron.takengine.engine;
+package io.joshatron.tak.engine.game;
 
 public enum Player {
     BLACK,

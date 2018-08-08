@@ -1,7 +1,7 @@
-package io.joshatron.takengine.turn;
+package io.joshatron.tak.engine.turn;
 
-import io.joshatron.takengine.board.BoardLocation;
-import io.joshatron.takengine.board.PieceType;
+import io.joshatron.tak.engine.board.BoardLocation;
+import io.joshatron.tak.engine.board.PieceType;
 
 public class PlaceTurn extends Turn {
 

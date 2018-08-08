@@ -1,12 +1,12 @@
-package io.joshatron.takengine.engine;
+package io.joshatron.tak.engine.game;
 
-import io.joshatron.takengine.board.BoardLocation;
-import io.joshatron.takengine.board.Direction;
-import io.joshatron.takengine.board.Piece;
-import io.joshatron.takengine.board.PieceType;
-import io.joshatron.takengine.turn.MoveTurn;
-import io.joshatron.takengine.turn.PlaceTurn;
-import io.joshatron.takengine.turn.Turn;
+import io.joshatron.tak.engine.board.BoardLocation;
+import io.joshatron.tak.engine.board.Direction;
+import io.joshatron.tak.engine.board.Piece;
+import io.joshatron.tak.engine.board.PieceType;
+import io.joshatron.tak.engine.turn.MoveTurn;
+import io.joshatron.tak.engine.turn.PlaceTurn;
+import io.joshatron.tak.engine.turn.Turn;
 import org.junit.Assert;
 import org.junit.Test;
 

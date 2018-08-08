@@ -1,4 +1,4 @@
-package io.joshatron.takengine.turn;
+package io.joshatron.tak.engine.turn;
 
 public enum TurnType {
     PLACE,
