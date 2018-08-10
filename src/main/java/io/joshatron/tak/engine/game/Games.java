@@ -11,7 +11,7 @@ public class Games {
 
         for(int i = 0; i < games; i++) {
             GameState state = new GameState(firstPlayer, boardSize);
-            hooks.beforeGame((GameState) state.clone());
+            hooks.beforeGame((GameState) state.clone(), i);
             GameResult result = new GameResult();
             while(!result.isFinished()) {
                 hooks.beforeTurn((GameState) state.clone());
@@ -39,8 +39,15 @@ public class Games {
                 }
                 hooks.afterTurn((GameState) state.clone());
             }
-            hooks.afterGame((GameState) state.clone());
+            hooks.afterGame((GameState) state.clone(), i);
             results.addGame(result);
+
+            if(firstPlayer == Player.WHITE) {
+                firstPlayer = Player.BLACK;
+            }
+            else {
+                firstPlayer = Player.WHITE;
+            }
         }
 
         return results;
