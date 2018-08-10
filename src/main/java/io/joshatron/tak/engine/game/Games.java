@@ -7,7 +7,7 @@ import io.joshatron.tak.engine.turn.TurnType;
 public class Games {
 
     public static GameSetResult playGames(int games, int boardSize, Player firstPlayer, TakPlayer whitePlayer, TakPlayer blackPlayer, GameHooks hooks) {
-        GameSetResult results = new GameSetResult();
+        GameSetResult results = new GameSetResult(boardSize, firstPlayer);
 
         for(int i = 0; i < games; i++) {
             GameState state = new GameState(firstPlayer, boardSize);
@@ -40,6 +40,7 @@ public class Games {
                 hooks.afterTurn((GameState) state.clone());
             }
             hooks.afterGame((GameState) state.clone());
+            results.addGame(result);
         }
 
         return results;
