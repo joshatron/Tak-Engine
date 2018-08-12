@@ -5,6 +5,7 @@ public class GameSetResult {
     private int boardSize;
     private Player firstPlayer;
 
+    private int games;
     private int whiteWins;
     private int whitePathWins;
     private int whiteFullWins;
@@ -20,6 +21,7 @@ public class GameSetResult {
     }
 
     public void addGame(GameResult result) {
+        games++;
         if(result.isFinished()) {
             if(result.getWinner() == Player.WHITE) {
                 whiteWins++;
@@ -33,7 +35,7 @@ public class GameSetResult {
                     whitePieceWins++;
                 }
             }
-            else {
+            else if(result.getWinner() == Player.BLACK) {
                 blackWins++;
                 if(result.getReason() == WinReason.PATH) {
                     blackPathWins++;
