@@ -11,10 +11,14 @@ public class Games {
 
         for(int i = 0; i < games; i++) {
             GameState state = new GameState(firstPlayer, boardSize);
-            hooks.beforeGame((GameState) state.clone(), i);
+            if(hooks != null) {
+                hooks.beforeGame((GameState) state.clone(), i);
+            }
             GameResult result = new GameResult();
             while(!result.isFinished()) {
-                hooks.beforeTurn((GameState) state.clone());
+                if(hooks != null) {
+                    hooks.beforeTurn((GameState) state.clone());
+                }
                 if(state.isWhiteTurn()) {
                     Turn turn = whitePlayer.getTurn((GameState) state.clone());
                     if (turn == null || turn.getType() == TurnType.SURRENDER) {
@@ -37,9 +41,13 @@ public class Games {
                         break;
                     }
                 }
-                hooks.afterTurn((GameState) state.clone());
+                if(hooks != null) {
+                    hooks.afterTurn((GameState) state.clone());
+                }
             }
-            hooks.afterGame((GameState) state.clone(), i);
+            if(hooks != null) {
+                hooks.afterGame((GameState) state.clone(), i);
+            }
             results.addGame(result);
 
             if(firstPlayer == Player.WHITE) {
