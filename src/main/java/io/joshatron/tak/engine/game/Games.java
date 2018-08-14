@@ -6,7 +6,102 @@ import io.joshatron.tak.engine.turn.TurnType;
 
 public class Games {
 
-    public static GameSetResult playGames(int games, int boardSize, Player firstPlayer, TakPlayer whitePlayer, TakPlayer blackPlayer, GameHooks hooks) {
+    private int games;
+    private int boardSize;
+    private Player firstPlayer;
+    private TakPlayer whitePlayer;
+    private TakPlayer blackPlayer;
+    private GameHooks hooks;
+
+    private GameState currentState;
+    private boolean newGame;
+    private int game;
+
+    public Games(int games, int boardSize, Player firstPlayer, TakPlayer whitePlayer, TakPlayer blackPlayer, GameHooks hooks) {
+        this.games = games;
+        this.boardSize = boardSize;
+        this.firstPlayer = firstPlayer;
+        this.whitePlayer = whitePlayer;
+        this.blackPlayer = blackPlayer;
+        this.hooks = hooks;
+
+        currentState = null;
+        newGame = true;
+        game = 0;
+    }
+
+    public GameResult playTurn() {
+        GameResult result;
+        //confirm you haven't finished all the games
+        if(game < games) {
+            //if a game is finished and set to null, initialize another one
+            if (newGame) {
+                currentState = new GameState(firstPlayer, boardSize);
+                newGame = false;
+                if(hooks != null) {
+                    hooks.beforeGame((GameState) currentState.clone(), game);
+                }
+            }
+
+            //have current player complete turn
+            if(hooks != null) {
+                    hooks.beforeTurn((GameState) currentState.clone());
+            }
+            if(currentState.isWhiteTurn()) {
+                Turn turn = whitePlayer.getTurn((GameState) currentState.clone());
+                if (turn == null || turn.getType() == TurnType.SURRENDER) {
+                    result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
+                    game = games;
+                    return result;
+                }
+                if(!currentState.executeTurn(turn)) {
+                    result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
+                    game = games;
+                    return result;
+                }
+            }
+            else {
+                Turn turn = blackPlayer.getTurn((GameState) currentState.clone());
+                if (turn == null || turn.getType() == TurnType.SURRENDER) {
+                    result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
+                    game = games;
+                    return result;
+                }
+                if(!currentState.executeTurn(turn)) {
+                    result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
+                    game = games;
+                    return result;
+                }
+            }
+            if(hooks != null) {
+                hooks.afterTurn((GameState) currentState.clone());
+            }
+
+            result = currentState.checkForWinner();
+
+            //If game finished, reset for the next one
+            if(result.isFinished()) {
+                if(hooks != null) {
+                    hooks.afterGame((GameState) currentState.clone(), game);
+                }
+                if(firstPlayer == Player.WHITE) {
+                    firstPlayer = Player.BLACK;
+                }
+                else {
+                    firstPlayer = Player.WHITE;
+                }
+                game++;
+                newGame = true;
+            }
+
+            return result;
+        }
+        else {
+            return null;
+        }
+    }
+
+    public GameSetResult playGames() {
         GameSetResult results = new GameSetResult(boardSize, firstPlayer);
 
         for(int i = 0; i < games; i++) {
@@ -59,5 +154,9 @@ public class Games {
         }
 
         return results;
+    }
+
+    public GameState getCurrentState() {
+        return currentState;
     }
 }
