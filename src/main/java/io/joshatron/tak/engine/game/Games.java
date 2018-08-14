@@ -16,6 +16,7 @@ public class Games {
     private GameState currentState;
     private boolean newGame;
     private int game;
+    private GameSetResult setResults;
 
     public Games(int games, int boardSize, Player firstPlayer, TakPlayer whitePlayer, TakPlayer blackPlayer, GameHooks hooks) {
         this.games = games;
@@ -28,6 +29,7 @@ public class Games {
         currentState = null;
         newGame = true;
         game = 0;
+        setResults = new GameSetResult(boardSize, firstPlayer);
     }
 
     public GameResult playTurn() {
@@ -52,11 +54,13 @@ public class Games {
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
                     game = games;
+                    setResults.addGame(result);
                     return result;
                 }
                 if(!currentState.executeTurn(turn)) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
                     game = games;
+                    setResults.addGame(result);
                     return result;
                 }
             }
@@ -65,11 +69,13 @@ public class Games {
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
                     game = games;
+                    setResults.addGame(result);
                     return result;
                 }
                 if(!currentState.executeTurn(turn)) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
                     game = games;
+                    setResults.addGame(result);
                     return result;
                 }
             }
@@ -92,6 +98,7 @@ public class Games {
                 }
                 game++;
                 newGame = true;
+                setResults.addGame(result);
             }
 
             return result;
@@ -101,62 +108,33 @@ public class Games {
         }
     }
 
-    public GameSetResult playGames() {
-        GameSetResult results = new GameSetResult(boardSize, firstPlayer);
-
-        for(int i = 0; i < games; i++) {
-            GameState state = new GameState(firstPlayer, boardSize);
-            if(hooks != null) {
-                hooks.beforeGame((GameState) state.clone(), i);
-            }
-            GameResult result = new GameResult();
-            while(!result.isFinished()) {
-                if(hooks != null) {
-                    hooks.beforeTurn((GameState) state.clone());
-                }
-                if(state.isWhiteTurn()) {
-                    Turn turn = whitePlayer.getTurn((GameState) state.clone());
-                    if (turn == null || turn.getType() == TurnType.SURRENDER) {
-                        result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
-                        break;
-                    }
-                    if(!state.executeTurn(turn)) {
-                        result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
-                        break;
-                    }
-                }
-                else {
-                    Turn turn = blackPlayer.getTurn((GameState) state.clone());
-                    if (turn == null || turn.getType() == TurnType.SURRENDER) {
-                        result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
-                        break;
-                    }
-                    if(!state.executeTurn(turn)) {
-                        result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
-                        break;
-                    }
-                }
-                if(hooks != null) {
-                    hooks.afterTurn((GameState) state.clone());
-                }
-            }
-            if(hooks != null) {
-                hooks.afterGame((GameState) state.clone(), i);
-            }
-            results.addGame(result);
-
-            if(firstPlayer == Player.WHITE) {
-                firstPlayer = Player.BLACK;
-            }
-            else {
-                firstPlayer = Player.WHITE;
-            }
+    public GameResult playGame() {
+        GameResult result = playTurn();
+        while (result != null && !result.isFinished()) {
+            result = playTurn();
         }
 
-        return results;
+        return result;
+    }
+
+    public GameSetResult playGames() {
+        GameResult result = playTurn();
+        while(result != null) {
+            result = playTurn();
+        }
+
+        return setResults;
     }
 
     public GameState getCurrentState() {
         return currentState;
+    }
+
+    public GameSetResult getSetResults() {
+        return setResults;
+    }
+
+    public int getGame() {
+        return game;
     }
 }
