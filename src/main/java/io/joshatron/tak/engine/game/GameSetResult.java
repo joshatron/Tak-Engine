@@ -50,36 +50,72 @@ public class GameSetResult {
         }
     }
 
+    public int getGames() {
+        return games;
+    }
+
     public int getWhiteWins() {
         return whiteWins;
+    }
+
+    public double getWhiteWinPercentage() {
+        return (double) whiteWins / games * 100.;
     }
 
     public int getWhitePathWins() {
         return whitePathWins;
     }
 
+    public double getWhitePathWinPercentage() {
+        return (double) whitePathWins / whiteWins * 100.;
+    }
+
     public int getWhiteFullWins() {
         return whiteFullWins;
+    }
+
+    public double getWhiteFullWinPercentage() {
+        return (double) whiteFullWins / whiteWins * 100.;
     }
 
     public int getWhitePieceWins() {
         return whitePieceWins;
     }
 
+    public double getWhitePieceWinPercentage() {
+        return (double) whitePieceWins / whiteWins * 100.;
+    }
+
     public int getBlackWins() {
         return blackWins;
+    }
+
+    public double getBlackWinPercentage() {
+        return (double) blackWins / games * 100.;
     }
 
     public int getBlackPathWins() {
         return blackPathWins;
     }
 
+    public double getBlackPathWinPercentage() {
+        return (double) blackPathWins / blackWins * 100.;
+    }
+
     public int getBlackFullWins() {
         return blackFullWins;
     }
 
+    public double getBlackFullWinPercentage() {
+        return (double) blackFullWins / blackWins * 100.;
+    }
+
     public int getBlackPieceWins() {
         return blackPieceWins;
+    }
+
+    public double getBlackPieceWinPercentage() {
+        return (double) blackPieceWins / blackWins * 100.;
     }
 
     public Player getFirstPlayer() {
