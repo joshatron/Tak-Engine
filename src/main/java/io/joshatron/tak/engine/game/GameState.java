@@ -110,7 +110,7 @@ public class GameState implements Cloneable {
             }
 
             // Check the location is empty
-            if(board.getPosition(place.getLocation()).getPieces().size() == 0) {
+            if(board.getPosition(place.getLocation()).getPieces().isEmpty()) {
                 return true;
             }
             else {
