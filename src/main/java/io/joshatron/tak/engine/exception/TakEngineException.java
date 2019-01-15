@@ -2,14 +2,14 @@ package io.joshatron.tak.engine.exception;
 
 public class TakEngineException extends Exception {
 
-    private ErrorCode code;
+    private TakEngineErrorCode code;
 
-    public TakEngineException(ErrorCode code) {
+    public TakEngineException(TakEngineErrorCode code) {
         super("The tak engine encountered an exception of type: " + code.name());
         this.code = code;
     }
 
-    public ErrorCode getCode() {
+    public TakEngineErrorCode getCode() {
         return code;
     }
 }

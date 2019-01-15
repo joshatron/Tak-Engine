@@ -22,8 +22,15 @@ public class GameState implements Cloneable {
     private int blackNormalPieces;
     private int blackCapstones;
 
+    private boolean fast;
+
     public GameState(Player firstTurn, int boardSize) {
+        this(firstTurn, boardSize, false);
+    }
+
+    public GameState(Player firstTurn, int boardSize, boolean fast) {
         this.firstTurn = firstTurn;
+        this.fast = fast;
         this.turns = new ArrayList<>();
 
         this.currentTurn = this.firstTurn;
@@ -337,67 +344,72 @@ public class GameState implements Cloneable {
     }
 
     public boolean executeTurn(Turn turn) {
-        if(isLegalTurn(turn)) {
-            if(turn.getType() == TurnType.PLACE) {
-                PlaceTurn place = (PlaceTurn)turn;
-                Player player = currentTurn;
-                if(turns.size() < 2) {
-                    if(player == Player.WHITE) {
-                        player = Player.BLACK;
-                    }
-                    else {
-                        player = Player.WHITE;
-                    }
-                }
-                board.getPosition(place.getLocation()).addPiece(new Piece(player, place.getPieceType()));
+        if(!fast) {
+            if(!isLegalTurn(turn)) {
+                return false;
+            }
+        }
 
+        applyTurn(turn);
+        return true;
+    }
+
+    private void applyTurn(Turn turn) {
+        if(turn.getType() == TurnType.PLACE) {
+            PlaceTurn place = (PlaceTurn)turn;
+            Player player = currentTurn;
+            if(turns.size() < 2) {
                 if(player == Player.WHITE) {
-                    if(place.getPieceType() == PieceType.CAPSTONE) {
-                        whiteCapstones--;
-                    }
-                    else {
-                        whiteNormalPieces--;
-                    }
+                    player = Player.BLACK;
                 }
                 else {
-                    if(place.getPieceType() == PieceType.CAPSTONE) {
-                        blackCapstones--;
-                    }
-                    else {
-                        blackNormalPieces--;
-                    }
+                    player = Player.WHITE;
                 }
+            }
+            board.getPosition(place.getLocation()).addPiece(new Piece(player, place.getPieceType()));
 
+            if(player == Player.WHITE) {
+                if(place.getPieceType() == PieceType.CAPSTONE) {
+                    whiteCapstones--;
+                }
+                else {
+                    whiteNormalPieces--;
+                }
             }
             else {
-                MoveTurn move = (MoveTurn)turn;
-                ArrayList<Piece> pieces = board.getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
-                BoardLocation current = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
-                for(int i = 0; i < move.getPlaced().length; i++) {
-                    current.move(move.getDirection());
-                    // If there is a wall, collapse it
-                    if(board.getPosition(current).getPieces().size() > 0 && board.getPosition(current).getTopPiece().getType() == PieceType.WALL) {
-                        board.getPosition(current).collapseTopPiece();
-                        move.flatten();
-                    }
-                    // Place the right number of pieces in
-                    for(int j = 0; j < move.getPlaced()[i]; j++) {
-                        board.getPosition(current).addPiece(pieces.remove(0));
-                    }
+                if(place.getPieceType() == PieceType.CAPSTONE) {
+                    blackCapstones--;
+                }
+                else {
+                    blackNormalPieces--;
                 }
             }
 
-            turns.add(turn);
-            if(currentTurn == Player.WHITE) {
-                currentTurn = Player.BLACK;
-            }
-            else {
-                currentTurn = Player.WHITE;
-            }
-            return true;
         }
         else {
-            return false;
+            MoveTurn move = (MoveTurn)turn;
+            ArrayList<Piece> pieces = board.getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
+            BoardLocation current = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
+            for(int i = 0; i < move.getPlaced().length; i++) {
+                current.move(move.getDirection());
+                // If there is a wall, collapse it
+                if(board.getPosition(current).getPieces().size() > 0 && board.getPosition(current).getTopPiece().getType() == PieceType.WALL) {
+                    board.getPosition(current).collapseTopPiece();
+                    move.flatten();
+                }
+                // Place the right number of pieces in
+                for(int j = 0; j < move.getPlaced()[i]; j++) {
+                    board.getPosition(current).addPiece(pieces.remove(0));
+                }
+            }
+        }
+
+        turns.add(turn);
+        if(currentTurn == Player.WHITE) {
+            currentTurn = Player.BLACK;
+        }
+        else {
+            currentTurn = Player.WHITE;
         }
     }
 
