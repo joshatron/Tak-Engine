@@ -1,14 +1,17 @@
 package io.joshatron.tak.engine.game;
 
 import io.joshatron.tak.engine.board.*;
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.turn.MoveTurn;
 import io.joshatron.tak.engine.turn.PlaceTurn;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnType;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class GameState implements Cloneable {
+public class GameState {
 
     private GameBoard board;
 
@@ -24,11 +27,26 @@ public class GameState implements Cloneable {
 
     private boolean fast;
 
-    public GameState(Player firstTurn, int boardSize) {
-        this(firstTurn, boardSize, false);
+    public GameState(Player firstTurn, int boardSize) throws TakEngineException {
+        initializeGame(firstTurn, boardSize, false);
     }
 
-    public GameState(Player firstTurn, int boardSize, boolean fast) {
+    public GameState(Player firstTurn, int boardSize, boolean fast) throws TakEngineException {
+        initializeGame(firstTurn, boardSize, fast);
+    }
+
+    public GameState(GameState state) throws TakEngineException {
+        this(state, false);
+    }
+
+    public GameState(GameState state, boolean fast) throws TakEngineException {
+        initializeGame(state.getFirstPlayer(), state.getBoardSize(), fast);
+        for(Turn turn : state.getTurns()) {
+            executeTurn(turn);
+        }
+    }
+
+    private void initializeGame(Player firstTurn, int boardSize, boolean fast) throws TakEngineException {
         this.firstTurn = firstTurn;
         this.fast = fast;
         this.turns = new ArrayList<>();
@@ -71,130 +89,124 @@ public class GameState implements Cloneable {
                 blackNormalPieces = 50;
                 blackCapstones = 2;
                 break;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
     }
 
-    public boolean isLegalTurn(Turn turn) {
+    public boolean isLegalTurn(Turn turn) throws TakEngineException {
         // Make sure game isn't already over
-        if(checkForWinner().isFinished()) {
+        if (checkForWinner().isFinished()) {
             return false;
         }
 
-        // Check place
+        //Check place turn
         if(turn.getType() == TurnType.PLACE) {
-            PlaceTurn place = (PlaceTurn)turn;
-            // Check if enough pieces.
-            // Ignore first 2 turns because placing other's pieces and impossible to be out
-            if(turns.size() >= 2) {
-                if(currentTurn == Player.WHITE) {
-                    if((place.getPieceType() == PieceType.STONE || place.getPieceType() == PieceType.WALL) &&
-                       whiteNormalPieces < 1) {
-                        return false;
-                    }
-                    if(place.getPieceType() == PieceType.CAPSTONE && whiteCapstones < 1) {
-                        return false;
-                    }
-                }
-                else {
-                    if((place.getPieceType() == PieceType.STONE || place.getPieceType() == PieceType.WALL) &&
-                            blackNormalPieces < 1) {
-                        return false;
-                    }
-                    if(place.getPieceType() == PieceType.CAPSTONE && blackCapstones < 1) {
-                        return false;
-                    }
-                }
-            }
+            validatePlace((PlaceTurn) turn);
+        }
 
-            // Check if it is the first couple turns that only stones are placed
-            if(turns.size() < 2 && place.getPieceType() != PieceType.STONE) {
-                return false;
-            }
+        return turn.getType() == TurnType.MOVE && !isLegalMove((MoveTurn) turn);
+    }
 
-            // Check the location is valid
-            if(!board.onBoard(place.getLocation())) {
-                return false;
+    private void validatePlace(PlaceTurn place) throws TakEngineException {
+        // Check if enough pieces.
+        if (currentTurn == Player.WHITE) {
+            if (place.getPieceType() != PieceType.CAPSTONE && whiteNormalPieces < 1) {
+                throw new TakEngineException(TakEngineErrorCode.NOT_ENOUGH_STONES);
             }
+            if (place.getPieceType() == PieceType.CAPSTONE && whiteCapstones < 1) {
+                throw new TakEngineException(TakEngineErrorCode.NOT_ENOUGH_CAPSTONES);
+            }
+        } else {
+            if (place.getPieceType() != PieceType.CAPSTONE && blackNormalPieces < 1) {
+                throw new TakEngineException(TakEngineErrorCode.NOT_ENOUGH_STONES);
+            }
+            if (place.getPieceType() == PieceType.CAPSTONE && blackCapstones < 1) {
+                throw new TakEngineException(TakEngineErrorCode.NOT_ENOUGH_CAPSTONES);
+            }
+        }
 
-            // Check the location is empty
-            if(board.getPosition(place.getLocation()).getPieces().isEmpty()) {
-                return true;
-            }
-            else {
+        // Check if it is the first couple turns that only stones are placed
+        if (turns.size() < 2 && place.getPieceType() != PieceType.STONE) {
+            throw new TakEngineException(TakEngineErrorCode.ILLEGAL_FIRST_MOVE_TYPE);
+        }
+
+        // Check the location is valid
+        if (!board.onBoard(place.getLocation())) {
+            throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
+        }
+
+        // Check the location is empty
+        if(!board.getPosition(place.getLocation()).getPieces().isEmpty()) {
+            throw new TakEngineException(TakEngineErrorCode.STACK_NOT_EMPTY);
+        }
+    }
+
+    private boolean isLegalMove(MoveTurn move) {
+        // No moves can be done in the first 2 turns
+        if(turns.size() < 2) {
+            return false;
+        }
+
+        // Check that the picked up pieces is legal
+        if(move.getPickedUp() < 1 || move.getPickedUp() > board.getBoardSize()) {
+            return false;
+        }
+
+        // Check that stack has enough pieces
+        if(board.getPosition(move.getStartLocation()).getPieces().size() < move.getPickedUp()) {
+            return false;
+        }
+
+        // Check that the player owns the stack
+        if(currentTurn == Player.WHITE) {
+            if(board.getPosition(move.getStartLocation()).getTopPiece().isBlack()) {
                 return false;
             }
         }
-        // Check move
         else {
-            MoveTurn move = (MoveTurn)turn;
-
-            // No moves can be done in the first 2 turns
-            if(turns.size() < 2) {
+            if(board.getPosition(move.getStartLocation()).getTopPiece().isWhite()) {
                 return false;
             }
-
-            // Check that the picked up pieces is legal
-            if(move.getPickedUp() < 1 || move.getPickedUp() > board.getBoardSize()) {
-                return false;
-            }
-
-            // Check that stack has enough pieces
-            if(board.getPosition(move.getStartLocation()).getPieces().size() < move.getPickedUp()) {
-                return false;
-            }
-
-            // Check that the player owns the stack
-            if(currentTurn == Player.WHITE) {
-                if(board.getPosition(move.getStartLocation()).getTopPiece().isBlack()) {
-                    return false;
-                }
-            }
-            else {
-                if(board.getPosition(move.getStartLocation()).getTopPiece().isWhite()) {
-                    return false;
-                }
-            }
-
-            // Check that each position of move is legal
-            BoardLocation currentLocation = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
-            int[] toPlace = move.getPlaced();
-            ArrayList<Piece> pieces = board.getPosition(currentLocation).getTopPieces(move.getPickedUp());
-            for(int i = 0; i < toPlace.length; i++) {
-                // Check that at least one piece was placed
-                if(toPlace[i] < 1) {
-                    return false;
-                }
-
-                currentLocation.move(move.getDirection());
-
-                //Check that location is legal
-                if(!board.onBoard(currentLocation)) {
-                    return false;
-                }
-
-                //Check that it is okay to place there
-                if(board.getPosition(currentLocation).getPieces().size() > 0) {
-                    // If there is a capstone, fail
-                    if(board.getPosition(currentLocation).getTopPiece().getType() == PieceType.CAPSTONE) {
-                        return false;
-                    }
-
-                    // If there is a wall and you don't have only a capstone, fail
-                    if(board.getPosition(currentLocation).getTopPiece().getType() == PieceType.WALL) {
-                        if(pieces.size() != 1 || pieces.get(0).getType() != PieceType.CAPSTONE) {
-                            return false;
-                        }
-                    }
-                }
-
-                for(int j = 0; j < toPlace[i]; j++) {
-                    pieces.remove(0);
-                }
-            }
-
-            // Nothing found wrong with the move
-            return true;
         }
+
+        // Check that each position of move is legal
+        BoardLocation currentLocation = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
+        int[] toPlace = move.getPlaced();
+        ArrayList<Piece> pieces = board.getPosition(currentLocation).getTopPieces(move.getPickedUp());
+        for(int i = 0; i < toPlace.length; i++) {
+            // Check that at least one piece was placed
+            if(toPlace[i] < 1) {
+                return false;
+            }
+
+            currentLocation.move(move.getDirection());
+
+            //Check that location is legal
+            if(!board.onBoard(currentLocation)) {
+                return false;
+            }
+
+            //Check that it is okay to place there
+            if(!board.getPosition(currentLocation).getPieces().isEmpty()) {
+                // If there is a capstone, fail
+                if(board.getPosition(currentLocation).getTopPiece().getType() == PieceType.CAPSTONE) {
+                    return false;
+                }
+
+                // If there is a wall and you don't have only a capstone, fail
+                if(board.getPosition(currentLocation).getTopPiece().getType() == PieceType.WALL &&
+                   (pieces.size() != 1 || pieces.get(0).getType() != PieceType.CAPSTONE)) {
+                    return false;
+                }
+            }
+
+            for(int j = 0; j < toPlace[i]; j++) {
+                pieces.remove(0);
+            }
+        }
+
+        return true;
     }
 
     public GameResult checkForWinner() {
@@ -205,7 +217,7 @@ public class GameState implements Cloneable {
             int black = 0;
             for(int x = 0; x < board.getBoardSize(); x++) {
                 for(int y = 0; y < board.getBoardSize(); y++) {
-                    if(board.getPosition(x, y).getPieces().size() > 0 &&
+                    if(!board.getPosition(x, y).getPieces().isEmpty() &&
                        board.getPosition(x, y).getTopPiece().getType() == PieceType.STONE) {
                         if(board.getPosition(x, y).getTopPiece().isWhite()) {
                             white++;
@@ -241,7 +253,7 @@ public class GameState implements Cloneable {
         int black = 0;
         for(int x = 0; x < getBoardSize(); x++) {
             for(int y = 0; y < getBoardSize(); y++) {
-                if(board.getPosition(x,y).getPieces().size() == 0) {
+                if(board.getPosition(x,y).getPieces().isEmpty()) {
                     empty = true;
                 }
                 else {
@@ -278,24 +290,22 @@ public class GameState implements Cloneable {
         boolean blackPath = false;
 
         for(int i = 0; i < board.getBoardSize(); i++) {
-            if(board.getPosition(0, i).getTopPiece() != null) {
-                if (isWinPath(new BoardLocation(0, i), new boolean[board.getBoardSize()][board.getBoardSize()], true, board.getPosition(0, i).getTopPiece().isWhite())) {
-                    if (board.getPosition(0, i).getTopPiece().isWhite()) {
-                        whitePath = true;
-                    } else {
-                        blackPath = true;
-                    }
+            if(board.getPosition(0, i).getTopPiece() != null &&
+               isWinPath(new BoardLocation(0, i), new boolean[board.getBoardSize()][board.getBoardSize()], true, board.getPosition(0, i).getTopPiece().isWhite())) {
+                if (board.getPosition(0, i).getTopPiece().isWhite()) {
+                    whitePath = true;
+                } else {
+                    blackPath = true;
                 }
             }
-            if(board.getPosition(i, 0).getTopPiece() != null) {
-                if (isWinPath(new BoardLocation(i, 0), new boolean[board.getBoardSize()][board.getBoardSize()], false, board.getPosition(i, 0).getTopPiece().isWhite())) {
+            if(board.getPosition(i, 0).getTopPiece() != null &&
+               isWinPath(new BoardLocation(i, 0), new boolean[board.getBoardSize()][board.getBoardSize()], false, board.getPosition(i, 0).getTopPiece().isWhite())) {
                     if (board.getPosition(i, 0).getTopPiece().isWhite()) {
                         whitePath = true;
                     } else {
                         blackPath = true;
                     }
                 }
-            }
         }
 
         if(whitePath && !blackPath) {
@@ -327,13 +337,11 @@ public class GameState implements Cloneable {
             if (current.getY() >= 0 && current.getY() < board.getBoardSize() &&
                 current.getX() >= 0 && current.getX() < board.getBoardSize()) {
                 Piece topPiece = board.getPosition(current).getTopPiece();
-                if(topPiece != null) {
-                    if (!checked[current.getX()][current.getY()] && topPiece.isWhite() == white &&
-                            (topPiece.getType() == PieceType.CAPSTONE || topPiece.getType() == PieceType.STONE)) {
-                        checked[current.getX()][current.getY()] = true;
-                        if (isWinPath(current, checked, horizontal, white)) {
-                            return true;
-                        }
+                if(topPiece != null && !checked[current.getX()][current.getY()] && topPiece.isWhite() == white &&
+                   (topPiece.getType() == PieceType.CAPSTONE || topPiece.getType() == PieceType.STONE)) {
+                    checked[current.getX()][current.getY()] = true;
+                    if (isWinPath(current, checked, horizontal, white)) {
+                        return true;
                     }
                 }
             }
@@ -344,10 +352,8 @@ public class GameState implements Cloneable {
     }
 
     public boolean executeTurn(Turn turn) {
-        if(!fast) {
-            if(!isLegalTurn(turn)) {
-                return false;
-            }
+        if(!fast && !isLegalTurn(turn)) {
+            return false;
         }
 
         applyTurn(turn);
@@ -393,7 +399,7 @@ public class GameState implements Cloneable {
             for(int i = 0; i < move.getPlaced().length; i++) {
                 current.move(move.getDirection());
                 // If there is a wall, collapse it
-                if(board.getPosition(current).getPieces().size() > 0 && board.getPosition(current).getTopPiece().getType() == PieceType.WALL) {
+                if(!board.getPosition(current).getPieces().isEmpty() && board.getPosition(current).getTopPiece().getType() == PieceType.WALL) {
                     board.getPosition(current).collapseTopPiece();
                     move.flatten();
                 }
@@ -482,14 +488,14 @@ public class GameState implements Cloneable {
         }
     }
 
-    public ArrayList<Turn> getPossibleTurns() {
-        ArrayList<Turn> turns = new ArrayList<>();
+    public List<Turn> getPossibleTurns() {
+        ArrayList<Turn> possibleTurns = new ArrayList<>();
 
         if(this.turns.size() < 2) {
             for(int x = 0; x < getBoardSize(); x++) {
                 for(int y = 0; y < getBoardSize(); y++) {
                     if(board.getPosition(x, y).getHeight() == 0) {
-                        turns.add(new PlaceTurn(x, y, PieceType.STONE));
+                        possibleTurns.add(new PlaceTurn(x, y, PieceType.STONE));
                     }
                 }
             }
@@ -503,39 +509,39 @@ public class GameState implements Cloneable {
                     if (board.getPosition(x, y).getHeight() == 0) {
                         if (currentTurn == Player.WHITE) {
                             if (whiteNormalPieces > 0) {
-                                turns.add(new PlaceTurn(x, y, PieceType.STONE));
-                                turns.add(new PlaceTurn(x, y, PieceType.WALL));
+                                possibleTurns.add(new PlaceTurn(x, y, PieceType.STONE));
+                                possibleTurns.add(new PlaceTurn(x, y, PieceType.WALL));
                             }
                             if (whiteCapstones > 0) {
-                                turns.add(new PlaceTurn(x, y, PieceType.CAPSTONE));
+                                possibleTurns.add(new PlaceTurn(x, y, PieceType.CAPSTONE));
                             }
                         } else {
                             if (blackNormalPieces > 0) {
-                                turns.add(new PlaceTurn(x, y, PieceType.STONE));
-                                turns.add(new PlaceTurn(x, y, PieceType.WALL));
+                                possibleTurns.add(new PlaceTurn(x, y, PieceType.STONE));
+                                possibleTurns.add(new PlaceTurn(x, y, PieceType.WALL));
                             }
                             if (blackCapstones > 0) {
-                                turns.add(new PlaceTurn(x, y, PieceType.CAPSTONE));
+                                possibleTurns.add(new PlaceTurn(x, y, PieceType.CAPSTONE));
                             }
                         }
                     }
                     //Otherwise iterate through possible moves if player owns the stack
                     else if (board.getPosition(x, y).getTopPiece().getPlayer() == currentTurn) {
-                        turns.addAll(getMoves(x, y, Direction.NORTH));
-                        turns.addAll(getMoves(x, y, Direction.SOUTH));
-                        turns.addAll(getMoves(x, y, Direction.EAST));
-                        turns.addAll(getMoves(x, y, Direction.WEST));
+                        possibleTurns.addAll(getMoves(x, y, Direction.NORTH));
+                        possibleTurns.addAll(getMoves(x, y, Direction.SOUTH));
+                        possibleTurns.addAll(getMoves(x, y, Direction.EAST));
+                        possibleTurns.addAll(getMoves(x, y, Direction.WEST));
                     }
                 }
             }
         }
 
-        return turns;
+        return possibleTurns;
     }
 
 
     private ArrayList<Turn> getMoves(int x, int y, Direction dir) {
-        ArrayList<Turn> turns = new ArrayList<>();
+        ArrayList<Turn> possibleTurns = new ArrayList<>();
 
         int numPieces = Math.min(board.getPosition(x, y).getHeight(), getBoardSize());
         int distToBlock = 0;
@@ -556,43 +562,43 @@ public class GameState implements Cloneable {
 
         if(distToBlock > 0) {
             while (numPieces > 0) {
-                turns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<Integer>(), x, y, dir, numPieces));
+                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<Integer>(), x, y, dir, numPieces));
                 numPieces--;
             }
         }
 
-        return turns;
+        return possibleTurns;
     }
 
     private ArrayList<Turn> getMovesInner(int distToBlock, boolean canFlatten, int numPieces, ArrayList<Integer> drops, int x, int y, Direction dir, int pickup) {
-        ArrayList<Turn> turns = new ArrayList<>();
+        ArrayList<Turn> possibleTurns = new ArrayList<>();
         //at last spot
         if(distToBlock == 0) {
-            turns.add(buildMove(x, y, pickup, dir, drops, numPieces));
+            possibleTurns.add(buildMove(x, y, pickup, dir, drops, numPieces));
             if(canFlatten && numPieces > 1) {
                 drops.add(numPieces - 1);
-                turns.add(buildMove(x, y, pickup, dir, drops, 1));
+                possibleTurns.add(buildMove(x, y, pickup, dir, drops, 1));
             }
         }
         //iterate through everything else
         else {
-            turns.add(buildMove(x, y, pickup, dir, drops, numPieces));
+            possibleTurns.add(buildMove(x, y, pickup, dir, drops, numPieces));
             int piecesLeft = numPieces - 1;
             while(piecesLeft > 0) {
                 drops.add(piecesLeft);
-                turns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<Integer>(drops), x, y, dir, pickup));
+                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<Integer>(drops), x, y, dir, pickup));
                 drops.remove(drops.size() - 1);
                 piecesLeft--;
             }
         }
 
-        return turns;
+        return possibleTurns;
     }
 
     private MoveTurn buildMove(int x, int y, int pickup, Direction dir, ArrayList<Integer> drops, int current) {
         int[] drop = new int[drops.size() + 1];
         for(int i = 0; i < drops.size(); i++) {
-            drop[i] = drops.get(i).intValue();
+            drop[i] = drops.get(i);
         }
         drop[drop.length - 1] = current;
         return new MoveTurn(x, y, pickup, dir, drop);
@@ -629,7 +635,7 @@ public class GameState implements Cloneable {
         return currentTurn == Player.WHITE;
     }
 
-    public ArrayList<Turn> getTurns() {
+    public List<Turn> getTurns() {
         return turns;
     }
 
@@ -647,15 +653,5 @@ public class GameState implements Cloneable {
 
     public int getBlackCapstonesLeft() {
         return blackCapstones;
-    }
-
-    @Override
-    public Object clone() {
-        GameState state = new GameState(firstTurn, getBoardSize());
-        for(Turn turn : turns) {
-            state.executeTurn(turn);
-        }
-
-        return state;
     }
 }
