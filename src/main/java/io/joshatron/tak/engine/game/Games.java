@@ -1,5 +1,6 @@
 package io.joshatron.tak.engine.game;
 
+import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.player.TakPlayer;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnType;
@@ -32,7 +33,7 @@ public class Games {
         setResults = new GameSetResult(boardSize, firstPlayer);
     }
 
-    public GameResult playTurn() {
+    public GameResult playTurn() throws TakEngineException {
         GameResult result;
         //confirm you haven't finished all the games
         if(game < games) {
@@ -41,23 +42,25 @@ public class Games {
                 currentState = new GameState(firstPlayer, boardSize);
                 newGame = false;
                 if(hooks != null) {
-                    hooks.beforeGame((GameState) currentState.clone(), game);
+                    hooks.beforeGame(new GameState(currentState, true), game);
                 }
             }
 
             //have current player complete turn
             if(hooks != null) {
-                    hooks.beforeTurn((GameState) currentState.clone());
+                    hooks.beforeTurn(new GameState(currentState, true));
             }
             if(currentState.isWhiteTurn()) {
-                Turn turn = whitePlayer.getTurn((GameState) currentState.clone());
+                Turn turn = whitePlayer.getTurn(new GameState(currentState, true));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
                     game = games;
                     setResults.addGame(result);
                     return result;
                 }
-                if(!currentState.executeTurn(turn)) {
+                try {
+                    currentState.executeTurn(turn);
+                } catch (TakEngineException e) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
                     game = games;
                     setResults.addGame(result);
@@ -65,14 +68,16 @@ public class Games {
                 }
             }
             else {
-                Turn turn = blackPlayer.getTurn((GameState) currentState.clone());
+                Turn turn = blackPlayer.getTurn(new GameState(currentState, true));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
                     game = games;
                     setResults.addGame(result);
                     return result;
                 }
-                if(!currentState.executeTurn(turn)) {
+                try {
+                    currentState.executeTurn(turn);
+                } catch (TakEngineException e) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
                     game = games;
                     setResults.addGame(result);
@@ -80,7 +85,7 @@ public class Games {
                 }
             }
             if(hooks != null) {
-                hooks.afterTurn((GameState) currentState.clone());
+                hooks.afterTurn(new GameState(currentState, true));
             }
 
             result = currentState.checkForWinner();
@@ -88,7 +93,7 @@ public class Games {
             //If game finished, reset for the next one
             if(result.isFinished()) {
                 if(hooks != null) {
-                    hooks.afterGame((GameState) currentState.clone(), game);
+                    hooks.afterGame(new GameState(currentState, true), game);
                 }
                 if(firstPlayer == Player.WHITE) {
                     firstPlayer = Player.BLACK;
@@ -108,7 +113,7 @@ public class Games {
         }
     }
 
-    public GameResult playGame() {
+    public GameResult playGame() throws TakEngineException {
         GameResult result = playTurn();
         while (result != null && !result.isFinished()) {
             result = playTurn();
@@ -117,7 +122,7 @@ public class Games {
         return result;
     }
 
-    public GameSetResult playGames() {
+    public GameSetResult playGames() throws TakEngineException {
         GameResult result = playTurn();
         while(result != null) {
             result = playTurn();

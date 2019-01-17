@@ -94,18 +94,27 @@ public class GameState {
         }
     }
 
-    public boolean isLegalTurn(Turn turn) throws TakEngineException {
-        // Make sure game isn't already over
-        if (checkForWinner().isFinished()) {
+    public boolean isLegalTurn(Turn turn) {
+        try {
+            validateTurn(turn);
+            return true;
+        } catch (TakEngineException e) {
             return false;
         }
+    }
 
-        //Check place turn
-        if(turn.getType() == TurnType.PLACE) {
-            validatePlace((PlaceTurn) turn);
+    private void validateTurn(Turn turn) throws TakEngineException {
+        // Make sure game isn't already over
+        if (checkForWinner().isFinished()) {
+            throw new TakEngineException(TakEngineErrorCode.GAME_FINISHED);
         }
 
-        return turn.getType() == TurnType.MOVE && !isLegalMove((MoveTurn) turn);
+        //Check based on turn type
+        if (turn.getType() == TurnType.PLACE) {
+            validatePlace((PlaceTurn) turn);
+        } else if (turn.getType() == TurnType.MOVE) {
+            validateMove((MoveTurn) turn);
+        }
     }
 
     private void validatePlace(PlaceTurn place) throws TakEngineException {
@@ -142,71 +151,67 @@ public class GameState {
         }
     }
 
-    private boolean isLegalMove(MoveTurn move) {
+    private void validateMove(MoveTurn move) throws TakEngineException {
         // No moves can be done in the first 2 turns
         if(turns.size() < 2) {
-            return false;
+            throw new TakEngineException(TakEngineErrorCode.MOVE_IN_FIRST_TURN);
         }
 
         // Check that the picked up pieces is legal
         if(move.getPickedUp() < 1 || move.getPickedUp() > board.getBoardSize()) {
-            return false;
+            throw new TakEngineException(TakEngineErrorCode.INVALID_PICKUP_AMOUNT);
         }
 
         // Check that stack has enough pieces
         if(board.getPosition(move.getStartLocation()).getPieces().size() < move.getPickedUp()) {
-            return false;
+            throw new TakEngineException(TakEngineErrorCode.INVALID_PICKUP_AMOUNT);
         }
 
         // Check that the player owns the stack
         if(currentTurn == Player.WHITE) {
             if(board.getPosition(move.getStartLocation()).getTopPiece().isBlack()) {
-                return false;
+                throw new TakEngineException(TakEngineErrorCode.DO_NOT_OWN_STACK);
             }
         }
         else {
             if(board.getPosition(move.getStartLocation()).getTopPiece().isWhite()) {
-                return false;
+                throw new TakEngineException(TakEngineErrorCode.DO_NOT_OWN_STACK);
             }
         }
 
         // Check that each position of move is legal
-        BoardLocation currentLocation = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
-        int[] toPlace = move.getPlaced();
-        ArrayList<Piece> pieces = board.getPosition(currentLocation).getTopPieces(move.getPickedUp());
-        for(int i = 0; i < toPlace.length; i++) {
+        BoardLocation currentLocation = new BoardLocation(move.getStartLocation());
+        boolean topCapstone = board.getPosition(currentLocation).getTopPiece().getType() == PieceType.CAPSTONE;
+        int piecesLeft = move.getPickedUp();
+        for(int i = 0; i < move.getPlaced().length; i++) {
             // Check that at least one piece was placed
-            if(toPlace[i] < 1) {
-                return false;
+            if(move.getPlaced()[i] < 1) {
+                throw new TakEngineException(TakEngineErrorCode.INVALID_PLACE_AMOUNT);
             }
 
             currentLocation.move(move.getDirection());
 
             //Check that location is legal
             if(!board.onBoard(currentLocation)) {
-                return false;
+                throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
             }
 
             //Check that it is okay to place there
             if(!board.getPosition(currentLocation).getPieces().isEmpty()) {
                 // If there is a capstone, fail
                 if(board.getPosition(currentLocation).getTopPiece().getType() == PieceType.CAPSTONE) {
-                    return false;
+                    throw new TakEngineException(TakEngineErrorCode.BLOCKED_FROM_PLACING);
                 }
 
                 // If there is a wall and you don't have only a capstone, fail
                 if(board.getPosition(currentLocation).getTopPiece().getType() == PieceType.WALL &&
-                   (pieces.size() != 1 || pieces.get(0).getType() != PieceType.CAPSTONE)) {
-                    return false;
+                   (piecesLeft != 1 || !topCapstone)) {
+                    throw new TakEngineException(TakEngineErrorCode.BLOCKED_FROM_PLACING);
                 }
             }
 
-            for(int j = 0; j < toPlace[i]; j++) {
-                pieces.remove(0);
-            }
+            piecesLeft -= move.getPlaced()[i];
         }
-
-        return true;
     }
 
     public GameResult checkForWinner() {
@@ -255,6 +260,7 @@ public class GameState {
             for(int y = 0; y < getBoardSize(); y++) {
                 if(board.getPosition(x,y).getPieces().isEmpty()) {
                     empty = true;
+                    break;
                 }
                 else {
                     if(board.getPosition(x,y).getTopPiece().isWhite()) {
@@ -351,13 +357,12 @@ public class GameState {
         return false;
     }
 
-    public boolean executeTurn(Turn turn) {
-        if(!fast && !isLegalTurn(turn)) {
-            return false;
+    public void executeTurn(Turn turn) throws TakEngineException {
+        if(!fast) {
+            validateTurn(turn);
         }
 
         applyTurn(turn);
-        return true;
     }
 
     private void applyTurn(Turn turn) {
@@ -365,12 +370,7 @@ public class GameState {
             PlaceTurn place = (PlaceTurn)turn;
             Player player = currentTurn;
             if(turns.size() < 2) {
-                if(player == Player.WHITE) {
-                    player = Player.BLACK;
-                }
-                else {
-                    player = Player.WHITE;
-                }
+                player = player.opposite();
             }
             board.getPosition(place.getLocation()).addPiece(new Piece(player, place.getPieceType()));
 
@@ -390,7 +390,6 @@ public class GameState {
                     blackNormalPieces--;
                 }
             }
-
         }
         else {
             MoveTurn move = (MoveTurn)turn;
@@ -411,12 +410,7 @@ public class GameState {
         }
 
         turns.add(turn);
-        if(currentTurn == Player.WHITE) {
-            currentTurn = Player.BLACK;
-        }
-        else {
-            currentTurn = Player.WHITE;
-        }
+        currentTurn = currentTurn.opposite();
     }
 
     public void undoTurn() {
@@ -480,12 +474,7 @@ public class GameState {
             board.getPosition(current).addPieces(pickedUp);
         }
 
-        if(currentTurn == Player.WHITE) {
-            currentTurn = Player.BLACK;
-        }
-        else {
-            currentTurn = Player.WHITE;
-        }
+        currentTurn = currentTurn.opposite();
     }
 
     public List<Turn> getPossibleTurns() {

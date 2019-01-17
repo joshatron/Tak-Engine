@@ -10,6 +10,11 @@ public class BoardLocation {
         this.y = y;
     }
 
+    public BoardLocation(BoardLocation location) {
+        this.x = location.getX();
+        this.y = location.getY();
+    }
+
     public void move(Direction direction) {
         switch(direction) {
             case NORTH:
