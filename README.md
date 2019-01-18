@@ -15,8 +15,6 @@ Todo
 ----
 
  * Add exporting and importing games to files
- * Add more robust and helpful results
  * Add scoring games
- * Add checking if you are in tak(check if any of the other player's moves result in them winning)
  * Add getting the number of board positions each player owns
  * Add way to incrementally check for some win conditions to speed up win checking

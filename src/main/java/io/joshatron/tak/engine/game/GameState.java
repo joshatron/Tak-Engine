@@ -593,6 +593,23 @@ public class GameState {
         return new MoveTurn(x, y, pickup, dir, drop);
     }
 
+    public boolean inTak() {
+        currentTurn = currentTurn.opposite();
+        List<Turn> possible = getPossibleTurns();
+        boolean finished = false;
+        for(Turn turn : possible) {
+            applyTurn(turn);
+            if(checkForWinner().isFinished()) {
+                finished = true;
+                undoTurn();
+                break;
+            }
+            undoTurn();
+        }
+        currentTurn = currentTurn.opposite();
+
+        return finished;
+    }
 
     public GameBoard getBoard() {
         return board;
