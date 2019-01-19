@@ -594,6 +594,10 @@ public class GameState {
     }
 
     public boolean inTak() {
+        if(checkForWinner().isFinished()) {
+            return false;
+        }
+
         currentTurn = currentTurn.opposite();
         List<Turn> possible = getPossibleTurns();
         boolean finished = false;

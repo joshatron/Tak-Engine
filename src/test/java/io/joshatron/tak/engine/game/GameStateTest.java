@@ -1137,4 +1137,55 @@ public class GameStateTest {
             Assert.fail();
         }
     }
+
+    //Tests that inTak works correctly and doesn't change the board
+    @Test
+    public void inTak() {
+        try {
+            GameState state = new GameState(Player.WHITE, 3);
+            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertFalse(state.inTak());
+            Assert.assertEquals(1, state.getTurns().size());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
+            Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
+            place = new PlaceTurn(0,0,PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertFalse(state.inTak());
+            Assert.assertEquals(2, state.getTurns().size());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
+            Assert.assertEquals(Player.WHITE, state.getCurrentPlayer());
+            place = new PlaceTurn(0,1,PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertTrue(state.inTak());
+            Assert.assertEquals(3, state.getTurns().size());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 1).getHeight());
+            Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
+            place = new PlaceTurn(1,1,PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertTrue(state.inTak());
+            Assert.assertEquals(4, state.getTurns().size());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 1).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 1).getHeight());
+            Assert.assertEquals(Player.WHITE, state.getCurrentPlayer());
+            place = new PlaceTurn(0,2,PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertTrue(state.checkForWinner().isFinished());
+            Assert.assertFalse(state.inTak());
+            Assert.assertEquals(5, state.getTurns().size());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 1).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(1, 1).getHeight());
+            Assert.assertEquals(1, state.getBoard().getPosition(0, 2).getHeight());
+
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
 }
