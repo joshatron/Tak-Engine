@@ -279,19 +279,19 @@ public class GameState {
             }
 
             if(white > black) {
-                return new GameResult(true, Player.WHITE, WinReason.OUT_OF_PIECES);
+                return new GameResult(true, Player.WHITE, WinReason.OUT_OF_PIECES, getScore(Player.WHITE));
             }
             else if(black > white) {
-                return new GameResult(true, Player.BLACK, WinReason.OUT_OF_PIECES);
+                return new GameResult(true, Player.BLACK, WinReason.OUT_OF_PIECES, getScore(Player.BLACK));
             }
             else if(whiteCapstones > blackCapstones) {
-                return new GameResult(true, Player.WHITE, WinReason.OUT_OF_PIECES);
+                return new GameResult(true, Player.WHITE, WinReason.OUT_OF_PIECES, getScore(Player.WHITE));
             }
             else if(blackCapstones > whiteCapstones) {
-                return new GameResult(true, Player.BLACK, WinReason.OUT_OF_PIECES);
+                return new GameResult(true, Player.BLACK, WinReason.OUT_OF_PIECES, getScore(Player.BLACK));
             }
             else {
-                return new GameResult(true, Player.NONE, WinReason.OUT_OF_PIECES);
+                return new GameResult(true, Player.NONE, WinReason.OUT_OF_PIECES, 0);
             }
         }
 
@@ -319,19 +319,19 @@ public class GameState {
 
         if(!empty) {
             if(white > black) {
-                return new GameResult(true, Player.WHITE, WinReason.BOARD_FULL);
+                return new GameResult(true, Player.WHITE, WinReason.BOARD_FULL, getScore(Player.WHITE));
             }
             else if(black > white) {
-                return new GameResult(true, Player.BLACK, WinReason.BOARD_FULL);
+                return new GameResult(true, Player.BLACK, WinReason.BOARD_FULL, getScore(Player.BLACK));
             }
             else if(whiteCapstones > blackCapstones) {
-                return new GameResult(true, Player.WHITE, WinReason.BOARD_FULL);
+                return new GameResult(true, Player.WHITE, WinReason.BOARD_FULL, getScore(Player.WHITE));
             }
             else if(blackCapstones > whiteCapstones) {
-                return new GameResult(true, Player.BLACK, WinReason.BOARD_FULL);
+                return new GameResult(true, Player.BLACK, WinReason.BOARD_FULL, getScore(Player.BLACK));
             }
             else {
-                return new GameResult(true, Player.NONE, WinReason.BOARD_FULL);
+                return new GameResult(true, Player.NONE, WinReason.BOARD_FULL, 0);
             }
         }
 
@@ -359,19 +359,28 @@ public class GameState {
         }
 
         if(whitePath && !blackPath) {
-            return new GameResult(true, Player.WHITE, WinReason.PATH);
+            return new GameResult(true, Player.WHITE, WinReason.PATH, getScore(Player.WHITE));
         }
         else if(!whitePath && blackPath) {
-            return new GameResult(true, Player.BLACK, WinReason.PATH);
+            return new GameResult(true, Player.BLACK, WinReason.PATH, getScore(Player.BLACK));
         }
         else if(whitePath && blackPath && currentTurn == Player.BLACK) {
-            return new GameResult(true, Player.WHITE, WinReason.PATH);
+            return new GameResult(true, Player.WHITE, WinReason.PATH, getScore(Player.WHITE));
         }
         else if(whitePath && blackPath && currentTurn == Player.WHITE) {
-            return new GameResult(true, Player.BLACK, WinReason.PATH);
+            return new GameResult(true, Player.BLACK, WinReason.PATH, getScore(Player.BLACK));
         }
 
         return new GameResult();
+    }
+
+    private int getScore(Player player) {
+        if(player == Player.WHITE) {
+            return board.getBoardSize() * board.getBoardSize() + whiteNormalPieces + whiteCapstones;
+        }
+        else {
+            return board.getBoardSize() * board.getBoardSize() + blackNormalPieces + blackCapstones;
+        }
     }
 
     private boolean isWinPath(BoardLocation current, boolean[][] checked, boolean horizontal, boolean white) {

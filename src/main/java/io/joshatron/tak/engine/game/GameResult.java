@@ -4,17 +4,20 @@ public class GameResult {
     private boolean finished;
     private Player winner;
     private WinReason reason;
+    private int score;
 
-    public GameResult(boolean finished, Player winner, WinReason reason) {
+    public GameResult(boolean finished, Player winner, WinReason reason, int score) {
         this.finished = finished;
         this.winner = winner;
         this.reason = reason;
+        this.score = score;
     }
 
     public GameResult() {
         finished = false;
         winner = Player.NONE;
         reason = WinReason.NONE;
+        score = 0;
     }
 
     public boolean isFinished() {
@@ -29,6 +32,10 @@ public class GameResult {
         return reason;
     }
 
+    public int getScore() {
+        return score;
+    }
+
     @Override
     public boolean equals(Object o) {
         if(!(o instanceof GameResult)) {
@@ -37,7 +44,8 @@ public class GameResult {
 
         if(((GameResult) o).finished == this.finished &&
            ((GameResult) o).winner == this.winner &&
-           ((GameResult) o).reason == this.reason) {
+           ((GameResult) o).reason == this.reason &&
+           ((GameResult) o).score == this.score) {
             return true;
         }
 

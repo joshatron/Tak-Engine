@@ -410,7 +410,7 @@ public class GameStateTest {
             place = new PlaceTurn(2,0,PieceType.STONE);
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -433,7 +433,7 @@ public class GameStateTest {
             place = new PlaceTurn(1,2,PieceType.STONE);
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.PATH),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.PATH, 16),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -497,7 +497,7 @@ public class GameStateTest {
             place = new PlaceTurn(5,4,PieceType.STONE);
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 51),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -552,7 +552,7 @@ public class GameStateTest {
             place = new PlaceTurn(1,5,PieceType.STONE);
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.PATH),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.PATH, 54),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -606,7 +606,7 @@ public class GameStateTest {
             place = new PlaceTurn(4,0,PieceType.CAPSTONE);
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 42),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -633,7 +633,7 @@ public class GameStateTest {
             MoveTurn move = new MoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(move);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -684,7 +684,7 @@ public class GameStateTest {
             place = new PlaceTurn(2,2,PieceType.STONE);
             Assert.assertEquals(new GameResult(), state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.BOARD_FULL), state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.BOARD_FULL, 14), state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -724,7 +724,7 @@ public class GameStateTest {
             place = new PlaceTurn(1,1,PieceType.CAPSTONE);
             Assert.assertEquals(new GameResult(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.OUT_OF_PIECES),state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.OUT_OF_PIECES, 26),state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }
@@ -755,7 +755,7 @@ public class GameStateTest {
             move = new MoveTurn(1,2,2,Direction.NORTH,new int[]{1,1});
             Assert.assertEquals(new GameResult(), state.checkForWinner());
             state.executeTurn(move);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH), state.checkForWinner());
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16), state.checkForWinner());
         } catch (TakEngineException e) {
             Assert.fail();
         }

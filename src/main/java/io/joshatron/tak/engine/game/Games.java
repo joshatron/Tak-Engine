@@ -53,7 +53,7 @@ public class Games {
             if(currentState.isWhiteTurn()) {
                 Turn turn = whitePlayer.getTurn(new GameState(currentState, true));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
-                    result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
+                    result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
                     game = games;
                     setResults.addGame(result);
                     return result;
@@ -61,7 +61,7 @@ public class Games {
                 try {
                     currentState.executeTurn(turn);
                 } catch (TakEngineException e) {
-                    result = new GameResult(true, Player.BLACK, WinReason.SURRENDER);
+                    result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
                     game = games;
                     setResults.addGame(result);
                     return result;
@@ -70,7 +70,7 @@ public class Games {
             else {
                 Turn turn = blackPlayer.getTurn(new GameState(currentState, true));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
-                    result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
+                    result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
                     game = games;
                     setResults.addGame(result);
                     return result;
@@ -78,7 +78,7 @@ public class Games {
                 try {
                     currentState.executeTurn(turn);
                 } catch (TakEngineException e) {
-                    result = new GameResult(true, Player.WHITE, WinReason.SURRENDER);
+                    result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
                     game = games;
                     setResults.addGame(result);
                     return result;
