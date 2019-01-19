@@ -50,8 +50,8 @@ public class GameBoard {
         int maxSize = 1;
         for(int x = 0; x < boardSize; x++) {
             for(int y = 0; y < boardSize; y++) {
-                if(board[x][y].getString().length() > maxSize) {
-                    maxSize = board[x][y].getString().length();
+                if(board[x][y].toString().length() > maxSize) {
+                    maxSize = board[x][y].toString().length();
                 }
             }
         }
@@ -74,8 +74,8 @@ public class GameBoard {
             System.out.print((y + 1) + " ");
             for(int x = 0; x < boardSize; x++) {
                 System.out.print("| ");
-                System.out.print(board[x][y].getString() + " ");
-                int len = board[x][y].getString().length();
+                System.out.print(board[x][y].toString() + " ");
+                int len = board[x][y].toString().length();
                 for(int i = 0; i < maxSize - len; i++) {
                     System.out.print(" ");
                 }

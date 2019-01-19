@@ -3,10 +3,9 @@ package io.joshatron.tak.engine.game;
 import io.joshatron.tak.engine.board.*;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import io.joshatron.tak.engine.exception.TakEngineException;
-import io.joshatron.tak.engine.turn.MoveTurn;
-import io.joshatron.tak.engine.turn.PlaceTurn;
-import io.joshatron.tak.engine.turn.Turn;
-import io.joshatron.tak.engine.turn.TurnType;
+import io.joshatron.tak.engine.turn.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,14 @@ public class GameState {
         for(Turn turn : state.getTurns()) {
             executeTurn(turn);
         }
+    }
+
+    public GameState(JSONObject json) throws TakEngineException {
+        this(json, false);
+    }
+
+    public GameState(JSONObject json, boolean fast) throws TakEngineException {
+        importFromJson(json, fast);
     }
 
     private void initializeGame(Player firstTurn, int boardSize, boolean fast) throws TakEngineException {
@@ -92,6 +99,43 @@ public class GameState {
             default:
                 throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
+    }
+
+    private void importFromJson(JSONObject json, boolean fast) throws TakEngineException {
+        initializeGame(Player.valueOf(json.getString("first")), json.getInt("size"), fast);
+        JSONArray moves = json.getJSONArray("turns");
+        for(int i = 0; i < moves.length(); i++) {
+            applyTurn(TurnUtils.turnFromString(moves.getString(i)));
+        }
+    }
+
+    public JSONObject exportToJson() {
+        JSONObject toExport = new JSONObject();
+        toExport.put("size", board.getBoardSize());
+        toExport.put("whiteStones", whiteNormalPieces);
+        toExport.put("whiteCapstones", whiteCapstones);
+        toExport.put("blackStones", blackNormalPieces);
+        toExport.put("blackCapstones", blackCapstones);
+        toExport.put("first", firstTurn.name());
+        toExport.put("current", currentTurn.name());
+
+        JSONArray moves = new JSONArray();
+        for(Turn turn : turns) {
+            moves.put(turn.toString());
+        }
+        toExport.put("turns", moves);
+
+        JSONArray fullBoard = new JSONArray();
+        for(int y = 0; y < board.getBoardSize(); y++) {
+            JSONArray row = new JSONArray();
+            for(int x = 0; x < board.getBoardSize(); x++) {
+                row.put(board.getPosition(x, y).toString());
+            }
+            fullBoard.put(row);
+        }
+        toExport.put("board", fullBoard);
+
+        return toExport;
     }
 
     public boolean isLegalTurn(Turn turn) {

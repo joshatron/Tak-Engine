@@ -72,7 +72,7 @@ public class PieceStack {
     }
 
     // Prints top to bottom according to tak by mail rules
-    public String getString() {
+    public String toString() {
         if(pieces.size() == 0) {
             return "";
         }

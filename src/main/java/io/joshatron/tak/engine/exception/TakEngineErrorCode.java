@@ -1,6 +1,7 @@
 package io.joshatron.tak.engine.exception;
 
 public enum TakEngineErrorCode {
+    //Illegal turn
     INVALID_BOARD_SIZE,
     NOT_ENOUGH_STONES,
     NOT_ENOUGH_CAPSTONES,
