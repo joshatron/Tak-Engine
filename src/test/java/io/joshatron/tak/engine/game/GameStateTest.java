@@ -726,6 +726,7 @@ public class GameStateTest {
             state.executeTurn(place);
             Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.OUT_OF_PIECES, 26),state.checkForWinner());
         } catch (TakEngineException e) {
+            System.out.println(e.getCode().name());
             Assert.fail();
         }
     }
@@ -1149,6 +1150,7 @@ public class GameStateTest {
             Assert.assertEquals(1, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
+
             place = new PlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertFalse(state.inTak());
@@ -1156,6 +1158,7 @@ public class GameStateTest {
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
             Assert.assertEquals(Player.WHITE, state.getCurrentPlayer());
+
             place = new PlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(state.inTak());
@@ -1164,6 +1167,7 @@ public class GameStateTest {
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 1).getHeight());
             Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
+
             place = new PlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(state.inTak());
@@ -1173,6 +1177,7 @@ public class GameStateTest {
             Assert.assertEquals(1, state.getBoard().getPosition(0, 1).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 1).getHeight());
             Assert.assertEquals(Player.WHITE, state.getCurrentPlayer());
+
             place = new PlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(state.checkForWinner().isFinished());

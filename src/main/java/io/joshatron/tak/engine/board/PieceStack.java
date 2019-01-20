@@ -1,5 +1,7 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.tak.engine.game.Player;
+
 import java.util.ArrayList;
 
 public class PieceStack {
@@ -57,10 +59,17 @@ public class PieceStack {
     }
 
     public Piece getTopPiece() {
-        if(pieces.size() == 0) {
+        if(pieces.isEmpty()) {
             return null;
         }
         return pieces.get(pieces.size() - 1);
+    }
+
+    public Player getStackOwner() {
+        if(pieces.isEmpty()) {
+            return null;
+        }
+        return pieces.get(pieces.size() - 1).getPlayer();
     }
 
     public ArrayList<Piece> getPieces() {
@@ -73,7 +82,7 @@ public class PieceStack {
 
     // Prints top to bottom according to tak by mail rules
     public String toString() {
-        if(pieces.size() == 0) {
+        if(pieces.isEmpty()) {
             return "";
         }
 
