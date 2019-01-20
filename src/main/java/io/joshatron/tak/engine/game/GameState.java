@@ -386,7 +386,7 @@ public class GameState {
                 piecesFilled++;
                 getInfo(board.getPosition(current).getStackOwner()).incrementPoints();
             }
-            else if(oldOwner != null && board.getPosition(current).getStackOwner() != oldOwner) {
+            else if(board.getPosition(current).getStackOwner() != oldOwner) {
                 getInfo(oldOwner).decrementPoints();
                 getInfo(oldOwner.opposite()).incrementPoints();
             }
@@ -647,6 +647,14 @@ public class GameState {
 
     public int getBlackCapstonesLeft() {
         return blackInfo.getCapstones();
+    }
+
+    public int getWhitePoints() {
+        return whiteInfo.getPoints();
+    }
+
+    public int getBlackPoints() {
+        return blackInfo.getPoints();
     }
 
     private PlayerInfo getInfo(Player player) {
