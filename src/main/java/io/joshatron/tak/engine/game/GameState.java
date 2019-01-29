@@ -24,6 +24,8 @@ public class GameState {
 
     private int piecesFilled;
 
+    private GameResult result;
+
     private boolean fast;
 
     public GameState(Player firstTurn, int boardSize) throws TakEngineException {
@@ -57,6 +59,9 @@ public class GameState {
         this.firstTurn = firstTurn;
         this.fast = fast;
         this.turns = new ArrayList<>();
+
+        piecesFilled = 0;
+        result = null;
 
         this.currentTurn = this.firstTurn;
 
@@ -239,16 +244,23 @@ public class GameState {
     }
 
     public GameResult checkForWinner() {
+
+        if(result != null) {
+            return result;
+        }
+
         PlayerInfo info = getInfo(currentTurn.opposite());
 
         // Check if someone is out of pieces
         if(info.getStones() == 0 && info.getCapstones() == 0) {
-            return getWinnerFromPoints(WinReason.OUT_OF_PIECES);
+            result = getWinnerFromPoints(WinReason.OUT_OF_PIECES);
+            return result;
         }
 
         //Check for a full board
         if(piecesFilled == board.getBoardSize() * board.getBoardSize()) {
-            return getWinnerFromPoints(WinReason.BOARD_FULL);
+            result = getWinnerFromPoints(WinReason.BOARD_FULL);
+            return result;
         }
 
         //Check for each possible path
@@ -257,13 +269,15 @@ public class GameState {
                board.getPosition(0, i).getStackOwner() == currentTurn.opposite() &&
                isWinPath(new BoardLocation(0, i), new boolean[board.getBoardSize()][board.getBoardSize()],
                        true, board.getPosition(0, i).getTopPiece().isWhite())) {
-                return new GameResult(true, currentTurn.opposite(), WinReason.PATH, getScore(currentTurn.opposite()));
+                result = new GameResult(true, currentTurn.opposite(), WinReason.PATH, getScore(currentTurn.opposite()));
+                return result;
             }
             if(board.getPosition(i, 0).getTopPiece() != null &&
                board.getPosition(i, 0).getStackOwner() == currentTurn.opposite() &&
                isWinPath(new BoardLocation(i, 0), new boolean[board.getBoardSize()][board.getBoardSize()],
                        false, board.getPosition(i, 0).getTopPiece().isWhite())) {
-                return new GameResult(true, currentTurn.opposite(), WinReason.PATH, getScore(currentTurn.opposite()));
+                result = new GameResult(true, currentTurn.opposite(), WinReason.PATH, getScore(currentTurn.opposite()));
+                return result;
             }
         }
 
@@ -405,6 +419,7 @@ public class GameState {
         }
 
         currentTurn = currentTurn.opposite();
+        result = null;
     }
 
     private void undoPlace(PlaceTurn place) {
