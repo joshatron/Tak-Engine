@@ -764,7 +764,7 @@ public class GameStateTest {
 
     //Tests that places end up with the right state and undo correctly
     @Test
-    public void executeAndUndoPlace() {
+    public void undoTurnUndoPlace() {
         try {
             GameState state = initializeState(5);
 
@@ -834,7 +834,7 @@ public class GameStateTest {
 
     //Tests that moves end up with the right state and undo correctly
     @Test
-    public void executeAndUndoMove() {
+    public void undoTurnUndoMove() {
         try {
             GameState state = initializeState(5);
 
@@ -898,7 +898,7 @@ public class GameStateTest {
 
     //Tests undo move on first 2 moves
     @Test
-    public void undoMoveFirstTurns() {
+    public void undoTurnFirstTurns() {
         try {
             GameState state = initializeState(3);
             state.undoTurn();
@@ -916,6 +916,66 @@ public class GameStateTest {
             Assert.assertEquals(0,state.getWhiteCapstonesLeft());
             Assert.assertEquals(10,state.getBlackNormalPiecesLeft());
             Assert.assertEquals(0,state.getBlackCapstonesLeft());
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    //Tests undoing and redoing winning move
+    @Test
+    public void undoTurnUndoAndRedoWinningMove() {
+        try {
+            GameState state = new GameState(Player.WHITE,3);
+
+            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(0,0,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(1,0,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(1,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(2,0,PieceType.STONE);
+            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            state.executeTurn(place);
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+            state.undoTurn();
+            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            state.executeTurn(place);
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    //Tests undoing all moves
+    @Test
+    public void undoTurnUndoAllTurns() {
+        try {
+            GameState state = new GameState(Player.WHITE,3);
+
+            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(0,0,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(1,0,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(1,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(2,0,PieceType.STONE);
+            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            state.executeTurn(place);
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+            state.undoTurn();
+            Assert.assertEquals(4, state.getTurns().size());
+            state.undoTurn();
+            Assert.assertEquals(3, state.getTurns().size());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getTurns().size());
+            state.undoTurn();
+            Assert.assertEquals(1, state.getTurns().size());
+            state.undoTurn();
+            Assert.assertEquals(0, state.getTurns().size());
         } catch (TakEngineException e) {
             Assert.fail();
         }
