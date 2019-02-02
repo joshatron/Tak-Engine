@@ -672,6 +672,10 @@ public class GameState {
         return blackInfo.getPoints();
     }
 
+    public int getBoardLocationsFilled() {
+        return piecesFilled;
+    }
+
     private PlayerInfo getInfo(Player player) {
         if(player == Player.WHITE) {
             return whiteInfo;

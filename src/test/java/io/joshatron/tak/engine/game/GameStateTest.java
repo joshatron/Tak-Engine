@@ -1253,4 +1253,151 @@ public class GameStateTest {
             Assert.fail();
         }
     }
+
+    @Test
+    public void getPointsPlace() {
+        try {
+            GameState state = initializeState(5);
+            PlaceTurn place = new PlaceTurn(new BoardLocation(1,1), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(1, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(1,2), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(2,1), PieceType.WALL);
+            state.executeTurn(place);
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(2,2), PieceType.WALL);
+            state.executeTurn(place);
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(3,1), PieceType.CAPSTONE);
+            state.executeTurn(place);
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(3,2), PieceType.CAPSTONE);
+            state.executeTurn(place);
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getWhitePoints());
+            Assert.assertEquals(1, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(1, state.getWhitePoints());
+            Assert.assertEquals(1, state.getBlackPoints());
+        }
+        catch(TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void getPointsMove() {
+        try {
+            GameState state = initializeState(5);
+            PlaceTurn place = new PlaceTurn(new BoardLocation(1, 1), PieceType.WALL);
+            state.executeTurn(place);
+            Assert.assertEquals(1, state.getWhitePoints());
+            Assert.assertEquals(1, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(2, 0), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(1, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            MoveTurn move = new MoveTurn(new BoardLocation(1, 1), 1, Direction.NORTH, new int[]{1});
+            state.executeTurn(move);
+            Assert.assertEquals(0, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            place = new PlaceTurn(new BoardLocation(2, 2), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(0, state.getWhitePoints());
+            Assert.assertEquals(3, state.getBlackPoints());
+            move = new MoveTurn(new BoardLocation(1, 0), 2, Direction.EAST, new int[]{1, 1});
+            state.executeTurn(move);
+            Assert.assertEquals(1, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(0, state.getWhitePoints());
+            Assert.assertEquals(3, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(0, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+            state.undoTurn();
+            Assert.assertEquals(1, state.getWhitePoints());
+            Assert.assertEquals(2, state.getBlackPoints());
+        }
+        catch(TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void getBoardLocationsFilledPlace() {
+        try {
+            GameState state = initializeState(5);
+            PlaceTurn place = new PlaceTurn(new BoardLocation(1, 1), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(3, state.getBoardLocationsFilled());
+            place = new PlaceTurn(new BoardLocation(2, 1), PieceType.WALL);
+            state.executeTurn(place);
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+            place = new PlaceTurn(new BoardLocation(3, 1), PieceType.CAPSTONE);
+            state.executeTurn(place);
+            Assert.assertEquals(5, state.getBoardLocationsFilled());
+            state.undoTurn();
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+            state.undoTurn();
+            Assert.assertEquals(3, state.getBoardLocationsFilled());
+            state.undoTurn();
+            Assert.assertEquals(2, state.getBoardLocationsFilled());
+        }
+        catch(TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void getBoardLocationsFilledMove() {
+        try {
+            GameState state = initializeState(5);
+            PlaceTurn place = new PlaceTurn(new BoardLocation(1, 1), PieceType.WALL);
+            state.executeTurn(place);
+            Assert.assertEquals(3, state.getBoardLocationsFilled());
+            place = new PlaceTurn(new BoardLocation(2, 0), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+            MoveTurn move = new MoveTurn(new BoardLocation(1, 1), 1, Direction.NORTH, new int[]{1});
+            state.executeTurn(move);
+            Assert.assertEquals(3, state.getBoardLocationsFilled());
+            place = new PlaceTurn(new BoardLocation(2, 2), PieceType.STONE);
+            state.executeTurn(place);
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+            move = new MoveTurn(new BoardLocation(1, 0), 2, Direction.EAST, new int[]{1, 1});
+            state.executeTurn(move);
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+            state.undoTurn();
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+            state.undoTurn();
+            Assert.assertEquals(3, state.getBoardLocationsFilled());
+            state.undoTurn();
+            Assert.assertEquals(4, state.getBoardLocationsFilled());
+        }
+        catch(TakEngineException e) {
+            Assert.fail();
+        }
+    }
 }
