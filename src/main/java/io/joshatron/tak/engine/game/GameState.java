@@ -267,6 +267,7 @@ public class GameState {
         for(int i = 0; i < board.getBoardSize(); i++) {
             if(board.getPosition(0, i).getTopPiece() != null &&
                board.getPosition(0, i).getStackOwner() == currentTurn.opposite() &&
+               board.getPosition(0, i).getTopPiece().getType() != PieceType.WALL &&
                isWinPath(new BoardLocation(0, i), new boolean[board.getBoardSize()][board.getBoardSize()],
                        true, board.getPosition(0, i).getTopPiece().isWhite())) {
                 result = new GameResult(true, currentTurn.opposite(), WinReason.PATH, getScore(currentTurn.opposite()));
@@ -274,6 +275,7 @@ public class GameState {
             }
             if(board.getPosition(i, 0).getTopPiece() != null &&
                board.getPosition(i, 0).getStackOwner() == currentTurn.opposite() &&
+               board.getPosition(i, 0).getTopPiece().getType() != PieceType.WALL &&
                isWinPath(new BoardLocation(i, 0), new boolean[board.getBoardSize()][board.getBoardSize()],
                        false, board.getPosition(i, 0).getTopPiece().isWhite())) {
                 result = new GameResult(true, currentTurn.opposite(), WinReason.PATH, getScore(currentTurn.opposite()));
