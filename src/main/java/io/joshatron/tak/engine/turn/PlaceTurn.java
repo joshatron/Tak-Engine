@@ -2,6 +2,7 @@ package io.joshatron.tak.engine.turn;
 
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.PieceType;
+import org.json.JSONObject;
 
 public class PlaceTurn extends Turn {
 
@@ -18,6 +19,21 @@ public class PlaceTurn extends Turn {
         super(TurnType.PLACE);
         this.location = new BoardLocation(x, y);
         this.pieceType = pieceType;
+    }
+
+    public PlaceTurn(JSONObject turn) {
+        super(TurnType.PLACE);
+        this.location = new BoardLocation(turn.getJSONObject("location"));
+        this.pieceType = PieceType.valueOf(turn.getString("pieceType"));
+    }
+
+    public JSONObject exportToJson() {
+        JSONObject toReturn = new JSONObject();
+        toReturn.put("type", TurnType.PLACE.name());
+        toReturn.put("pieceType", pieceType.name());
+        toReturn.put("location", location.exportToJson());
+
+        return toReturn;
     }
 
     public BoardLocation getLocation() {

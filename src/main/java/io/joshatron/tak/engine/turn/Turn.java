@@ -1,12 +1,16 @@
 package io.joshatron.tak.engine.turn;
 
-public class Turn {
+import org.json.JSONObject;
+
+public abstract class Turn {
 
     private TurnType type;
 
     public Turn(TurnType type) {
         this.type = type;
     }
+
+    public abstract JSONObject exportToJson();
 
     public TurnType getType() {
         return type;

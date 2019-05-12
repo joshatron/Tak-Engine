@@ -2,6 +2,8 @@ package io.joshatron.tak.engine.turn;
 
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.Direction;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class MoveTurn extends Turn {
 
@@ -29,6 +31,34 @@ public class MoveTurn extends Turn {
         this.direction = direction;
         this.placed = placed;
         this.flattened = false;
+    }
+
+    public MoveTurn(JSONObject turn) {
+        super(TurnType.MOVE);
+        this.startLocation = new BoardLocation(turn.getJSONObject("location"));
+        this.pickedUp = turn.getInt("pickedUp");
+        this.direction = Direction.valueOf(turn.getString("direction"));
+        this.placed = new int[turn.getJSONArray("placed").length()];
+        for(int i = 0; i < turn.getJSONArray("placed").length(); i++) {
+            placed[i] = turn.getJSONArray("placed").getInt(i);
+        }
+        this.flattened = false;
+    }
+
+    public JSONObject exportToJson() {
+        JSONObject toReturn = new JSONObject();
+        toReturn.put("type", TurnType.MOVE.name());
+        toReturn.put("location", startLocation);
+        toReturn.put("pickedUp", pickedUp);
+        toReturn.put("direction", direction.name());
+
+        JSONArray place = new JSONArray();
+        for(int i = 0; i < placed.length; i++) {
+            place.put(placed[i]);
+        }
+        toReturn.put("placed", place);
+
+        return toReturn;
     }
 
     public BoardLocation getStartLocation() {

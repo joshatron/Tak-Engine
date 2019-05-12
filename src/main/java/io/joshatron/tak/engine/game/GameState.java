@@ -100,7 +100,7 @@ public class GameState {
         initializeGame(Player.valueOf(json.getString("first")), json.getInt("size"), fast);
         JSONArray moves = json.getJSONArray("turns");
         for(int i = 0; i < moves.length(); i++) {
-            applyTurn(TurnUtils.turnFromString(moves.getString(i)));
+            applyTurn(TurnUtils.turnFromJson(moves.getJSONObject(i)));
         }
     }
 
@@ -116,19 +116,11 @@ public class GameState {
 
         JSONArray moves = new JSONArray();
         for(Turn turn : turns) {
-            moves.put(turn.toString());
+            moves.put(turn.exportToJson());
         }
         toExport.put("turns", moves);
 
-        JSONArray fullBoard = new JSONArray();
-        for(int y = 0; y < board.getBoardSize(); y++) {
-            JSONArray row = new JSONArray();
-            for(int x = 0; x < board.getBoardSize(); x++) {
-                row.put(board.getPosition(x, y).toString());
-            }
-            fullBoard.put(row);
-        }
-        toExport.put("board", fullBoard);
+        toExport.put("board", board.exportToJson());
 
         return toExport;
     }

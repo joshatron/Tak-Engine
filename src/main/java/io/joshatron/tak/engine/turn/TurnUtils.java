@@ -3,11 +3,26 @@ package io.joshatron.tak.engine.turn;
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.Direction;
 import io.joshatron.tak.engine.board.PieceType;
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
+import org.json.JSONObject;
 
 public class TurnUtils {
 
     private TurnUtils() {
         throw new IllegalStateException("This is a utility class");
+    }
+
+    public static Turn turnFromJson(JSONObject turn) throws TakEngineException {
+        TurnType type = TurnType.valueOf(turn.getString("type"));
+        if(type == TurnType.PLACE) {
+            return new PlaceTurn(turn);
+        }
+        else if(type == TurnType.MOVE) {
+            return new MoveTurn(turn);
+        }
+
+        throw new TakEngineException(TakEngineErrorCode.INVALID_TURN_TYPE);
     }
 
     public static Turn turnFromString(String str) {

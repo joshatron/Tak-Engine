@@ -13,5 +13,8 @@ public enum TakEngineErrorCode {
     DO_NOT_OWN_STACK,
     INVALID_PLACE_AMOUNT,
     BLOCKED_FROM_PLACING,
-    GAME_FINISHED
+    GAME_FINISHED,
+
+    //Other
+    INVALID_TURN_TYPE
 }

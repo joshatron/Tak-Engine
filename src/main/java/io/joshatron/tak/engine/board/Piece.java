@@ -1,6 +1,7 @@
 package io.joshatron.tak.engine.board;
 
 import io.joshatron.tak.engine.game.Player;
+import org.json.JSONObject;
 
 public class Piece {
 
@@ -10,6 +11,14 @@ public class Piece {
     public Piece(Player player, PieceType type) {
         this.player = player;
         this.type = type;
+    }
+
+    public JSONObject exportToJson() {
+        JSONObject piece = new JSONObject();
+        piece.put("player", player.name());
+        piece.put("type", type.name());
+
+        return piece;
     }
 
     public boolean isWhite() {

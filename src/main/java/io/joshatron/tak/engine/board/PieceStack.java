@@ -1,6 +1,7 @@
 package io.joshatron.tak.engine.board;
 
 import io.joshatron.tak.engine.game.Player;
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 
@@ -78,6 +79,15 @@ public class PieceStack {
 
     public int getHeight() {
         return pieces.size();
+    }
+
+    public JSONArray exportToJson() {
+        JSONArray array = new JSONArray();
+        for(Piece piece : pieces) {
+            array.put(piece.exportToJson());
+        }
+
+        return array;
     }
 
     // Prints top to bottom according to tak by mail rules

@@ -1,5 +1,8 @@
 package io.joshatron.tak.engine.board;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class GameBoard {
 
     //[x][y]
@@ -87,6 +90,19 @@ public class GameBoard {
             }
             System.out.println();
         }
+    }
+
+    public JSONArray exportToJson() {
+        JSONArray board = new JSONArray();
+        for(int i = 0; i < boardSize; i++) {
+            JSONArray row = new JSONArray();
+            for(int j = 0; j < boardSize; j++) {
+                row.put(this.board[i][j].exportToJson());
+            }
+            board.put(row);
+        }
+
+        return board;
     }
 
     public int getBoardSize() {
