@@ -129,4 +129,20 @@ public class PieceStack {
 
         return str;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof PieceStack) {
+            PieceStack other = (PieceStack) o;
+            for(int i = 0; i < pieces.size(); i++) {
+                if(!pieces.get(i).equals(other.getPieces().get(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 }

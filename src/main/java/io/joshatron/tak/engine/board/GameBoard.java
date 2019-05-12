@@ -1,7 +1,6 @@
 package io.joshatron.tak.engine.board;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class GameBoard {
 
@@ -115,5 +114,27 @@ public class GameBoard {
 
     public PieceStack getPosition(int x, int y) {
         return board[x][y];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof GameBoard) {
+            GameBoard other = (GameBoard) o;
+            if(boardSize != other.getBoardSize()) {
+                return false;
+            }
+
+            for(int i = 0; i < boardSize; i++) {
+                for(int j = 0; j < boardSize; j++) {
+                    if(!board[i][j].equals(other.getPosition(i, j))) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

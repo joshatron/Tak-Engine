@@ -117,4 +117,14 @@ public class BoardLocation {
 
         return str;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof BoardLocation) {
+            BoardLocation location = (BoardLocation) o;
+            return this.x == location.getX() && this.y == location.getY();
+        }
+
+        return false;
+    }
 }

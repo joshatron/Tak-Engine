@@ -678,4 +678,21 @@ public class GameState {
             return blackInfo;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof GameState) {
+            GameState other = (GameState) o;
+            for(int i = 0; i < turns.size(); i++) {
+                if(!turns.get(i).equals(other.getTurns().get(i))) {
+                    return false;
+                }
+            }
+
+            return firstTurn == other.getFirstPlayer() && currentTurn == other.getCurrentPlayer() &&
+                    whiteInfo.equals(other.whiteInfo) && blackInfo.equals(other.blackInfo);
+        }
+
+        return false;
+    }
 }

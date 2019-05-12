@@ -36,4 +36,14 @@ public class Piece {
     public PieceType getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Piece) {
+            Piece other = (Piece) o;
+            return player == other.getPlayer() && type == other.getType();
+        }
+
+        return false;
+    }
 }

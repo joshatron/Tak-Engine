@@ -48,7 +48,7 @@ public class MoveTurn extends Turn {
     public JSONObject exportToJson() {
         JSONObject toReturn = new JSONObject();
         toReturn.put("type", TurnType.MOVE.name());
-        toReturn.put("location", startLocation);
+        toReturn.put("location", startLocation.exportToJson());
         toReturn.put("pickedUp", pickedUp);
         toReturn.put("direction", direction.name());
 
@@ -110,5 +110,22 @@ public class MoveTurn extends Turn {
         }
 
         return str;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof MoveTurn) {
+            MoveTurn other = (MoveTurn) o;
+            int[] otherPlaced = other.getPlaced();
+            for(int i = 0; i < placed.length; i++) {
+                if(placed[i] != otherPlaced[i]) {
+                    return false;
+                }
+            }
+
+            return startLocation.equals(other.startLocation) && pickedUp == other.getPickedUp() && direction == other.getDirection();
+        }
+
+        return false;
     }
 }

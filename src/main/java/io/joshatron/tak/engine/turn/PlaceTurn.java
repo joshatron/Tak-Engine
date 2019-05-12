@@ -63,4 +63,14 @@ public class PlaceTurn extends Turn {
 
         return str;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof PlaceTurn) {
+            PlaceTurn other = (PlaceTurn) o;
+            return location.equals(other.getLocation()) && pieceType == other.getPieceType();
+        }
+
+        return false;
+    }
 }

@@ -1420,6 +1420,7 @@ public class GameStateTest {
             state.executeTurn(place);
             JSONObject stateJson = state.exportToJson();
             GameState newState = new GameState(stateJson);
+            Assert.assertTrue(state.equals(newState));
         } catch (TakEngineException e) {
             Assert.fail();
         }
