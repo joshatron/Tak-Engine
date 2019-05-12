@@ -1,5 +1,7 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONObject;
 
 public class BoardLocation {
@@ -84,7 +86,7 @@ public class BoardLocation {
         return "(" + x + ", " + y + ")";
     }
 
-    public String toBoardString() {
+    public String toBoardString() throws TakEngineException {
         String str = "";
         switch(x) {
             case 0:
@@ -111,6 +113,8 @@ public class BoardLocation {
             case 7:
                 str += "h";
                 break;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
         }
 
         str += Integer.toString(y + 1);

@@ -25,7 +25,7 @@ public class TurnUtils {
         throw new TakEngineException(TakEngineErrorCode.INVALID_TURN_TYPE);
     }
 
-    public static Turn turnFromString(String str) {
+    public static Turn turnFromString(String str) throws TakEngineException {
         str = str.toLowerCase();
         if(str.charAt(0) == 'p') {
             PieceType type = null;
@@ -39,14 +39,15 @@ public class TurnUtils {
                 case 'c':
                     type = PieceType.CAPSTONE;
                     break;
+                default:
+                    throw new TakEngineException(TakEngineErrorCode.INVALID_PIECE_TYPE);
             }
 
             int x = xToNum(str.charAt(3));
             int y = charToNum(str.charAt(4)) - 1;
 
             if(type != null && x != -1 && y != -1) {
-                PlaceTurn turn = new PlaceTurn(new BoardLocation(x, y), type);
-                return turn;
+                return new PlaceTurn(new BoardLocation(x, y), type);
             }
         }
         else if(str.charAt(0) == 'm') {
@@ -64,6 +65,8 @@ public class TurnUtils {
                 case 'w':
                     dir = Direction.WEST;
                     break;
+                default:
+                    throw new TakEngineException(TakEngineErrorCode.INVALID_DIRECTION);
             }
 
             int x = xToNum(str.charAt(3));
@@ -78,15 +81,14 @@ public class TurnUtils {
             }
 
             if(dir != null && x != -1 && y != -1 && pickUp != -1) {
-                MoveTurn turn = new MoveTurn(new BoardLocation(x, y), pickUp, dir, drop);
-                return turn;
+                return new MoveTurn(new BoardLocation(x, y), pickUp, dir, drop);
             }
         }
 
         return null;
     }
 
-    private static int xToNum(char c) {
+    private static int xToNum(char c) throws TakEngineException {
         switch(c) {
             case 'a':
                 return 0;
@@ -104,12 +106,12 @@ public class TurnUtils {
                 return 6;
             case 'h':
                 return 7;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
         }
-
-        return -1;
     }
 
-    private static int charToNum(char c) {
+    private static int charToNum(char c) throws TakEngineException {
         switch(c) {
             case '0':
                 return 0;
@@ -131,8 +133,8 @@ public class TurnUtils {
                 return 8;
             case '9':
                 return 9;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_NUMBER);
         }
-
-        return -1;
     }
 }

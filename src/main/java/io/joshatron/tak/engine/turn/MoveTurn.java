@@ -2,6 +2,7 @@ package io.joshatron.tak.engine.turn;
 
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.Direction;
+import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -86,30 +87,34 @@ public class MoveTurn extends Turn {
     }
 
     public String toString() {
-        String str = "m";
+        StringBuilder str = new StringBuilder("m");
         switch(direction) {
             case NORTH:
-                str += "n";
+                str.append("n");
                 break;
             case SOUTH:
-                str += "s";
+                str.append("s");
                 break;
             case EAST:
-                str += "e";
+                str.append("e");
                 break;
             case WEST:
-                str += "w";
+                str.append("w");
                 break;
         }
 
-        str += " " + startLocation.toBoardString();
-
-        str += " g" + pickedUp;
-        for(int i = 0; i < placed.length; i++) {
-            str += " " + placed[i];
+        try {
+            str.append(" ").append(startLocation.toBoardString());
+        } catch(TakEngineException e) {
+            e.printStackTrace();
         }
 
-        return str;
+        str.append(" g").append(pickedUp);
+        for(int i = 0; i < placed.length; i++) {
+            str.append(" ").append(placed[i]);
+        }
+
+        return str.toString();
     }
 
     @Override

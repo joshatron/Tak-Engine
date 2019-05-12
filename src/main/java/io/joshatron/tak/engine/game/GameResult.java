@@ -38,15 +38,9 @@ public class GameResult {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof GameResult)) {
-            return false;
-        }
-
-        if(((GameResult) o).finished == this.finished &&
-           ((GameResult) o).winner == this.winner &&
-           ((GameResult) o).reason == this.reason &&
-           ((GameResult) o).score == this.score) {
-            return true;
+        if(o instanceof GameResult) {
+            GameResult other = (GameResult) o;
+            return finished == other.finished && winner == other.winner && reason == other.reason && score == other.score;
         }
 
         return false;

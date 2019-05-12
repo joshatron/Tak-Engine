@@ -862,7 +862,7 @@ public class GameStateTest {
             Assert.assertTrue(state.getBoard().getPosition(2,3).getTopPiece().isBlack());
             Assert.assertEquals(1, state.getBoard().getPosition(2,3).getHeight());
             Assert.assertEquals(PieceType.STONE, state.getBoard().getPosition(2,3).getTopPiece().getType());
-            ArrayList<Piece> pieces = state.getBoard().getPosition(2,2).getPieces();
+            List<Piece> pieces = state.getBoard().getPosition(2,2).getPieces();
             Assert.assertEquals(2, pieces.size());
             Assert.assertTrue(pieces.get(0).isBlack());
             Assert.assertTrue(pieces.get(1).isBlack());
@@ -1420,7 +1420,7 @@ public class GameStateTest {
             state.executeTurn(place);
             JSONObject stateJson = state.exportToJson();
             GameState newState = new GameState(stateJson);
-            Assert.assertTrue(state.equals(newState));
+            Assert.assertEquals(state, newState);
         } catch (TakEngineException e) {
             Assert.fail();
         }

@@ -1,5 +1,7 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONArray;
 
 public class GameBoard {
@@ -8,7 +10,7 @@ public class GameBoard {
     private PieceStack[][] board;
     private int boardSize;
 
-    public GameBoard(int boardSize) {
+    public GameBoard(int boardSize) throws TakEngineException {
         this.boardSize = boardSize;
 
         switch(boardSize) {
@@ -27,6 +29,8 @@ public class GameBoard {
             case 8:
                 board = new PieceStack[8][8];
                 break;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
 
         for(int x = 0; x < boardSize; x++) {
@@ -37,11 +41,8 @@ public class GameBoard {
     }
 
     public boolean onBoard(int x, int y) {
-        if(x >= 0 && x < boardSize && y >= 0 && y < boardSize) {
-            return true;
-        }
+        return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
 
-        return false;
     }
 
     public boolean onBoard(BoardLocation loc) {
@@ -92,16 +93,16 @@ public class GameBoard {
     }
 
     public JSONArray exportToJson() {
-        JSONArray board = new JSONArray();
+        JSONArray toReturn = new JSONArray();
         for(int i = 0; i < boardSize; i++) {
             JSONArray row = new JSONArray();
             for(int j = 0; j < boardSize; j++) {
                 row.put(this.board[i][j].exportToJson());
             }
-            board.put(row);
+            toReturn.put(row);
         }
 
-        return board;
+        return toReturn;
     }
 
     public int getBoardSize() {

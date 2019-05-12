@@ -2,6 +2,7 @@ package io.joshatron.tak.engine.turn;
 
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.PieceType;
+import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONObject;
 
 public class PlaceTurn extends Turn {
@@ -59,7 +60,11 @@ public class PlaceTurn extends Turn {
         }
 
         str += " ";
-        str += location.toBoardString();
+        try {
+            str += location.toBoardString();
+        } catch(TakEngineException e) {
+            e.printStackTrace();
+        }
 
         return str;
     }

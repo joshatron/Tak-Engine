@@ -335,7 +335,7 @@ public class GameState {
         applyTurn(turn);
     }
 
-    private void applyTurn(Turn turn) {
+    private void applyTurn(Turn turn) throws TakEngineException {
         if(turn.getType() == TurnType.PLACE) {
             applyPlace((PlaceTurn) turn);
         }
@@ -367,8 +367,8 @@ public class GameState {
         }
     }
 
-    private void applyMove(MoveTurn move) {
-        ArrayList<Piece> pieces = board.getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
+    private void applyMove(MoveTurn move) throws TakEngineException {
+        List<Piece> pieces = board.getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
         if(board.getPosition(move.getStartLocation()).getHeight() == 0) {
             getInfo(currentTurn).decrementPoints();
             piecesFilled--;
@@ -401,7 +401,7 @@ public class GameState {
         }
     }
 
-    public void undoTurn() {
+    public void undoTurn() throws TakEngineException {
         Turn turn = turns.remove(turns.size() - 1);
 
         //Undo a place move
@@ -416,7 +416,7 @@ public class GameState {
         result = null;
     }
 
-    private void undoPlace(PlaceTurn place) {
+    private void undoPlace(PlaceTurn place) throws TakEngineException {
         board.getPosition(place.getLocation()).removePieces(1);
         piecesFilled--;
         PlayerInfo info;
@@ -438,7 +438,7 @@ public class GameState {
         }
     }
 
-    private void undoMove(MoveTurn move) {
+    private void undoMove(MoveTurn move) throws TakEngineException {
         BoardLocation current = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
         for(int i = 0; i < move.getPlaced().length; i++) {
             current.move(move.getDirection());
@@ -541,7 +541,7 @@ public class GameState {
 
         if(distToBlock > 0) {
             while (numPieces > 0) {
-                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<Integer>(), x, y, dir, numPieces));
+                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<>(), x, y, dir, numPieces));
                 numPieces--;
             }
         }
@@ -565,7 +565,7 @@ public class GameState {
             int piecesLeft = numPieces - 1;
             while(piecesLeft > 0) {
                 drops.add(piecesLeft);
-                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<Integer>(drops), x, y, dir, pickup));
+                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<>(drops), x, y, dir, pickup));
                 drops.remove(drops.size() - 1);
                 piecesLeft--;
             }
@@ -583,7 +583,7 @@ public class GameState {
         return new MoveTurn(x, y, pickup, dir, drop);
     }
 
-    public boolean inTak() {
+    public boolean inTak() throws TakEngineException {
         if(checkForWinner().isFinished()) {
             return false;
         }
