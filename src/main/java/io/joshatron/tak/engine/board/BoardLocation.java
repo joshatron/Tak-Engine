@@ -1,5 +1,9 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
+import org.json.JSONObject;
+
 public class BoardLocation {
 
     private int x;
@@ -13,6 +17,11 @@ public class BoardLocation {
     public BoardLocation(BoardLocation location) {
         this.x = location.getX();
         this.y = location.getY();
+    }
+
+    public BoardLocation(JSONObject location) {
+        this.x = location.getInt("x");
+        this.y = location.getInt("y");
     }
 
     public void move(Direction direction) {
@@ -49,6 +58,14 @@ public class BoardLocation {
         }
     }
 
+    public JSONObject exportToJson() {
+        JSONObject location = new JSONObject();
+        location.put("x", x);
+        location.put("y", y);
+
+        return location;
+    }
+
     public int getX() {
         return x;
     }
@@ -69,7 +86,7 @@ public class BoardLocation {
         return "(" + x + ", " + y + ")";
     }
 
-    public String toBoardString() {
+    public String toBoardString() throws TakEngineException {
         String str = "";
         switch(x) {
             case 0:
@@ -96,10 +113,22 @@ public class BoardLocation {
             case 7:
                 str += "h";
                 break;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
         }
 
         str += Integer.toString(y + 1);
 
         return str;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof BoardLocation) {
+            BoardLocation location = (BoardLocation) o;
+            return this.x == location.getX() && this.y == location.getY();
+        }
+
+        return false;
     }
 }

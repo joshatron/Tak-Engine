@@ -62,4 +62,14 @@ public class PlayerInfo {
     public int getScore() {
         return stones + capstones;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof PlayerInfo) {
+            PlayerInfo other = (PlayerInfo) o;
+            return stones == other.getStones() && capstones == other.getCapstones() && points == other.getPoints();
+        }
+
+        return false;
+    }
 }

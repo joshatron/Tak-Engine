@@ -1,7 +1,6 @@
 package io.joshatron.tak.engine.exception;
 
 public enum TakEngineErrorCode {
-    //Illegal turn
     INVALID_BOARD_SIZE,
     NOT_ENOUGH_STONES,
     NOT_ENOUGH_CAPSTONES,
@@ -13,5 +12,10 @@ public enum TakEngineErrorCode {
     DO_NOT_OWN_STACK,
     INVALID_PLACE_AMOUNT,
     BLOCKED_FROM_PLACING,
-    GAME_FINISHED
+    GAME_FINISHED,
+    INVALID_TURN_TYPE,
+    TOO_MANY_PIECES_SPECIFIED,
+    INVALID_PIECE_TYPE,
+    INVALID_DIRECTION,
+    INVALID_NUMBER
 }

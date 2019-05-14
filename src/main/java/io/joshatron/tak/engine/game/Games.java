@@ -7,7 +7,7 @@ import io.joshatron.tak.engine.turn.TurnType;
 
 public class Games {
 
-    private int games;
+    private int numGames;
     private int boardSize;
     private Player firstPlayer;
     private TakPlayer whitePlayer;
@@ -19,8 +19,8 @@ public class Games {
     private int game;
     private GameSetResult setResults;
 
-    public Games(int games, int boardSize, Player firstPlayer, TakPlayer whitePlayer, TakPlayer blackPlayer, GameHooks hooks) {
-        this.games = games;
+    public Games(int numGames, int boardSize, Player firstPlayer, TakPlayer whitePlayer, TakPlayer blackPlayer, GameHooks hooks) {
+        this.numGames = numGames;
         this.boardSize = boardSize;
         this.firstPlayer = firstPlayer;
         this.whitePlayer = whitePlayer;
@@ -35,8 +35,8 @@ public class Games {
 
     public GameResult playTurn() throws TakEngineException {
         GameResult result;
-        //confirm you haven't finished all the games
-        if(game < games) {
+        //confirm you haven't finished all the numGames
+        if(game < numGames) {
             //if a game is finished and set to null, initialize another one
             if (newGame) {
                 currentState = new GameState(firstPlayer, boardSize);
@@ -54,7 +54,7 @@ public class Games {
                 Turn turn = whitePlayer.getTurn(new GameState(currentState, true));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
-                    game = games;
+                    game = numGames;
                     setResults.addGame(result);
                     return result;
                 }
@@ -62,7 +62,7 @@ public class Games {
                     currentState.executeTurn(turn);
                 } catch (TakEngineException e) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
-                    game = games;
+                    game = numGames;
                     setResults.addGame(result);
                     return result;
                 }
@@ -71,7 +71,7 @@ public class Games {
                 Turn turn = blackPlayer.getTurn(new GameState(currentState, true));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
-                    game = games;
+                    game = numGames;
                     setResults.addGame(result);
                     return result;
                 }
@@ -79,7 +79,7 @@ public class Games {
                     currentState.executeTurn(turn);
                 } catch (TakEngineException e) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
-                    game = games;
+                    game = numGames;
                     setResults.addGame(result);
                     return result;
                 }

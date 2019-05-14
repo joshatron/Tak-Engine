@@ -1,8 +1,12 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.game.Player;
+import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PieceStack {
 
@@ -13,7 +17,7 @@ public class PieceStack {
         pieces = new ArrayList<>();
     }
 
-    public void addPieces(ArrayList<Piece> pieces) {
+    public void addPieces(List<Piece> pieces) {
         this.pieces.addAll(pieces);
     }
 
@@ -21,9 +25,9 @@ public class PieceStack {
         pieces.add(piece);
     }
 
-    public ArrayList<Piece> removePieces(int toRemove) {
+    public List<Piece> removePieces(int toRemove) throws TakEngineException {
         if(toRemove > pieces.size()) {
-            return null;
+            throw new TakEngineException(TakEngineErrorCode.TOO_MANY_PIECES_SPECIFIED);
         }
 
         int pieceLoc = pieces.size() - toRemove;
@@ -35,9 +39,9 @@ public class PieceStack {
         return removed;
     }
 
-    public ArrayList<Piece> getTopPieces(int num) {
+    public List<Piece> getTopPieces(int num) throws TakEngineException {
         if(num > pieces.size()) {
-            return null;
+            throw new TakEngineException(TakEngineErrorCode.TOO_MANY_PIECES_SPECIFIED);
         }
 
         ArrayList<Piece> top = new ArrayList<>();
@@ -72,12 +76,21 @@ public class PieceStack {
         return pieces.get(pieces.size() - 1).getPlayer();
     }
 
-    public ArrayList<Piece> getPieces() {
-        return new ArrayList<Piece>(pieces);
+    public List<Piece> getPieces() {
+        return new ArrayList<>(pieces);
     }
 
     public int getHeight() {
         return pieces.size();
+    }
+
+    public JSONArray exportToJson() {
+        JSONArray array = new JSONArray();
+        for(Piece piece : pieces) {
+            array.put(piece.exportToJson());
+        }
+
+        return array;
     }
 
     // Prints top to bottom according to tak by mail rules
@@ -86,37 +99,53 @@ public class PieceStack {
             return "";
         }
 
-        String str = "";
+        StringBuilder str = new StringBuilder();
 
         for(int i = pieces.size() - 1; i >= 0; i--) {
             if(pieces.get(i).isWhite()) {
                 switch(pieces.get(i).getType()) {
                     case STONE:
-                        str += "s";
+                        str.append("s");
                         break;
                     case WALL:
-                        str += "w";
+                        str.append("w");
                         break;
                     case CAPSTONE:
-                        str += "c";
+                        str.append("c");
                         break;
                 }
             }
             else {
                 switch(pieces.get(i).getType()) {
                     case STONE:
-                        str += "S";
+                        str.append("S");
                         break;
                     case WALL:
-                        str += "W";
+                        str.append("W");
                         break;
                     case CAPSTONE:
-                        str += "C";
+                        str.append("C");
                         break;
                 }
             }
         }
 
-        return str;
+        return str.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof PieceStack) {
+            PieceStack other = (PieceStack) o;
+            for(int i = 0; i < pieces.size(); i++) {
+                if(!pieces.get(i).equals(other.getPieces().get(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

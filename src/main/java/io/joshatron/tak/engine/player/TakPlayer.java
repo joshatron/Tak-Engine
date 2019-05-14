@@ -6,5 +6,5 @@ import io.joshatron.tak.engine.turn.Turn;
 
 public interface TakPlayer {
 
-    public Turn getTurn(GameState state) throws TakEngineException;
+    Turn getTurn(GameState state) throws TakEngineException;
 }

@@ -8,6 +8,7 @@ import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.turn.MoveTurn;
 import io.joshatron.tak.engine.turn.PlaceTurn;
 import io.joshatron.tak.engine.turn.Turn;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -861,7 +862,7 @@ public class GameStateTest {
             Assert.assertTrue(state.getBoard().getPosition(2,3).getTopPiece().isBlack());
             Assert.assertEquals(1, state.getBoard().getPosition(2,3).getHeight());
             Assert.assertEquals(PieceType.STONE, state.getBoard().getPosition(2,3).getTopPiece().getType());
-            ArrayList<Piece> pieces = state.getBoard().getPosition(2,2).getPieces();
+            List<Piece> pieces = state.getBoard().getPosition(2,2).getPieces();
             Assert.assertEquals(2, pieces.size());
             Assert.assertTrue(pieces.get(0).isBlack());
             Assert.assertTrue(pieces.get(1).isBlack());
@@ -1397,6 +1398,30 @@ public class GameStateTest {
             Assert.assertEquals(4, state.getBoardLocationsFilled());
         }
         catch(TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void importAndExportState() {
+        try {
+            GameState state = initializeState(3);
+            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            state.executeTurn(move);
+            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            state.executeTurn(place);
+            move = new MoveTurn(0,0,2,Direction.EAST,new int[]{2});
+            state.executeTurn(move);
+            place = new PlaceTurn(1,1,PieceType.STONE);
+            state.executeTurn(place);
+            move = new MoveTurn(1,0,3,Direction.SOUTH,new int[]{3});
+            state.executeTurn(move);
+            place = new PlaceTurn(0,1,PieceType.STONE);
+            state.executeTurn(place);
+            JSONObject stateJson = state.exportToJson();
+            GameState newState = new GameState(stateJson);
+            Assert.assertEquals(state, newState);
+        } catch (TakEngineException e) {
             Assert.fail();
         }
     }

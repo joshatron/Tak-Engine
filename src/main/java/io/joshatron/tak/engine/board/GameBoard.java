@@ -1,12 +1,16 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
+import io.joshatron.tak.engine.exception.TakEngineException;
+import org.json.JSONArray;
+
 public class GameBoard {
 
     //[x][y]
     private PieceStack[][] board;
     private int boardSize;
 
-    public GameBoard(int boardSize) {
+    public GameBoard(int boardSize) throws TakEngineException {
         this.boardSize = boardSize;
 
         switch(boardSize) {
@@ -25,6 +29,8 @@ public class GameBoard {
             case 8:
                 board = new PieceStack[8][8];
                 break;
+            default:
+                throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
 
         for(int x = 0; x < boardSize; x++) {
@@ -35,11 +41,8 @@ public class GameBoard {
     }
 
     public boolean onBoard(int x, int y) {
-        if(x >= 0 && x < boardSize && y >= 0 && y < boardSize) {
-            return true;
-        }
+        return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
 
-        return false;
     }
 
     public boolean onBoard(BoardLocation loc) {
@@ -89,6 +92,19 @@ public class GameBoard {
         }
     }
 
+    public JSONArray exportToJson() {
+        JSONArray toReturn = new JSONArray();
+        for(int i = 0; i < boardSize; i++) {
+            JSONArray row = new JSONArray();
+            for(int j = 0; j < boardSize; j++) {
+                row.put(this.board[i][j].exportToJson());
+            }
+            toReturn.put(row);
+        }
+
+        return toReturn;
+    }
+
     public int getBoardSize() {
         return boardSize;
     }
@@ -99,5 +115,27 @@ public class GameBoard {
 
     public PieceStack getPosition(int x, int y) {
         return board[x][y];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof GameBoard) {
+            GameBoard other = (GameBoard) o;
+            if(boardSize != other.getBoardSize()) {
+                return false;
+            }
+
+            for(int i = 0; i < boardSize; i++) {
+                for(int j = 0; j < boardSize; j++) {
+                    if(!board[i][j].equals(other.getPosition(i, j))) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
