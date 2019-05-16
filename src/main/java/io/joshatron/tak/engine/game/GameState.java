@@ -149,7 +149,7 @@ public class GameState {
     }
 
     private void validatePlace(PlaceTurn place) throws TakEngineException {
-        PlayerInfo info = getInfo(currentTurn);
+        PlayerInfo info = getInfo(getCurrentForInfo());
 
         // Check if enough pieces.
         if (place.getPieceType() != PieceType.CAPSTONE && info.getStones() < 1) {
@@ -241,7 +241,7 @@ public class GameState {
             return result;
         }
 
-        PlayerInfo info = getInfo(currentTurn.opposite());
+        PlayerInfo info = getInfo(getCurrentForInfo().opposite());
 
         // Check if someone is out of pieces
         if(info.getStones() == 0 && info.getCapstones() == 0) {
@@ -348,7 +348,7 @@ public class GameState {
     }
 
     private void applyPlace(PlaceTurn place) {
-        PlayerInfo info = getInfo(currentTurn);
+        PlayerInfo info = getInfo(getCurrentForInfo());
 
         Player player = currentTurn;
         if (turns.size() < 2) {
@@ -370,12 +370,12 @@ public class GameState {
     private void applyMove(MoveTurn move) throws TakEngineException {
         List<Piece> pieces = board.getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
         if(board.getPosition(move.getStartLocation()).getHeight() == 0) {
-            getInfo(currentTurn).decrementPoints();
+            getInfo(getCurrentForInfo()).decrementPoints();
             piecesFilled--;
         }
         else if(board.getPosition(move.getStartLocation()).getStackOwner() != currentTurn) {
-            getInfo(currentTurn).decrementPoints();
-            getInfo(currentTurn.opposite()).incrementPoints();
+            getInfo(getCurrentForInfo()).decrementPoints();
+            getInfo(getCurrentForInfo().opposite()).incrementPoints();
         }
         BoardLocation current = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
         for(int i = 0; i < move.getPlaced().length; i++) {
@@ -419,13 +419,7 @@ public class GameState {
     private void undoPlace(PlaceTurn place) throws TakEngineException {
         board.getPosition(place.getLocation()).removePieces(1);
         piecesFilled--;
-        PlayerInfo info;
-        if(turns.size() < 2) {
-            info = getInfo(currentTurn);
-        }
-        else {
-            info = getInfo(currentTurn.opposite());
-        }
+        PlayerInfo info = getInfo(getCurrentForInfo());
 
         if (place.getPieceType() == PieceType.STONE) {
             info.incrementStones();
@@ -494,7 +488,7 @@ public class GameState {
                 for (int y = 0; y < getBoardSize(); y++) {
                     //If it is empty, add possible places
                     if (board.getPosition(x, y).getHeight() == 0) {
-                        PlayerInfo info = getInfo(currentTurn);
+                        PlayerInfo info = getInfo(getCurrentForInfo());
 
                         if (info.getStones() > 0) {
                             possibleTurns.add(new PlaceTurn(x, y, PieceType.STONE));
@@ -668,6 +662,21 @@ public class GameState {
 
     public int getBoardLocationsFilled() {
         return piecesFilled;
+    }
+
+    private Player getCurrentForInfo() {
+        if(turns.isEmpty()) {
+            return firstTurn.opposite();
+        }
+        else if(turns.size() == 1) {
+            return firstTurn;
+        }
+        else if(turns.size() % 2 == 0) {
+            return firstTurn;
+        }
+        else {
+            return firstTurn.opposite();
+        }
     }
 
     private PlayerInfo getInfo(Player player) {
