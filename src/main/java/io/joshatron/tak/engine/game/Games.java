@@ -42,16 +42,16 @@ public class Games {
                 currentState = new GameState(firstPlayer, boardSize);
                 newGame = false;
                 if(hooks != null) {
-                    hooks.beforeGame(new GameState(currentState, true), game);
+                    hooks.beforeGame(new GameState(currentState, new GameStateConfig(true, false)), game);
                 }
             }
 
             //have current player complete turn
             if(hooks != null) {
-                    hooks.beforeTurn(new GameState(currentState, true));
+                    hooks.beforeTurn(new GameState(currentState, new GameStateConfig(true, false)));
             }
             if(currentState.isWhiteTurn()) {
-                Turn turn = whitePlayer.getTurn(new GameState(currentState, true));
+                Turn turn = whitePlayer.getTurn(new GameState(currentState, new GameStateConfig(true, false)));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
@@ -68,7 +68,7 @@ public class Games {
                 }
             }
             else {
-                Turn turn = blackPlayer.getTurn(new GameState(currentState, true));
+                Turn turn = blackPlayer.getTurn(new GameState(currentState, new GameStateConfig(true, false)));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
@@ -85,7 +85,7 @@ public class Games {
                 }
             }
             if(hooks != null) {
-                hooks.afterTurn(new GameState(currentState, true));
+                hooks.afterTurn(new GameState(currentState, new GameStateConfig(true, false)));
             }
 
             result = currentState.checkForWinner();
@@ -93,7 +93,7 @@ public class Games {
             //If game finished, reset for the next one
             if(result.isFinished()) {
                 if(hooks != null) {
-                    hooks.afterGame(new GameState(currentState, true), game);
+                    hooks.afterGame(new GameState(currentState, new GameStateConfig(true, false)), game);
                 }
                 if(firstPlayer == Player.WHITE) {
                     firstPlayer = Player.BLACK;

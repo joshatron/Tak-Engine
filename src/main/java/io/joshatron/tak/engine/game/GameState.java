@@ -26,38 +26,38 @@ public class GameState {
 
     private GameResult result;
 
-    private boolean fast;
+    private GameStateConfig config;
 
     public GameState(Player firstTurn, int boardSize) throws TakEngineException {
-        initializeGame(firstTurn, boardSize, false);
+        this(firstTurn, boardSize, new GameStateConfig());
     }
 
-    public GameState(Player firstTurn, int boardSize, boolean fast) throws TakEngineException {
-        initializeGame(firstTurn, boardSize, fast);
+    public GameState(Player firstTurn, int boardSize, GameStateConfig config) throws TakEngineException {
+        initializeGame(firstTurn, boardSize, config);
     }
 
     public GameState(GameState state) throws TakEngineException {
-        this(state, false);
+        this(state, new GameStateConfig());
     }
 
-    public GameState(GameState state, boolean fast) throws TakEngineException {
-        initializeGame(state.getFirstPlayer(), state.getBoardSize(), fast);
+    public GameState(GameState state, GameStateConfig config) throws TakEngineException {
+        initializeGame(state.getFirstPlayer(), state.getBoardSize(), config);
         for(Turn turn : state.getTurns()) {
             executeTurn(turn);
         }
     }
 
     public GameState(JSONObject json) throws TakEngineException {
-        this(json, false);
+        this(json, new GameStateConfig());
     }
 
-    public GameState(JSONObject json, boolean fast) throws TakEngineException {
-        importFromJson(json, fast);
+    public GameState(JSONObject json, GameStateConfig config) throws TakEngineException {
+        importFromJson(json, config);
     }
 
-    private void initializeGame(Player firstTurn, int boardSize, boolean fast) throws TakEngineException {
+    private void initializeGame(Player firstTurn, int boardSize, GameStateConfig config) throws TakEngineException {
         this.firstTurn = firstTurn;
-        this.fast = fast;
+        this.config = config;
         this.turns = new ArrayList<>();
 
         piecesFilled = 0;
@@ -96,8 +96,8 @@ public class GameState {
         }
     }
 
-    private void importFromJson(JSONObject json, boolean fast) throws TakEngineException {
-        initializeGame(Player.valueOf(json.getString("first")), json.getInt("size"), fast);
+    private void importFromJson(JSONObject json, GameStateConfig config) throws TakEngineException {
+        initializeGame(Player.valueOf(json.getString("first")), json.getInt("size"), config);
         JSONArray moves = json.getJSONArray("turns");
         for(int i = 0; i < moves.length(); i++) {
             applyTurn(TurnUtils.turnFromJson(moves.getJSONObject(i)));
@@ -328,7 +328,7 @@ public class GameState {
     }
 
     public void executeTurn(Turn turn) throws TakEngineException {
-        if(!fast) {
+        if(!config.isFast()) {
             validateTurn(turn);
         }
 
