@@ -1030,7 +1030,7 @@ public class GameStateTest {
     //all given turns are legal and that there are the right number of them.
     //This gives reasonable certainty of correctness without building large
     //lists and having to sort and compare them
-    private boolean verifyState(GameState state, int possible) {
+    private boolean verifyState(GameState state, int possible) throws TakEngineException {
         List<Turn> turns = state.getPossibleTurns();
 
         //makes sure there are the correct number of possible turns

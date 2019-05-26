@@ -469,7 +469,7 @@ public class GameState {
         }
     }
 
-    public List<Turn> getPossibleTurns() {
+    public List<Turn> getPossibleTurns() throws TakEngineException {
         ArrayList<Turn> possibleTurns = new ArrayList<>();
 
         if(this.turns.size() < 2) {
@@ -506,6 +506,16 @@ public class GameState {
                         possibleTurns.addAll(getMoves(x, y, Direction.WEST));
                     }
                 }
+            }
+        }
+
+        if(config.isRemoveLosing()) {
+            for(Turn turn : possibleTurns) {
+                applyTurn(turn);
+                if(inTak()) {
+                    possibleTurns.remove(turn);
+                }
+                undoTurn();
             }
         }
 
