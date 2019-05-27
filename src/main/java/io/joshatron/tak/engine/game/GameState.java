@@ -509,13 +509,24 @@ public class GameState {
             }
         }
 
-        if(config.isRemoveLosing()) {
-            for(Turn turn : possibleTurns) {
-                applyTurn(turn);
-                if(inTak()) {
-                    possibleTurns.remove(turn);
+        if(config.isNarrowPossible()) {
+            if(inTak()) {
+                for(Turn turn : possibleTurns) {
+                    applyTurn(turn);
+                    if(canWin(currentTurn)) {
+                        possibleTurns.remove(turn);
+                    }
+                    undoTurn();
                 }
-                undoTurn();
+            }
+            else if(canWin(currentTurn)) {
+                for(Turn turn : possibleTurns) {
+                    applyTurn(turn);
+                    if(!checkForWinner().isFinished()) {
+                        possibleTurns.remove(turn);
+                    }
+                    undoTurn();
+                }
             }
         }
 
@@ -588,6 +599,10 @@ public class GameState {
     }
 
     public boolean inTak() throws TakEngineException {
+        return canWin(currentTurn.opposite());
+    }
+
+    public boolean canWin(Player player) throws TakEngineException {
         if(checkForWinner().isFinished()) {
             return false;
         }
@@ -595,7 +610,8 @@ public class GameState {
             return false;
         }
 
-        currentTurn = currentTurn.opposite();
+        Player current = currentTurn;
+        currentTurn = player;
         List<Turn> possible = getPossibleTurns();
         boolean finished = false;
         for(Turn turn : possible) {
@@ -607,7 +623,7 @@ public class GameState {
             }
             undoTurn();
         }
-        currentTurn = currentTurn.opposite();
+        currentTurn = current;
 
         return finished;
     }

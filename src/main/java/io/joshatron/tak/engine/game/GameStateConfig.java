@@ -2,16 +2,16 @@ package io.joshatron.tak.engine.game;
 
 public class GameStateConfig {
     private boolean fast;
-    private boolean removeLosing;
+    private boolean narrowPossible;
 
     public GameStateConfig() {
         this.fast = false;
-        this.removeLosing = false;
+        this.narrowPossible = false;
     }
 
-    public GameStateConfig(boolean fast, boolean removeLosing) {
+    public GameStateConfig(boolean fast, boolean narrowPossible) {
         this.fast = fast;
-        this.removeLosing = removeLosing;
+        this.narrowPossible = narrowPossible;
     }
 
     public boolean isFast() {
@@ -22,11 +22,11 @@ public class GameStateConfig {
         this.fast = fast;
     }
 
-    public boolean isRemoveLosing() {
-        return removeLosing;
+    public boolean isNarrowPossible() {
+        return narrowPossible;
     }
 
-    public void setRemoveLosing(boolean removeLosing) {
-        this.removeLosing = removeLosing;
+    public void setNarrowPossible(boolean narrowPossible) {
+        this.narrowPossible = narrowPossible;
     }
 }
