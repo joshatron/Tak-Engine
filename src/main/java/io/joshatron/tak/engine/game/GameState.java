@@ -510,23 +510,27 @@ public class GameState {
         }
 
         if(config.isNarrowPossible()) {
-            if(inTak()) {
-                for(Turn turn : possibleTurns) {
-                    applyTurn(turn);
-                    if(canWin(currentTurn)) {
-                        possibleTurns.remove(turn);
-                    }
-                    undoTurn();
-                }
-            }
-            else if(canWin(currentTurn)) {
+            if(canWin(currentTurn)) {
+                ArrayList<Turn> toRemove = new ArrayList<>();
                 for(Turn turn : possibleTurns) {
                     applyTurn(turn);
                     if(!checkForWinner().isFinished()) {
-                        possibleTurns.remove(turn);
+                        toRemove.add(turn);
                     }
                     undoTurn();
                 }
+                possibleTurns.removeAll(toRemove);
+            }
+            else if(inTak()) {
+                ArrayList<Turn> toRemove = new ArrayList<>();
+                for(Turn turn : possibleTurns) {
+                    applyTurn(turn);
+                    if(canWin(currentTurn)) {
+                        toRemove.add(turn);
+                    }
+                    undoTurn();
+                }
+                possibleTurns.removeAll(toRemove);
             }
         }
 
@@ -612,7 +616,10 @@ public class GameState {
 
         Player current = currentTurn;
         currentTurn = player;
+        boolean oldNarrow = config.isNarrowPossible();
+        config.setNarrowPossible(false);
         List<Turn> possible = getPossibleTurns();
+        config.setNarrowPossible(oldNarrow);
         boolean finished = false;
         for(Turn turn : possible) {
             applyTurn(turn);
