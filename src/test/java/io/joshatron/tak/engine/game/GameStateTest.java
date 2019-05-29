@@ -1223,6 +1223,22 @@ public class GameStateTest {
             state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
             state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
             state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(2, 0, PieceType.STONE));
+            //Without flag it should be 17 possible
+            Assert.assertTrue(verifyState(state, 1));
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
+    //Tests correct behavior for the narrowPossible flag when you are able to win and are in tak
+    @Test
+    public void getPossibleTurnsNarrowPossibleCanWinAndInTak() {
+        try {
+            GameState state = new GameState(Player.WHITE, 3, new GameStateConfig(false, true));
+            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
             state.executeTurn(new PlaceTurn(0, 1, PieceType.STONE));
             //Without flag it should be 17 possible
             Assert.assertTrue(verifyState(state, 1));
