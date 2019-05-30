@@ -26,38 +26,27 @@ public class GameState {
 
     private GameResult result;
 
-    private GameStateConfig config;
-
     public GameState(Player firstTurn, int boardSize) throws TakEngineException {
-        this(firstTurn, boardSize, new GameStateConfig());
-    }
-
-    public GameState(Player firstTurn, int boardSize, GameStateConfig config) throws TakEngineException {
-        initializeGame(firstTurn, boardSize, config);
+        initializeGame(firstTurn, boardSize);
     }
 
     public GameState(GameState state) throws TakEngineException {
-        this(state, new GameStateConfig());
-    }
-
-    public GameState(GameState state, GameStateConfig config) throws TakEngineException {
-        initializeGame(state.getFirstPlayer(), state.getBoardSize(), config);
+        initializeGame(state.getFirstPlayer(), state.getBoardSize());
         for(Turn turn : state.getTurns()) {
             executeTurn(turn);
         }
     }
 
     public GameState(JSONObject json) throws TakEngineException {
-        this(json, new GameStateConfig());
+        initializeGame(Player.valueOf(json.getString("first")), json.getInt("size"));
+        JSONArray moves = json.getJSONArray("turns");
+        for(int i = 0; i < moves.length(); i++) {
+            applyTurn(TurnUtils.turnFromJson(moves.getJSONObject(i)));
+        }
     }
 
-    public GameState(JSONObject json, GameStateConfig config) throws TakEngineException {
-        importFromJson(json, config);
-    }
-
-    private void initializeGame(Player firstTurn, int boardSize, GameStateConfig config) throws TakEngineException {
+    private void initializeGame(Player firstTurn, int boardSize) throws TakEngineException {
         this.firstTurn = firstTurn;
-        this.config = config;
         this.turns = new ArrayList<>();
 
         piecesFilled = 0;
@@ -93,14 +82,6 @@ public class GameState {
                 break;
             default:
                 throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
-        }
-    }
-
-    private void importFromJson(JSONObject json, GameStateConfig config) throws TakEngineException {
-        initializeGame(Player.valueOf(json.getString("first")), json.getInt("size"), config);
-        JSONArray moves = json.getJSONArray("turns");
-        for(int i = 0; i < moves.length(); i++) {
-            applyTurn(TurnUtils.turnFromJson(moves.getJSONObject(i)));
         }
     }
 
@@ -328,10 +309,7 @@ public class GameState {
     }
 
     public void executeTurn(Turn turn) throws TakEngineException {
-        if(!config.isFast()) {
-            validateTurn(turn);
-        }
-
+        validateTurn(turn);
         applyTurn(turn);
     }
 
@@ -405,10 +383,11 @@ public class GameState {
         Turn turn = turns.remove(turns.size() - 1);
         currentTurn = currentTurn.opposite();
 
-        //Undo a place move
+        //Undo a place turn
         if(turn.getType() == TurnType.PLACE) {
             undoPlace((PlaceTurn) turn);
         }
+        //Undo a move turn
         else if(turn.getType() == TurnType.MOVE) {
             undoMove((MoveTurn) turn);
         }
@@ -469,172 +448,6 @@ public class GameState {
         }
     }
 
-    public List<Turn> getPossibleTurns() throws TakEngineException {
-        ArrayList<Turn> possibleTurns = new ArrayList<>();
-
-        if(this.turns.size() < 2) {
-            for(int x = 0; x < getBoardSize(); x++) {
-                for(int y = 0; y < getBoardSize(); y++) {
-                    if(board.getPosition(x, y).getHeight() == 0) {
-                        possibleTurns.add(new PlaceTurn(x, y, PieceType.STONE));
-                    }
-                }
-            }
-
-        }
-        else {
-            //Iterate through each position to process possible moves
-            for (int x = 0; x < getBoardSize(); x++) {
-                for (int y = 0; y < getBoardSize(); y++) {
-                    //If it is empty, add possible places
-                    if (board.getPosition(x, y).getHeight() == 0) {
-                        PlayerInfo info = getInfo(getCurrentForInfo());
-
-                        if (info.getStones() > 0) {
-                            possibleTurns.add(new PlaceTurn(x, y, PieceType.STONE));
-                            possibleTurns.add(new PlaceTurn(x, y, PieceType.WALL));
-                        }
-                        if (info.getCapstones() > 0) {
-                            possibleTurns.add(new PlaceTurn(x, y, PieceType.CAPSTONE));
-                        }
-                    }
-                    //Otherwise iterate through possible moves if player owns the stack
-                    else if (board.getPosition(x, y).getTopPiece().getPlayer() == currentTurn) {
-                        possibleTurns.addAll(getMoves(x, y, Direction.NORTH));
-                        possibleTurns.addAll(getMoves(x, y, Direction.SOUTH));
-                        possibleTurns.addAll(getMoves(x, y, Direction.EAST));
-                        possibleTurns.addAll(getMoves(x, y, Direction.WEST));
-                    }
-                }
-            }
-        }
-
-        if(config.isNarrowPossible()) {
-            if(canWin(currentTurn)) {
-                ArrayList<Turn> toRemove = new ArrayList<>();
-                for(Turn turn : possibleTurns) {
-                    applyTurn(turn);
-                    if(!checkForWinner().isFinished()) {
-                        toRemove.add(turn);
-                    }
-                    undoTurn();
-                }
-                possibleTurns.removeAll(toRemove);
-            }
-            else if(inTak()) {
-                ArrayList<Turn> toRemove = new ArrayList<>();
-                for(Turn turn : possibleTurns) {
-                    applyTurn(turn);
-                    if(canWin(currentTurn)) {
-                        toRemove.add(turn);
-                    }
-                    undoTurn();
-                }
-                possibleTurns.removeAll(toRemove);
-            }
-        }
-
-        return possibleTurns;
-    }
-
-
-    private ArrayList<Turn> getMoves(int x, int y, Direction dir) {
-        ArrayList<Turn> possibleTurns = new ArrayList<>();
-
-        int numPieces = Math.min(board.getPosition(x, y).getHeight(), getBoardSize());
-        int distToBlock = 0;
-        BoardLocation loc = new BoardLocation(x, y);
-        loc.move(dir);
-        while(board.onBoard(loc) &&
-              (board.getPosition(loc).getHeight() == 0 ||
-              board.getPosition(loc).getTopPiece().getType() == PieceType.STONE)) {
-            distToBlock++;
-            loc.move(dir);
-        }
-        boolean canFlatten = false;
-        if(board.onBoard(loc) && board.getPosition(loc).getHeight() > 0 &&
-           board.getPosition(loc).getTopPiece().getType() == PieceType.WALL &&
-           board.getPosition(x, y).getTopPiece().getType() == PieceType.CAPSTONE) {
-            canFlatten = true;
-        }
-
-        if(distToBlock > 0) {
-            while (numPieces > 0) {
-                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<>(), x, y, dir, numPieces));
-                numPieces--;
-            }
-        }
-
-        return possibleTurns;
-    }
-
-    private ArrayList<Turn> getMovesInner(int distToBlock, boolean canFlatten, int numPieces, ArrayList<Integer> drops, int x, int y, Direction dir, int pickup) {
-        ArrayList<Turn> possibleTurns = new ArrayList<>();
-        //at last spot
-        if(distToBlock == 0) {
-            possibleTurns.add(buildMove(x, y, pickup, dir, drops, numPieces));
-            if(canFlatten && numPieces > 1) {
-                drops.add(numPieces - 1);
-                possibleTurns.add(buildMove(x, y, pickup, dir, drops, 1));
-            }
-        }
-        //iterate through everything else
-        else {
-            possibleTurns.add(buildMove(x, y, pickup, dir, drops, numPieces));
-            int piecesLeft = numPieces - 1;
-            while(piecesLeft > 0) {
-                drops.add(piecesLeft);
-                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<>(drops), x, y, dir, pickup));
-                drops.remove(drops.size() - 1);
-                piecesLeft--;
-            }
-        }
-
-        return possibleTurns;
-    }
-
-    private MoveTurn buildMove(int x, int y, int pickup, Direction dir, ArrayList<Integer> drops, int current) {
-        int[] drop = new int[drops.size() + 1];
-        for(int i = 0; i < drops.size(); i++) {
-            drop[i] = drops.get(i);
-        }
-        drop[drop.length - 1] = current;
-        return new MoveTurn(x, y, pickup, dir, drop);
-    }
-
-    public boolean inTak() throws TakEngineException {
-        return canWin(currentTurn.opposite());
-    }
-
-    public boolean canWin(Player player) throws TakEngineException {
-        if(checkForWinner().isFinished()) {
-            return false;
-        }
-        if(turns.size() < 3) {
-            return false;
-        }
-
-        Player current = currentTurn;
-        currentTurn = player;
-        boolean oldNarrow = config.isNarrowPossible();
-        config.setNarrowPossible(false);
-        List<Turn> possible = getPossibleTurns();
-        config.setNarrowPossible(oldNarrow);
-        boolean finished = false;
-        for(Turn turn : possible) {
-            applyTurn(turn);
-            if(checkForWinner().isFinished()) {
-                finished = true;
-                undoTurn();
-                break;
-            }
-            undoTurn();
-        }
-        currentTurn = current;
-
-        return finished;
-    }
-
     public GameBoard getBoard() {
         return board;
     }
@@ -643,6 +456,24 @@ public class GameState {
         System.out.println("WS: " + whiteInfo.getStones() + " WC: " + whiteInfo.getCapstones() +
                            " BS: " + blackInfo.getStones() + " BC: " + blackInfo.getCapstones());
         board.printBoard();
+    }
+
+    private Player getCurrentForInfo() {
+        if(turns.size() < 2) {
+            return currentTurn.opposite();
+        }
+        else {
+            return currentTurn;
+        }
+    }
+
+    private PlayerInfo getInfo(Player player) {
+        if(player == Player.WHITE) {
+            return whiteInfo;
+        }
+        else {
+            return blackInfo;
+        }
     }
 
     public int getBoardSize() {
@@ -695,24 +526,6 @@ public class GameState {
 
     public int getBoardLocationsFilled() {
         return piecesFilled;
-    }
-
-    private Player getCurrentForInfo() {
-        if(turns.size() < 2) {
-            return currentTurn.opposite();
-        }
-        else {
-            return currentTurn;
-        }
-    }
-
-    private PlayerInfo getInfo(Player player) {
-        if(player == Player.WHITE) {
-            return whiteInfo;
-        }
-        else {
-            return blackInfo;
-        }
     }
 
     @Override
