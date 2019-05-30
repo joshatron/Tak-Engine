@@ -763,6 +763,37 @@ public class GameStateTest {
         }
     }
 
+    //Tests that checking for winner doesn't change the game state
+    @Test
+    public void checkForWinnerDoesntChangeBoard() {
+        try {
+            GameState state = initializeState(3);
+
+            PlaceTurn place = new PlaceTurn(2,0,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(0,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(1,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(2,1,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(0,2,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(1,2,PieceType.STONE);
+            state.executeTurn(place);
+            place = new PlaceTurn(2,2,PieceType.STONE);
+            GameState toCheck = new GameState(state);
+            Assert.assertEquals(new GameResult(), state.checkForWinner());
+            Assert.assertEquals(toCheck, state);
+            state.executeTurn(place);
+            toCheck = new GameState(state);
+            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.BOARD_FULL, 14), state.checkForWinner());
+            Assert.assertEquals(toCheck, state);
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
     //Tests that places end up with the right state and undo correctly
     @Test
     public void undoTurnUndoPlace() {
@@ -981,6 +1012,24 @@ public class GameStateTest {
             Assert.fail();
         }
     }
+
+    //Test that doing a turn and then undoing it results in the same state
+    @Test
+    public void undoTurnMakeSureSameState() {
+        try {
+            GameState state = new GameState(Player.WHITE, 3);
+            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
+            GameState toCheck = new GameState(state);
+            state.executeTurn(new PlaceTurn(0, 1, PieceType.STONE));
+            state.undoTurn();
+            Assert.assertEquals(toCheck, state);
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
 
     //Makes sure the initial number of pieces are correct to the rules
     @Test
@@ -1247,6 +1296,22 @@ public class GameStateTest {
         }
     }
 
+    //Tests that get possible turns doesn't change the board
+    @Test
+    public void getPossibleTurnsDoesntChangeState() {
+        try {
+            GameState state = new GameState(Player.WHITE, 3, new GameStateConfig(false, true));
+            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
+            GameState toCheck = new GameState(state);
+            state.getPossibleTurns();
+            Assert.assertEquals(toCheck, state);
+        } catch (TakEngineException e) {
+            Assert.fail();
+        }
+    }
+
     //Tests that inTak works correctly and doesn't change the board
     @Test
     public void inTak() {
@@ -1254,14 +1319,18 @@ public class GameStateTest {
             GameState state = new GameState(Player.WHITE, 3);
             PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
+            GameState toCheck = new GameState(state);
             Assert.assertFalse(state.inTak());
+            Assert.assertEquals(toCheck, state);
             Assert.assertEquals(1, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
 
             place = new PlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
+            toCheck = new GameState(state);
             Assert.assertFalse(state.inTak());
+            Assert.assertEquals(toCheck, state);
             Assert.assertEquals(2, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
@@ -1269,7 +1338,9 @@ public class GameStateTest {
 
             place = new PlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
+            toCheck = new GameState(state);
             Assert.assertTrue(state.inTak());
+            Assert.assertEquals(toCheck, state);
             Assert.assertEquals(3, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
@@ -1278,7 +1349,9 @@ public class GameStateTest {
 
             place = new PlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
+            toCheck = new GameState(state);
             Assert.assertTrue(state.inTak());
+            Assert.assertEquals(toCheck, state);
             Assert.assertEquals(4, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
@@ -1289,7 +1362,9 @@ public class GameStateTest {
             place = new PlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(state.checkForWinner().isFinished());
+            toCheck = new GameState(state);
             Assert.assertFalse(state.inTak());
+            Assert.assertEquals(toCheck, state);
             Assert.assertEquals(5, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());

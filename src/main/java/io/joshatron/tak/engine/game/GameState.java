@@ -610,7 +610,7 @@ public class GameState {
         if(checkForWinner().isFinished()) {
             return false;
         }
-        if(turns.size() < 2) {
+        if(turns.size() < 3) {
             return false;
         }
 
@@ -732,7 +732,7 @@ public class GameState {
             }
 
             return firstTurn == other.getFirstPlayer() && currentTurn == other.getCurrentPlayer() &&
-                    whiteInfo.equals(other.whiteInfo) && blackInfo.equals(other.blackInfo);
+                   whiteInfo.equals(other.whiteInfo) && blackInfo.equals(other.blackInfo);
         }
 
         return false;
