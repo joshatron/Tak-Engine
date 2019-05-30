@@ -403,6 +403,7 @@ public class GameState {
 
     public void undoTurn() throws TakEngineException {
         Turn turn = turns.remove(turns.size() - 1);
+        currentTurn = currentTurn.opposite();
 
         //Undo a place move
         if(turn.getType() == TurnType.PLACE) {
@@ -412,7 +413,6 @@ public class GameState {
             undoMove((MoveTurn) turn);
         }
 
-        currentTurn = currentTurn.opposite();
         result = null;
     }
 
@@ -698,17 +698,11 @@ public class GameState {
     }
 
     private Player getCurrentForInfo() {
-        if(turns.isEmpty()) {
-            return firstTurn.opposite();
-        }
-        else if(turns.size() == 1) {
-            return firstTurn;
-        }
-        else if(turns.size() % 2 == 0) {
-            return firstTurn;
+        if(turns.size() < 2) {
+            return currentTurn.opposite();
         }
         else {
-            return firstTurn.opposite();
+            return currentTurn;
         }
     }
 
