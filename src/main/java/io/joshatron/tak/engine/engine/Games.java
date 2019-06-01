@@ -1,6 +1,7 @@
-package io.joshatron.tak.engine.game;
+package io.joshatron.tak.engine.engine;
 
 import io.joshatron.tak.engine.exception.TakEngineException;
+import io.joshatron.tak.engine.game.*;
 import io.joshatron.tak.engine.player.TakPlayer;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnType;
@@ -42,16 +43,16 @@ public class Games {
                 currentState = new GameState(firstPlayer, boardSize);
                 newGame = false;
                 if(hooks != null) {
-                    hooks.beforeGame(new GameState(currentState, new GameStateConfig(true, false)), game);
+                    hooks.beforeGame(new GameState(currentState), game);
                 }
             }
 
             //have current player complete turn
             if(hooks != null) {
-                    hooks.beforeTurn(new GameState(currentState, new GameStateConfig(true, false)));
+                    hooks.beforeTurn(new GameState(currentState));
             }
             if(currentState.isWhiteTurn()) {
-                Turn turn = whitePlayer.getTurn(new GameState(currentState, new GameStateConfig(true, false)));
+                Turn turn = whitePlayer.getTurn(new GameState(currentState));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
@@ -68,7 +69,7 @@ public class Games {
                 }
             }
             else {
-                Turn turn = blackPlayer.getTurn(new GameState(currentState, new GameStateConfig(true, false)));
+                Turn turn = blackPlayer.getTurn(new GameState(currentState));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
@@ -85,7 +86,7 @@ public class Games {
                 }
             }
             if(hooks != null) {
-                hooks.afterTurn(new GameState(currentState, new GameStateConfig(true, false)));
+                hooks.afterTurn(new GameState(currentState));
             }
 
             result = currentState.checkForWinner();
@@ -93,7 +94,7 @@ public class Games {
             //If game finished, reset for the next one
             if(result.isFinished()) {
                 if(hooks != null) {
-                    hooks.afterGame(new GameState(currentState, new GameStateConfig(true, false)), game);
+                    hooks.afterGame(new GameState(currentState), game);
                 }
                 if(firstPlayer == Player.WHITE) {
                     firstPlayer = Player.BLACK;

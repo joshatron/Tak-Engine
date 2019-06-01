@@ -159,7 +159,7 @@ public class GameState {
     private void validateMove(MoveTurn move) throws TakEngineException {
         // No moves can be done in the first 2 turns
         if (turns.size() < 2) {
-            throw new TakEngineException(TakEngineErrorCode.MOVE_IN_FIRST_TURN);
+            throw new TakEngineException(TakEngineErrorCode.CANT_MOVE_IN_FIRST_TURN);
         }
 
         // Check that the picked up pieces is legal
@@ -311,6 +311,7 @@ public class GameState {
     public void executeTurn(Turn turn) throws TakEngineException {
         validateTurn(turn);
         applyTurn(turn);
+        checkForWinner();
     }
 
     private void applyTurn(Turn turn) throws TakEngineException {
