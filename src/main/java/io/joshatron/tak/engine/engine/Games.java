@@ -2,7 +2,6 @@ package io.joshatron.tak.engine.engine;
 
 import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.game.*;
-import io.joshatron.tak.engine.player.TakPlayer;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnType;
 
