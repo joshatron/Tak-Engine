@@ -40,10 +40,22 @@ public class MoveTurn extends Turn {
         this.pickedUp = turn.getInt("pickedUp");
         this.direction = Direction.valueOf(turn.getString("direction"));
         this.placed = new int[turn.getJSONArray("placed").length()];
-        for(int i = 0; i < turn.getJSONArray("placed").length(); i++) {
-            placed[i] = turn.getJSONArray("placed").getInt(i);
+        for(int i = 0; i < this.placed.length; i++) {
+            this.placed[i] = turn.getJSONArray("placed").getInt(i);
         }
         this.flattened = false;
+    }
+
+    public MoveTurn(MoveTurn turn) {
+        super(TurnType.MOVE);
+        this.startLocation = new BoardLocation(turn.getStartLocation());
+        this.pickedUp = turn.getPickedUp();
+        this.direction = turn.getDirection();
+        this.placed = new int[turn.getPlaced().length];
+        for(int i = 0; i < this.placed.length; i++) {
+            this.placed[i] = turn.getPlaced()[i];
+        }
+        this.flattened = turn.flattened;
     }
 
     public JSONObject exportToJson() {

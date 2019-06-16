@@ -13,6 +13,11 @@ public class Piece {
         this.type = type;
     }
 
+    public Piece(Piece piece) {
+        this.player = piece.getPlayer();
+        this.type = piece.getType();
+    }
+
     public JSONObject exportToJson() {
         JSONObject piece = new JSONObject();
         piece.put("player", player.name());

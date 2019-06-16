@@ -8,10 +8,7 @@ import io.joshatron.tak.engine.game.Player;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnDiff;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TakEngine {
@@ -25,7 +22,7 @@ public class TakEngine {
     }
 
     /*
-     * Functions used in normal game play cases
+     * Functions used in normal game play
      */
     public void executeTurn(Turn turn) throws TakEngineException {
         state.executeTurn(turn);
@@ -55,22 +52,41 @@ public class TakEngine {
     }
 
     public List<Turn> getPossibleTurns() {
-        return getPossibleTurns(root);
+        return getPossibleTurns(false);
     }
 
-    //TODO: implement
-    public List<Turn> getPossibleTurn(boolean restrictBad) {
-        return null;
+    public List<Turn> getPossibleTurns(boolean restrictBad) {
+        fillOutChildren(root);
+        Set<DiffNode> nodes = root.getChildren();
+
+        if(restrictBad) {
+            if(canWin()) {
+                return nodes.stream().filter(node -> node.getDiff().getResult().isFinished())
+                        .map(diffNode -> diffNode.getDiff().getTurn()).collect(Collectors.toList());
+            }
+            else if(inTak()) {
+                return nodes.stream().filter(this::canWin).map(diffNode -> diffNode.getDiff().getTurn())
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return nodes.stream().map(diffNode -> diffNode.getDiff().getTurn()).collect(Collectors.toList());
     }
 
-    //TODO: implement
     public boolean inTak() {
+        fillOutChildren(root);
+        Set<DiffNode> nodes = root.getChildren();
+        for(DiffNode node : nodes) {
+            if(canWin(node)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
-    //TODO: implement
     public boolean canWin() {
-        return false;
+        return canWin(root);
     }
 
     /*
@@ -104,16 +120,9 @@ public class TakEngine {
     /*
      * Helper functions
      */
-    private List<Turn> getPossibleTurns(DiffNode node) {
-        return getDiffChildren(node).stream().map(diffNode -> diffNode.getDiff().getTurn()).collect(Collectors.toList());
-    }
-
-    private List<DiffNode> getDiffChildren(DiffNode currentRoot) {
-        fillOutChildren(currentRoot);
-
-        List<DiffNode> nodes = new ArrayList<>(currentRoot.getChildren());
-
-        return nodes;
+    //TODO: implement
+    private boolean canWin(DiffNode currentRoot) {
+        return false;
     }
 
     //TODO: implement
@@ -125,7 +134,7 @@ public class TakEngine {
     private List<DiffNode> getNodeAncestry(DiffNode node) {
         ArrayList<DiffNode> nodes = new ArrayList<>();
         while(node != null) {
-            nodes.add(0, node);
+            nodes.add(node);
             node = node.getParent();
         }
 

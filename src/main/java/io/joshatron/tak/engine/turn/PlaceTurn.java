@@ -28,6 +28,12 @@ public class PlaceTurn extends Turn {
         this.pieceType = PieceType.valueOf(turn.getString("pieceType"));
     }
 
+    public PlaceTurn(PlaceTurn turn) {
+        super(TurnType.PLACE);
+        this.location = new BoardLocation(turn.getLocation());
+        this.pieceType = turn.getPieceType();
+    }
+
     public JSONObject exportToJson() {
         JSONObject toReturn = new JSONObject();
         toReturn.put("type", TurnType.PLACE.name());

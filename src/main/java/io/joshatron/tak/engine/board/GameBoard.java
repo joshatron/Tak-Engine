@@ -12,30 +12,27 @@ public class GameBoard {
 
     public GameBoard(int boardSize) throws TakEngineException {
         this.boardSize = boardSize;
-
-        switch(boardSize) {
-            case 3:
-                board = new PieceStack[3][3];
-                break;
-            case 4:
-                board = new PieceStack[4][4];
-                break;
-            case 5:
-                board = new PieceStack[5][5];
-                break;
-            case 6:
-                board = new PieceStack[6][6];
-                break;
-            case 8:
-                board = new PieceStack[8][8];
-                break;
-            default:
-                throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
+        if(boardSize >= 3 && (boardSize <= 6 || boardSize == 8)) {
+            this.board = new PieceStack[boardSize][boardSize];
+        }
+        else {
+            throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
 
         for(int x = 0; x < boardSize; x++) {
             for(int y = 0; y < boardSize; y++) {
-                board[x][y] = new PieceStack();
+                this.board[x][y] = new PieceStack();
+            }
+        }
+    }
+
+    public GameBoard(GameBoard gameBoard) {
+        this.boardSize = gameBoard.getBoardSize();
+        this.board = new PieceStack[this.boardSize][this.boardSize];
+
+        for(int x = 0; x < this.boardSize; x++) {
+            for(int y = 0; y < this.boardSize; y++) {
+                this.board[x][y] = new PieceStack(gameBoard.getPosition(x, y));
             }
         }
     }

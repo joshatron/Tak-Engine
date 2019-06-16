@@ -17,6 +17,13 @@ public class PieceStack {
         pieces = new ArrayList<>();
     }
 
+    public PieceStack(PieceStack stack) {
+        this.pieces = new ArrayList<>();
+        for(Piece piece : stack.getPieces()) {
+            this.pieces.add(new Piece(piece));
+        }
+    }
+
     public void addPieces(List<Piece> pieces) {
         this.pieces.addAll(pieces);
     }

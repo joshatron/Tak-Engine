@@ -1,5 +1,6 @@
 package io.joshatron.tak.engine.engine;
 
+import io.joshatron.tak.engine.game.GameStateDTO;
 import io.joshatron.tak.engine.turn.TurnDiff;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,12 +15,14 @@ public class DiffNode {
     private DiffNode parent;
     private Set<DiffNode> children;
     private TurnDiff diff;
+    private GameStateDTO state;
     private boolean childrenFull;
 
     public DiffNode(TurnDiff diff) {
         parent = null;
         children = new HashSet<>();
         this.diff = diff;
+        state = null;
         childrenFull = false;
     }
 

@@ -1,9 +1,13 @@
 package io.joshatron.tak.engine.game;
 
 import io.joshatron.tak.engine.board.GameBoard;
+import io.joshatron.tak.engine.turn.MoveTurn;
+import io.joshatron.tak.engine.turn.PlaceTurn;
 import io.joshatron.tak.engine.turn.Turn;
+import io.joshatron.tak.engine.turn.TurnType;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,7 +30,15 @@ public class GameStateDTO {
         this.blackCapstones = state.getBlackCapstonesLeft();
         this.first = state.getFirstPlayer();
         this.current = state.getCurrentPlayer();
-        this.turns = state.getTurns();
-        this.board = state.getBoard();
+        this.turns = new ArrayList<>();
+        for(Turn turn : state.getTurns()) {
+            if(turn.getType() == TurnType.PLACE) {
+                turns.add(new PlaceTurn((PlaceTurn)turn));
+            }
+            else {
+                turns.add(new MoveTurn((MoveTurn)turn));
+            }
+        }
+        this.board = new GameBoard(state.getBoard());
     }
 }
