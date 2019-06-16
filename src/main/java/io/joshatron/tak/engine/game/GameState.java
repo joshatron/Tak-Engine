@@ -380,7 +380,7 @@ public class GameState {
         }
     }
 
-    public void undoTurn() throws TakEngineException {
+    public Turn undoTurn() throws TakEngineException {
         Turn turn = turns.remove(turns.size() - 1);
         currentTurn = currentTurn.opposite();
 
@@ -394,6 +394,8 @@ public class GameState {
         }
 
         result = null;
+
+        return turn;
     }
 
     private void undoPlace(PlaceTurn place) throws TakEngineException {

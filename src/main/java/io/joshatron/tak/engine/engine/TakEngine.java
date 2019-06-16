@@ -3,35 +3,85 @@ package io.joshatron.tak.engine.engine;
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.game.GameState;
+import io.joshatron.tak.engine.game.GameStateDTO;
 import io.joshatron.tak.engine.game.Player;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnDiff;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TakEngine {
 
     private GameState state;
     private DiffNode root;
-    private boolean restrictTurns;
 
     public TakEngine(Player first, int size) throws TakEngineException {
-        this(first, size, false);
-    }
-
-    public TakEngine(Player first, int size, boolean restrictTurns) throws TakEngineException {
         state = new GameState(first, size);
         root = new DiffNode(new TurnDiff());
-        this.restrictTurns = restrictTurns;
+    }
+
+    /*
+     * Functions used in normal game play cases
+     */
+    public void executeTurn(Turn turn) throws TakEngineException {
+        state.executeTurn(turn);
+
+        Optional<DiffNode> selected = root.getChildren().stream().filter(node -> node.getDiff().getTurn().equals(turn)).findFirst();
+        if(selected.isPresent()) {
+            root = selected.get();
+            root.setDiff(new TurnDiff());
+        }
+        else {
+            root.setChildren(new HashSet<>());
+            root.setChildrenFull(false);
+        }
+    }
+
+    public void undoTurn() throws TakEngineException {
+        Turn turn = state.undoTurn();
+
+        DiffNode newRoot = new DiffNode(new TurnDiff());
+        root.setDiff(getDiffFromTurn(turn, newRoot));
+        newRoot.addChild(root);
+        root = newRoot;
+    }
+
+    public GameStateDTO getState() {
+        return new GameStateDTO(state);
     }
 
     public List<Turn> getPossibleTurns() {
         return getPossibleTurns(root);
     }
 
-    private List<Turn> getPossibleTurns(DiffNode currentRoot) {
-        if(!currentRoot.isChildrenFull()) {
+    //TODO: implement
+    public List<Turn> getPossibleTurn(boolean restrictBad) {
+        return null;
+    }
+
+    //TODO: implement
+    public boolean inTak() {
+        return false;
+    }
+
+    //TODO: implement
+    public boolean canWin() {
+        return false;
+    }
+
+    /*
+     * Functions used by AI exploring game tree
+     */
+    public DiffNode getRootNode() {
+        return root;
+    }
+
+    public void fillOutChildren(DiffNode node) {
+        if(!node.isChildrenFull()) {
             List<BoardLocation> locations = new ArrayList<>();
 
             for(int x = 0; x < state.getBoardSize(); x++) {
@@ -40,27 +90,50 @@ public class TakEngine {
                 }
             }
 
-            locations.parallelStream().map(location -> getPossibleDiffsForLocation(location, currentRoot))
-                    .forEach(diffs -> currentRoot.getChildren().addAll(diffs));
+            locations.parallelStream().map(location -> getPossibleDiffsForLocation(location, node))
+                    .forEach(diffs -> node.addChildren(diffs));
+            node.setChildrenFull(true);
+        }
+    }
+
+    //TODO: implement
+    public GameStateDTO getStateFromNode(DiffNode node) {
+        return null;
+    }
+
+    /*
+     * Helper functions
+     */
+    private List<Turn> getPossibleTurns(DiffNode node) {
+        return getDiffChildren(node).stream().map(diffNode -> diffNode.getDiff().getTurn()).collect(Collectors.toList());
+    }
+
+    private List<DiffNode> getDiffChildren(DiffNode currentRoot) {
+        fillOutChildren(currentRoot);
+
+        List<DiffNode> nodes = new ArrayList<>(currentRoot.getChildren());
+
+        return nodes;
+    }
+
+    //TODO: implement
+    private List<DiffNode> getPossibleDiffsForLocation(BoardLocation location, DiffNode currentRoot) {
+        List<DiffNode> ancestry = getNodeAncestry(currentRoot);
+        return null;
+    }
+
+    private List<DiffNode> getNodeAncestry(DiffNode node) {
+        ArrayList<DiffNode> nodes = new ArrayList<>();
+        while(node != null) {
+            nodes.add(0, node);
+            node = node.getParent();
         }
 
-        //TODO: restrict if neccessary, then return
+        return nodes;
+    }
+
+    //TODO: implement
+    private TurnDiff getDiffFromTurn(Turn turn, DiffNode currentRoot) {
         return null;
-    }
-
-    private List<DiffNode> getPossibleDiffsForLocation(BoardLocation location, DiffNode currentRoot) {
-        return null;
-    }
-
-    public void executeTurn(Turn turn) throws TakEngineException {
-        state.executeTurn(turn);
-    }
-
-    public void undoTurn() throws TakEngineException {
-        state.undoTurn();
-    }
-
-    public GameState getState() {
-        return state;
     }
 }

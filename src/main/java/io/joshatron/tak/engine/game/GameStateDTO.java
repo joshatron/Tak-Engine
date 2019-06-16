@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GameStatePojo {
+public class GameStateDTO {
     private int size;
     private int whiteStones;
     private int whiteCapstones;
@@ -18,7 +18,7 @@ public class GameStatePojo {
     private List<Turn> turns;
     private GameBoard board;
 
-    public GameStatePojo(GameState state) {
+    public GameStateDTO(GameState state) {
         this.size = state.getBoardSize();
         this.whiteStones = state.getWhiteNormalPiecesLeft();
         this.whiteCapstones = state.getWhiteCapstonesLeft();
