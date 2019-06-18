@@ -41,4 +41,28 @@ public class GameStateDTO {
         }
         this.board = new GameBoard(state.getBoard());
     }
+
+    public GameStateDTO(GameStateDTO state) {
+        this.size = state.getSize();
+        this.whiteStones = state.getWhiteStones();
+        this.whiteCapstones = state.getWhiteCapstones();
+        this.blackStones = state.getBlackStones();
+        this.blackCapstones = state.getBlackCapstones();
+        this.first = state.getFirst();
+        this.current = state.getCurrent();
+        this.turns = new ArrayList<>();
+        for(Turn turn : state.getTurns()) {
+            if(turn.getType() == TurnType.PLACE) {
+                turns.add(new PlaceTurn((PlaceTurn)turn));
+            }
+            else {
+                turns.add(new MoveTurn((MoveTurn)turn));
+            }
+        }
+        this.board = new GameBoard(state.getBoard());
+    }
+
+    public Turn getLatesTurn() {
+        return turns.get(turns.size() - 1);
+    }
 }

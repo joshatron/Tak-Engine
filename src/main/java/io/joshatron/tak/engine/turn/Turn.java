@@ -2,7 +2,7 @@ package io.joshatron.tak.engine.turn;
 
 import org.json.JSONObject;
 
-public abstract class Turn {
+public class Turn {
 
     private TurnType type;
 
@@ -10,7 +10,12 @@ public abstract class Turn {
         this.type = type;
     }
 
-    public abstract JSONObject exportToJson();
+    public JSONObject exportToJson() {
+        JSONObject toReturn = new JSONObject();
+        toReturn.put("type", TurnType.PLACE.name());
+
+        return toReturn;
+    }
 
     public TurnType getType() {
         return type;

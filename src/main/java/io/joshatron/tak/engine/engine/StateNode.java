@@ -1,7 +1,8 @@
 package io.joshatron.tak.engine.engine;
 
 import io.joshatron.tak.engine.game.GameStateDTO;
-import io.joshatron.tak.engine.turn.TurnDiff;
+import io.joshatron.tak.engine.turn.Turn;
+import io.joshatron.tak.engine.turn.TurnType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,27 +12,25 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(exclude = {"children", "childrenFull"})
-public class DiffNode {
-    private DiffNode parent;
-    private Set<DiffNode> children;
-    private TurnDiff diff;
+public class StateNode {
+    private StateNode parent;
+    private Set<StateNode> children;
     private GameStateDTO state;
     private boolean childrenFull;
 
-    public DiffNode(TurnDiff diff) {
-        parent = null;
-        children = new HashSet<>();
-        this.diff = diff;
-        state = null;
-        childrenFull = false;
+    public StateNode(GameStateDTO state) {
+        this.parent = null;
+        this.children = new HashSet<>();
+        this.state = state;
+        this.childrenFull = false;
     }
 
-    public void addChildren(List<DiffNode> nodes) {
+    public void addChildren(List<StateNode> nodes) {
         children.addAll(nodes);
         nodes.stream().forEach(node -> node.setParent(this));
     }
 
-    public void addChild(DiffNode child) {
+    public void addChild(StateNode child) {
         children.add(child);
         child.setParent(this);
     }
