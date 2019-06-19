@@ -1,8 +1,6 @@
 package io.joshatron.tak.engine.engine;
 
-import io.joshatron.tak.engine.game.GameStateDTO;
-import io.joshatron.tak.engine.turn.Turn;
-import io.joshatron.tak.engine.turn.TurnType;
+import io.joshatron.tak.engine.game.GameState;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,10 +13,10 @@ import java.util.Set;
 public class StateNode {
     private StateNode parent;
     private Set<StateNode> children;
-    private GameStateDTO state;
+    private GameState state;
     private boolean childrenFull;
 
-    public StateNode(GameStateDTO state) {
+    public StateNode(GameState state) {
         this.parent = null;
         this.children = new HashSet<>();
         this.state = state;

@@ -37,15 +37,6 @@ public class GameBoard {
         }
     }
 
-    public boolean onBoard(int x, int y) {
-        return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
-
-    }
-
-    public boolean onBoard(BoardLocation loc) {
-        return onBoard(loc.getX(), loc.getY());
-    }
-
     public void printBoard() {
         int maxSize = 1;
         for(int x = 0; x < boardSize; x++) {
@@ -89,29 +80,24 @@ public class GameBoard {
         }
     }
 
-    public JSONArray exportToJson() {
-        JSONArray toReturn = new JSONArray();
-        for(int i = 0; i < boardSize; i++) {
-            JSONArray row = new JSONArray();
-            for(int j = 0; j < boardSize; j++) {
-                row.put(this.board[i][j].exportToJson());
-            }
-            toReturn.put(row);
-        }
-
-        return toReturn;
-    }
-
     public int getBoardSize() {
         return boardSize;
     }
 
-    public PieceStack getPosition(BoardLocation location) {
+    public PieceStack getPosition(BoardLocation location) throws TakEngineException {
+        validateOnBoard(location.getX(), location.getY());
         return board[location.getX()][location.getY()];
     }
 
-    public PieceStack getPosition(int x, int y) {
+    public PieceStack getPosition(int x, int y) throws TakEngineException {
+        validateOnBoard(x, y);
         return board[x][y];
+    }
+
+    private void validateOnBoard(int x, int y) throws TakEngineException {
+        if(x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
+            throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
+        }
     }
 
     @Override

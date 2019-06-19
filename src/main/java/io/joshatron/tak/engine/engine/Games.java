@@ -14,7 +14,7 @@ public class Games {
     private TakPlayer blackPlayer;
     private GameHooks hooks;
 
-    private GameState currentState;
+    private GameEngine currentState;
     private boolean newGame;
     private int game;
     private GameSetResult setResults;
@@ -39,19 +39,19 @@ public class Games {
         if(game < numGames) {
             //if a game is finished and set to null, initialize another one
             if (newGame) {
-                currentState = new GameState(firstPlayer, boardSize);
+                currentState = new GameEngine(firstPlayer, boardSize);
                 newGame = false;
                 if(hooks != null) {
-                    hooks.beforeGame(new GameState(currentState), game);
+                    hooks.beforeGame(new GameEngine(currentState), game);
                 }
             }
 
             //have current player complete turn
             if(hooks != null) {
-                    hooks.beforeTurn(new GameState(currentState));
+                    hooks.beforeTurn(new GameEngine(currentState));
             }
             if(currentState.isWhiteTurn()) {
-                Turn turn = whitePlayer.getTurn(new GameState(currentState));
+                Turn turn = whitePlayer.getTurn(new GameEngine(currentState));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
@@ -68,7 +68,7 @@ public class Games {
                 }
             }
             else {
-                Turn turn = blackPlayer.getTurn(new GameState(currentState));
+                Turn turn = blackPlayer.getTurn(new GameEngine(currentState));
                 if (turn == null || turn.getType() == TurnType.SURRENDER) {
                     result = new GameResult(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
@@ -85,7 +85,7 @@ public class Games {
                 }
             }
             if(hooks != null) {
-                hooks.afterTurn(new GameState(currentState));
+                hooks.afterTurn(new GameEngine(currentState));
             }
 
             result = currentState.checkForWinner();
@@ -93,7 +93,7 @@ public class Games {
             //If game finished, reset for the next one
             if(result.isFinished()) {
                 if(hooks != null) {
-                    hooks.afterGame(new GameState(currentState), game);
+                    hooks.afterGame(new GameEngine(currentState), game);
                 }
                 if(firstPlayer == Player.WHITE) {
                     firstPlayer = Player.BLACK;
@@ -131,7 +131,7 @@ public class Games {
         return setResults;
     }
 
-    public GameState getCurrentState() {
+    public GameEngine getCurrentState() {
         return currentState;
     }
 

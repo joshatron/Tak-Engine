@@ -1,7 +1,7 @@
 package io.joshatron.tak.engine.engine;
 
 import io.joshatron.tak.engine.exception.TakEngineException;
-import io.joshatron.tak.engine.game.GameStateDTO;
+import io.joshatron.tak.engine.game.GameState;
 import io.joshatron.tak.engine.turn.Turn;
 
 import java.util.Optional;
@@ -9,7 +9,7 @@ import java.util.Optional;
 public class GameTree {
     private StateNode root;
 
-    public GameTree(GameStateDTO initialState) {
+    public GameTree(GameState initialState) {
         this.root = new StateNode(initialState);
     }
 
@@ -25,13 +25,13 @@ public class GameTree {
         }
         else {
             root = new StateNode(root.getState());
-            TakEngine.executeTurn(root.getState(), turn);
+            TreeEngine.executeTurn(root.getState(), turn);
         }
     }
 
     public void undoTurn() throws TakEngineException {
-        StateNode newRoot = new StateNode(new GameStateDTO(root.getState()));
-        TakEngine.undoTurn(newRoot.getState());
+        StateNode newRoot = new StateNode(new GameState(root.getState()));
+        TreeEngine.undoTurn(newRoot.getState());
         newRoot.addChild(root);
         root = newRoot;
     }

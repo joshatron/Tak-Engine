@@ -78,7 +78,7 @@ public class PieceStack {
 
     public Player getStackOwner() {
         if(pieces.isEmpty()) {
-            return null;
+            return Player.NONE;
         }
         return pieces.get(pieces.size() - 1).getPlayer();
     }

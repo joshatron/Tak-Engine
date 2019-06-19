@@ -3,32 +3,31 @@ package io.joshatron.tak.engine.engine;
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.game.GameState;
-import io.joshatron.tak.engine.game.GameStateDTO;
 import io.joshatron.tak.engine.turn.Turn;
 import io.joshatron.tak.engine.turn.TurnDiff;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TakEngine {
+public class TreeEngine {
 
-    private GameState state;
+    private GameEngine state;
     private StateNode root;
 
     /*
      * Functions used in normal game play
      */
-    public static void executeTurn(GameStateDTO state, Turn turn) {
+    public static void executeTurn(GameState state, Turn turn) {
         state.executeTurn(turn);
 
     }
 
-    public static void undoTurn(GameStateDTO state) throws TakEngineException {
+    public static void undoTurn(GameState state) throws TakEngineException {
         Turn turn = state.undoTurn();
     }
 
-    public GameStateDTO getState() {
-        return new GameStateDTO(state);
+    public GameState getState() {
+        return new GameState(state);
     }
 
     public List<Turn> getPossibleTurns() {
@@ -93,7 +92,7 @@ public class TakEngine {
     }
 
     //TODO: implement
-    public GameStateDTO getStateFromNode(StateNode node) {
+    public GameState getStateFromNode(StateNode node) {
         return null;
     }
 
