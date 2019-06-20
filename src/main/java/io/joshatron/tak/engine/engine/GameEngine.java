@@ -277,115 +277,78 @@ public class GameEngine {
     }
 
     private static void applyMove(GameState state, MoveTurn move) throws TakEngineException {
-        List<Piece> pieces = board.getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
-        if(board.getPosition(move.getStartLocation()).getHeight() == 0) {
-            getInfo(getCurrentForInfo()).decrementPoints();
-            piecesFilled--;
-        }
-        else if(board.getPosition(move.getStartLocation()).getStackOwner() != currentTurn) {
-            getInfo(getCurrentForInfo()).decrementPoints();
-            getInfo(getCurrentForInfo().opposite()).incrementPoints();
-        }
-        BoardLocation current = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
+        List<Piece> pieces = state.getBoard().getPosition(move.getStartLocation()).removePieces(move.getPickedUp());
+        BoardLocation current = new BoardLocation(move.getStartLocation());
         for(int i = 0; i < move.getPlaced().length; i++) {
             current.move(move.getDirection());
-            Player oldOwner = board.getPosition(current).getStackOwner();
             // If there is a wall, collapse it
-            if(!board.getPosition(current).getPieces().isEmpty() && board.getPosition(current).getTopPiece().getType() == PieceType.WALL) {
-                board.getPosition(current).collapseTopPiece();
+            if(!state.getBoard().getPosition(current).getPieces().isEmpty() &&
+               state.getBoard().getPosition(current).getTopPiece().getType() == PieceType.WALL) {
+                state.getBoard().getPosition(current).collapseTopPiece();
                 move.flatten();
             }
             // Place the right number of pieces in
             for(int j = 0; j < move.getPlaced()[i]; j++) {
-                board.getPosition(current).addPiece(pieces.remove(0));
-            }
-            if(oldOwner == null) {
-                piecesFilled++;
-                getInfo(board.getPosition(current).getStackOwner()).incrementPoints();
-            }
-            else if(board.getPosition(current).getStackOwner() != oldOwner) {
-                getInfo(oldOwner).decrementPoints();
-                getInfo(oldOwner.opposite()).incrementPoints();
+                state.getBoard().getPosition(current).addPiece(pieces.remove(0));
             }
         }
     }
 
-    public static Turn undoTurn() throws TakEngineException {
-        Turn turn = turns.remove(turns.size() - 1);
-        currentTurn = currentTurn.opposite();
+    public static Turn undoTurn(GameState state) throws TakEngineException {
+        Turn turn = state.getTurns().remove(state.getTurns().size() - 1);
+        state.setCurrent(state.getCurrent().opposite());
 
         //Undo a place turn
         if(turn.getType() == TurnType.PLACE) {
-            undoPlace((PlaceTurn) turn);
+            undoPlace(state, (PlaceTurn) turn);
         }
         //Undo a move turn
         else if(turn.getType() == TurnType.MOVE) {
-            undoMove((MoveTurn) turn);
+            undoMove(state, (MoveTurn) turn);
         }
 
-        result = null;
+        state.setResult(null);
 
         return turn;
     }
 
-    private static void undoPlace(PlaceTurn place) throws TakEngineException {
-        board.getPosition(place.getLocation()).removePieces(1);
-        piecesFilled--;
-        PlayerInfo info = getInfo(getCurrentForInfo());
+    private static void undoPlace(GameState state, PlaceTurn place) throws TakEngineException {
+        state.getBoard().getPosition(place.getLocation()).removePieces(1);
 
-        if (place.getPieceType() == PieceType.STONE) {
-            info.incrementStones();
-            info.decrementPoints();
+        if(place.getPieceType() == PieceType.CAPSTONE) {
+            if(state.getCurrent() == Player.WHITE) {
+                state.setWhiteCapstones(state.getWhiteCapstones() + 1);
+            }
+            else {
+                state.setBlackCapstones(state.getBlackCapstones() + 1);
+            }
         }
-        else if(place.getPieceType() == PieceType.WALL) {
-            info.incrementStones();
-        } else {
-            info.incrementCapstones();
+        else {
+            if(state.getCurrent() == Player.WHITE) {
+                state.setWhiteStones(state.getWhiteStones() + 1);
+            }
+            else {
+                state.setBlackStones(state.getBlackStones() + 1);
+            }
         }
     }
 
-    private static void undoMove(MoveTurn move) throws TakEngineException {
+    private static void undoMove(GameState state, MoveTurn move) throws TakEngineException {
         BoardLocation current = new BoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
         for(int i = 0; i < move.getPlaced().length; i++) {
             current.move(move.getDirection());
         }
         ArrayList<Piece> pickedUp = new ArrayList<>();
         for(int i = move.getPlaced().length - 1; i >= 0; i--) {
-            Player oldOwner = board.getPosition(current).getStackOwner();
-            pickedUp.addAll(0, board.getPosition(current).removePieces(move.getPlaced()[i]));
+            pickedUp.addAll(0, state.getBoard().getPosition(current).removePieces(move.getPlaced()[i]));
             if(i == move.getPlaced().length - 1 && move.didFlatten()) {
-                board.getPosition(current).uncollapseTopPiece();
-            }
-
-            if(board.getPosition(current).getHeight() == 0) {
-                piecesFilled--;
-                getInfo(oldOwner).decrementPoints();
-            }
-            else if(oldOwner != board.getPosition(current).getStackOwner()) {
-                getInfo(oldOwner).decrementPoints();
-                getInfo(oldOwner.opposite()).incrementPoints();
+                state.getBoard().getPosition(current).uncollapseTopPiece();
             }
 
             current.moveOpposite(move.getDirection());
         }
 
-        Player oldOwner = board.getPosition(current).getStackOwner();
-        board.getPosition(current).addPieces(pickedUp);
-        if(oldOwner == null) {
-            piecesFilled++;
-            getInfo(board.getPosition(current).getStackOwner()).incrementPoints();
-        }
-        else if(oldOwner != board.getPosition(current).getStackOwner()) {
-            getInfo(oldOwner).decrementPoints();
-            getInfo(oldOwner.opposite()).incrementPoints();
-        }
-    }
-
-    public static void printBoard(GameState state) {
-        System.out.println("WS: " + state.getWhiteStones() + " WC: " + state.getWhiteCapstones() +
-                           " BS: " + state.getBlackStones() + " BC: " + state.getBlackCapstones());
-
-        state.getBoard().printBoard();
+        state.getBoard().getPosition(current).addPieces(pickedUp);
     }
 
     private static int getCurrentPlayerStones(GameState state) {

@@ -98,4 +98,9 @@ public class GameState {
     public Turn getLatesTurn() {
         return turns.get(turns.size() - 1);
     }
+
+    public void printBoard() {
+        System.out.println("WS: " + whiteStones + " WC: " + whiteCapstones + " BS: " + blackStones + " BC: " + blackCapstones);
+        board.printBoard();
+    }
 }

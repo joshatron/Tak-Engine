@@ -26,7 +26,7 @@ public class GameBoard {
         }
     }
 
-    public GameBoard(GameBoard gameBoard) {
+    public GameBoard(GameBoard gameBoard) throws TakEngineException {
         this.boardSize = gameBoard.getBoardSize();
         this.board = new PieceStack[this.boardSize][this.boardSize];
 
@@ -110,8 +110,12 @@ public class GameBoard {
 
             for(int i = 0; i < boardSize; i++) {
                 for(int j = 0; j < boardSize; j++) {
-                    if(!board[i][j].equals(other.getPosition(i, j))) {
-                        return false;
+                    try {
+                        if(!board[i][j].equals(other.getPosition(i, j))) {
+                            return false;
+                        }
+                    } catch(TakEngineException e) {
+                        //Won't reach here
                     }
                 }
             }
