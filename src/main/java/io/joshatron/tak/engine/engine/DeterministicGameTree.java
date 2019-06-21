@@ -9,25 +9,21 @@ import io.joshatron.tak.engine.turn.TurnDiff;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TreeEngine {
+public class DeterministicGameTree {
 
-    private GameEngine state;
     private StateNode root;
 
     /*
      * Functions used in normal game play
      */
-    public static void executeTurn(GameState state, Turn turn) {
-        state.executeTurn(turn);
-
+    public static void executeTurn(Turn turn) throws TakEngineException {
     }
 
-    public static void undoTurn(GameState state) throws TakEngineException {
-        Turn turn = state.undoTurn();
+    public static void undoTurn() throws TakEngineException {
     }
 
     public GameState getState() {
-        return new GameState(state);
+        return root.getState();
     }
 
     public List<Turn> getPossibleTurns() {
@@ -40,16 +36,16 @@ public class TreeEngine {
 
         if(restrictBad) {
             if(canWin()) {
-                return nodes.stream().filter(node -> node.getDiff().getResult().isFinished())
-                        .map(stateNode -> stateNode.getDiff().getTurn()).collect(Collectors.toList());
+                return nodes.stream().filter(node -> node.getState().getResult().isFinished())
+                        .map(stateNode -> stateNode.getState().getLatestTurn()).collect(Collectors.toList());
             }
             else if(inTak()) {
-                return nodes.stream().filter(this::canWin).map(stateNode -> stateNode.getDiff().getTurn())
+                return nodes.stream().filter(this::canWin).map(stateNode -> stateNode.getState().getLatestTurn())
                         .collect(Collectors.toList());
             }
         }
 
-        return nodes.stream().map(stateNode -> stateNode.getDiff().getTurn()).collect(Collectors.toList());
+        return nodes.stream().map(stateNode -> stateNode.getState().getLatestTurn()).collect(Collectors.toList());
     }
 
     public boolean inTak() {
@@ -79,8 +75,8 @@ public class TreeEngine {
         if(!node.isChildrenFull()) {
             List<BoardLocation> locations = new ArrayList<>();
 
-            for(int x = 0; x < state.getBoardSize(); x++) {
-                for(int y = 0; y < state.getBoardSize(); y++) {
+            for(int x = 0; x < node.getState().getSize(); x++) {
+                for(int y = 0; y < node.getState().getSize(); y++) {
                     locations.add(new BoardLocation(x, y));
                 }
             }

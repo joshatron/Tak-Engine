@@ -1,7 +1,6 @@
 package io.joshatron.tak.engine.game;
 
 import io.joshatron.tak.engine.board.GameBoard;
-import io.joshatron.tak.engine.engine.GameEngine;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.turn.MoveTurn;
@@ -75,7 +74,7 @@ public class GameState {
         }
     }
 
-    public GameState(GameState state) {
+    public GameState(GameState state) throws TakEngineException {
         this.size = state.getSize();
         this.whiteStones = state.getWhiteStones();
         this.whiteCapstones = state.getWhiteCapstones();
@@ -95,7 +94,7 @@ public class GameState {
         this.board = new GameBoard(state.getBoard());
     }
 
-    public Turn getLatesTurn() {
+    public Turn getLatestTurn() {
         return turns.get(turns.size() - 1);
     }
 

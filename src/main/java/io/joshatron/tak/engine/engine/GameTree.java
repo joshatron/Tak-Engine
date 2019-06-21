@@ -17,21 +17,21 @@ public class GameTree {
         return root;
     }
 
-    public void executeTurn(Turn turn) {
-        Optional<StateNode> selected = root.getChildren().stream().filter(node -> node.getState().getLatesTurn().equals(turn)).findFirst();
+    public void executeTurn(Turn turn) throws TakEngineException {
+        Optional<StateNode> selected = root.getChildren().stream().filter(node -> node.getState().getLatestTurn().equals(turn)).findFirst();
         if(selected.isPresent()) {
             root = selected.get();
             root.setParent(null);
         }
         else {
             root = new StateNode(root.getState());
-            TreeEngine.executeTurn(root.getState(), turn);
+            DeterministicGameTree.executeTurn(turn);
         }
     }
 
     public void undoTurn() throws TakEngineException {
         StateNode newRoot = new StateNode(new GameState(root.getState()));
-        TreeEngine.undoTurn(newRoot.getState());
+        DeterministicGameTree.undoTurn();
         newRoot.addChild(root);
         root = newRoot;
     }
