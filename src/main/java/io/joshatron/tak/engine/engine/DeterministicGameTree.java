@@ -4,7 +4,6 @@ import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.game.GameState;
 import io.joshatron.tak.engine.turn.Turn;
-import io.joshatron.tak.engine.turn.TurnDiff;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,44 +93,22 @@ public class DeterministicGameTree {
                 }
             }
 
-            locations.parallelStream().map(location -> getPossibleDiffsForLocation(location, node))
-                    .forEach(diffs -> node.addChildren(diffs));
+            locations.parallelStream().map(location -> getPossibleStatesForLocation(location, node))
+                    .forEach(states -> node.addChildren(states));
             node.setChildrenFull(true);
         }
-    }
-
-    //TODO: implement
-    public GameState getStateFromNode(StateNode node) {
-        return null;
     }
 
     /*
      * Helper functions
      */
     //TODO: implement
-    private boolean canWin(StateNode currentRoot) {
+    private boolean canWin(StateNode node) {
         return false;
     }
 
     //TODO: implement
-    private List<StateNode> getPossibleDiffsForLocation(BoardLocation location, StateNode currentRoot) {
-        List<StateNode> ancestry = getNodeAncestry(currentRoot);
-        return null;
-    }
-
-    private List<StateNode> getNodeAncestry(StateNode node) {
-        ArrayList<StateNode> nodes = new ArrayList<>();
-        while(node.getParent() != null && node.getState() == null) {
-            nodes.add(node);
-            node = node.getParent();
-        }
-        nodes.add(node);
-
-        return nodes;
-    }
-
-    //TODO: implement
-    private TurnDiff getDiffFromTurn(Turn turn, StateNode currentRoot) {
+    private List<StateNode> getPossibleStatesForLocation(BoardLocation location, StateNode currentRoot) {
         return null;
     }
 }
