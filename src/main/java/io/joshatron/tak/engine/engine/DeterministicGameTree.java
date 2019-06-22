@@ -16,10 +16,23 @@ public class DeterministicGameTree {
     /*
      * Functions used in normal game play
      */
-    public static void executeTurn(Turn turn) throws TakEngineException {
+    public void executeTurn(Turn turn) throws TakEngineException {
+        Optional<StateNode> selected = root.getChildren().stream().filter(node -> node.getState().getLatestTurn().equals(turn)).findFirst();
+        if(selected.isPresent()) {
+            root = selected.get();
+            root.setParent(null);
+        }
+        else {
+            root = new StateNode(root.getState());
+            GameEngine.executeTurn(root.getState(), turn);
+        }
     }
 
-    public static void undoTurn() throws TakEngineException {
+    public void undoTurn() throws TakEngineException {
+        StateNode newRoot = new StateNode(new GameState(root.getState()));
+        GameEngine.undoTurn(newRoot.getState());
+        newRoot.addChild(root);
+        root = newRoot;
     }
 
     public GameState getState() {
