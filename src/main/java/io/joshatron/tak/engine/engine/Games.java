@@ -1,6 +1,6 @@
 package io.joshatron.tak.engine.engine;
 
-import io.joshatron.tak.engine.exception.TakEngineException;
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.game.*;
 import io.joshatron.tak.engine.turn.TakTurn;
 import io.joshatron.tak.engine.turn.TurnType;
@@ -33,7 +33,7 @@ public class Games {
         setResults = new GameSetResult(boardSize, firstPlayer);
     }
 
-    public TakStatus playTurn() throws TakEngineException {
+    public TakStatus playTurn() throws BoardGameEngineException {
         TakStatus result;
         //confirm you haven't finished all the numGames
         if(game < numGames) {
@@ -60,7 +60,7 @@ public class Games {
                 }
                 try {
                     currentState.executeTurn(turn);
-                } catch (TakEngineException e) {
+                } catch (BoardGameEngineException e) {
                     result = new TakStatus(true, Player.BLACK, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
                     setResults.addGame(result);
@@ -77,7 +77,7 @@ public class Games {
                 }
                 try {
                     currentState.executeTurn(turn);
-                } catch (TakEngineException e) {
+                } catch (BoardGameEngineException e) {
                     result = new TakStatus(true, Player.WHITE, WinReason.SURRENDER, boardSize * boardSize);
                     game = numGames;
                     setResults.addGame(result);
@@ -113,7 +113,7 @@ public class Games {
         }
     }
 
-    public TakStatus playGame() throws TakEngineException {
+    public TakStatus playGame() throws BoardGameEngineException {
         TakStatus result = playTurn();
         while (result != null && !result.isFinished()) {
             result = playTurn();
@@ -122,7 +122,7 @@ public class Games {
         return result;
     }
 
-    public GameSetResult playGames() throws TakEngineException {
+    public GameSetResult playGames() throws BoardGameEngineException {
         TakStatus result = playTurn();
         while(result != null) {
             result = playTurn();
