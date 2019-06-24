@@ -5,30 +5,30 @@ import io.joshatron.tak.engine.board.PieceType;
 import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONObject;
 
-public class PlaceTurn extends Turn {
+public class TakPlaceTurn extends TakTurn {
 
     private BoardLocation location;
     private PieceType pieceType;
 
-    public PlaceTurn(BoardLocation location, PieceType pieceType) {
+    public TakPlaceTurn(BoardLocation location, PieceType pieceType) {
         super(TurnType.PLACE);
         this.location = location;
         this.pieceType = pieceType;
     }
 
-    public PlaceTurn(int x, int y, PieceType pieceType) {
+    public TakPlaceTurn(int x, int y, PieceType pieceType) {
         super(TurnType.PLACE);
         this.location = new BoardLocation(x, y);
         this.pieceType = pieceType;
     }
 
-    public PlaceTurn(JSONObject turn) {
+    public TakPlaceTurn(JSONObject turn) {
         super(TurnType.PLACE);
         this.location = new BoardLocation(turn.getJSONObject("location"));
         this.pieceType = PieceType.valueOf(turn.getString("pieceType"));
     }
 
-    public PlaceTurn(PlaceTurn turn) {
+    public TakPlaceTurn(TakPlaceTurn turn) {
         super(TurnType.PLACE);
         this.location = new BoardLocation(turn.getLocation());
         this.pieceType = turn.getPieceType();
@@ -77,8 +77,8 @@ public class PlaceTurn extends Turn {
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof PlaceTurn) {
-            PlaceTurn other = (PlaceTurn) o;
+        if(o instanceof TakPlaceTurn) {
+            TakPlaceTurn other = (TakPlaceTurn) o;
             return location.equals(other.getLocation()) && pieceType == other.getPieceType();
         }
 

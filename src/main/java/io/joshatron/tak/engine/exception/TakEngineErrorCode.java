@@ -1,6 +1,8 @@
 package io.joshatron.tak.engine.exception;
 
-public enum TakEngineErrorCode {
+import io.joshatron.bgt.engine.exception.BoardGameErrorCode;
+
+public enum TakEngineErrorCode implements BoardGameErrorCode {
     INVALID_BOARD_SIZE,
     NOT_ENOUGH_STONES,
     NOT_ENOUGH_CAPSTONES,
@@ -17,5 +19,11 @@ public enum TakEngineErrorCode {
     TOO_MANY_PIECES_SPECIFIED,
     INVALID_PIECE_TYPE,
     INVALID_DIRECTION,
-    INVALID_NUMBER
+    INVALID_NUMBER,
+    ILLEGAL_TYPE;
+
+    @Override
+    public String getName() {
+        return this.name();
+    }
 }

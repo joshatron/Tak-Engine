@@ -34,6 +34,11 @@
       <version>1.16.16</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>io.joshatron.bgt</groupId>
+      <artifactId>engine</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>

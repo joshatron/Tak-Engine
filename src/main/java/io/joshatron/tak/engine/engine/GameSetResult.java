@@ -1,6 +1,6 @@
 package io.joshatron.tak.engine.engine;
 
-import io.joshatron.tak.engine.game.GameResult;
+import io.joshatron.tak.engine.game.TakStatus;
 import io.joshatron.tak.engine.game.Player;
 import io.joshatron.tak.engine.game.WinReason;
 
@@ -24,7 +24,7 @@ public class GameSetResult {
         this.firstPlayer = firstPlayer;
     }
 
-    public void addGame(GameResult result) {
+    public void addGame(TakStatus result) {
         games++;
         if(result.isFinished()) {
             if(result.getWinner() == Player.WHITE) {

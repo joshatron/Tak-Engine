@@ -1,19 +1,20 @@
 package io.joshatron.tak.engine.game;
 
+import io.joshatron.bgt.engine.dtos.GameState;
+import io.joshatron.bgt.engine.dtos.Turn;
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.GameBoard;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.exception.TakEngineException;
-import io.joshatron.tak.engine.turn.MoveTurn;
-import io.joshatron.tak.engine.turn.PlaceTurn;
-import io.joshatron.tak.engine.turn.Turn;
+import io.joshatron.tak.engine.turn.TakMoveTurn;
+import io.joshatron.tak.engine.turn.TakPlaceTurn;
+import io.joshatron.tak.engine.turn.TakTurn;
 import io.joshatron.tak.engine.turn.TurnType;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
-public class GameState {
+public class TakState extends GameState {
     private int size;
     private int whiteStones;
     private int whiteCapstones;
@@ -21,16 +22,12 @@ public class GameState {
     private int blackCapstones;
     private Player first;
     private Player current;
-    private List<Turn> turns;
     private GameBoard board;
-    private GameResult result;
 
-    public GameState(Player first, int size) throws TakEngineException {
+    public TakState(Player first, int size) throws BoardGameEngineException {
+        super();
+
         this.first = first;
-        this.turns = new ArrayList<>();
-
-        result = null;
-
         this.current = first;
 
         switch(size) {
@@ -70,11 +67,11 @@ public class GameState {
                 blackCapstones = 2;
                 break;
             default:
-                throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
+                throw new BoardGameEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
     }
 
-    public GameState(GameState state) throws TakEngineException {
+    public TakState(TakState state) throws BoardGameEngineException {
         this.size = state.getSize();
         this.whiteStones = state.getWhiteStones();
         this.whiteCapstones = state.getWhiteCapstones();
@@ -84,18 +81,14 @@ public class GameState {
         this.current = state.getCurrent();
         this.turns = new ArrayList<>();
         for(Turn turn : state.getTurns()) {
-            if(turn.getType() == TurnType.PLACE) {
-                turns.add(new PlaceTurn((PlaceTurn)turn));
+            if(((TakTurn)turn).getType() == TurnType.PLACE) {
+                turns.add(new TakPlaceTurn((TakPlaceTurn)turn));
             }
             else {
-                turns.add(new MoveTurn((MoveTurn)turn));
+                turns.add(new TakMoveTurn((TakMoveTurn)turn));
             }
         }
         this.board = new GameBoard(state.getBoard());
-    }
-
-    public Turn getLatestTurn() {
-        return turns.get(turns.size() - 1);
     }
 
     public void printBoard() {

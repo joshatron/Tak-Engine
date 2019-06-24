@@ -1,12 +1,13 @@
 package io.joshatron.tak.engine.turn;
 
+import io.joshatron.bgt.engine.dtos.Turn;
 import org.json.JSONObject;
 
-public class Turn {
+public class TakTurn extends Turn {
 
     private TurnType type;
 
-    public Turn(TurnType type) {
+    public TakTurn(TurnType type) {
         this.type = type;
     }
 

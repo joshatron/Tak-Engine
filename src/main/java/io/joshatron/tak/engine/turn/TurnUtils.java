@@ -13,19 +13,19 @@ public class TurnUtils {
         throw new IllegalStateException("This is a utility class");
     }
 
-    public static Turn turnFromJson(JSONObject turn) throws TakEngineException {
+    public static TakTurn turnFromJson(JSONObject turn) throws TakEngineException {
         TurnType type = TurnType.valueOf(turn.getString("type"));
         if(type == TurnType.PLACE) {
-            return new PlaceTurn(turn);
+            return new TakPlaceTurn(turn);
         }
         else if(type == TurnType.MOVE) {
-            return new MoveTurn(turn);
+            return new TakMoveTurn(turn);
         }
 
         throw new TakEngineException(TakEngineErrorCode.INVALID_TURN_TYPE);
     }
 
-    public static Turn turnFromString(String str) throws TakEngineException {
+    public static TakTurn turnFromString(String str) throws TakEngineException {
         str = str.toLowerCase();
         if(str.charAt(0) == 'p') {
             PieceType type = null;
@@ -47,7 +47,7 @@ public class TurnUtils {
             int y = charToNum(str.charAt(4)) - 1;
 
             if(type != null && x != -1 && y != -1) {
-                return new PlaceTurn(new BoardLocation(x, y), type);
+                return new TakPlaceTurn(new BoardLocation(x, y), type);
             }
         }
         else if(str.charAt(0) == 'm') {
@@ -81,7 +81,7 @@ public class TurnUtils {
             }
 
             if(dir != null && x != -1 && y != -1 && pickUp != -1) {
-                return new MoveTurn(new BoardLocation(x, y), pickUp, dir, drop);
+                return new TakMoveTurn(new BoardLocation(x, y), pickUp, dir, drop);
             }
         }
 

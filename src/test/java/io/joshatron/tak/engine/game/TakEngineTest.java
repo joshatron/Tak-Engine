@@ -1,30 +1,30 @@
 package io.joshatron.tak.engine.game;
 
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.Direction;
 import io.joshatron.tak.engine.board.Piece;
 import io.joshatron.tak.engine.board.PieceType;
-import io.joshatron.tak.engine.engine.GameEngine;
-import io.joshatron.tak.engine.exception.TakEngineException;
-import io.joshatron.tak.engine.turn.MoveTurn;
-import io.joshatron.tak.engine.turn.PlaceTurn;
-import io.joshatron.tak.engine.turn.Turn;
+import io.joshatron.tak.engine.engine.TakEngine;
+import io.joshatron.tak.engine.turn.TakMoveTurn;
+import io.joshatron.tak.engine.turn.TakPlaceTurn;
+import io.joshatron.tak.engine.turn.TakTurn;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 
-public class GameEngineTest {
+public class TakEngineTest {
     //These tests are set up to be closer to black box testing.
     //This is done to make sure no rules can be broken instead of focusing on line coverage.
 
     //Initialize state and get first 2 moves out of the way
-    private GameEngine initializeState(int size) throws TakEngineException {
-        GameEngine state = new GameEngine(Player.WHITE, size);
-        PlaceTurn turn = new PlaceTurn(new BoardLocation(0, 0), PieceType.STONE);
+    private TakEngine initializeState(int size) throws BoardGameEngineException {
+        TakEngine state = new TakEngine(Player.WHITE, size);
+        TakPlaceTurn turn = new TakPlaceTurn(new BoardLocation(0, 0), PieceType.STONE);
         state.executeTurn(turn);
-        turn = new PlaceTurn(new BoardLocation(1, 0), PieceType.STONE);
+        turn = new TakPlaceTurn(new BoardLocation(1, 0), PieceType.STONE);
         state.executeTurn(turn);
 
         return state;
@@ -34,32 +34,32 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnPlaceNormal() {
         try {
-            GameEngine state = initializeState(8);
+            TakEngine state = initializeState(8);
 
             //Test stone placement for each color
-            PlaceTurn turn = new PlaceTurn(1, 1, PieceType.STONE);
+            TakPlaceTurn turn = new TakPlaceTurn(1, 1, PieceType.STONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-            turn = new PlaceTurn(2, 1, PieceType.STONE);
+            turn = new TakPlaceTurn(2, 1, PieceType.STONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
 
             //Test wall placement for each color
-            turn = new PlaceTurn(2, 2, PieceType.WALL);
+            turn = new TakPlaceTurn(2, 2, PieceType.WALL);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-            turn = new PlaceTurn(3, 2, PieceType.WALL);
+            turn = new TakPlaceTurn(3, 2, PieceType.WALL);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
 
             //Test capstone placement for each color
-            turn = new PlaceTurn(3, 3, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(3, 3, PieceType.CAPSTONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-            turn = new PlaceTurn(4, 3, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(4, 3, PieceType.CAPSTONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -70,29 +70,29 @@ public class GameEngineTest {
 
         try {
             //Capstones
-            GameEngine state = initializeState(8);
+            TakEngine state = initializeState(8);
             //Place legal
-            PlaceTurn turn = new PlaceTurn(2,0, PieceType.CAPSTONE);
+            TakPlaceTurn turn = new TakPlaceTurn(2,0, PieceType.CAPSTONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-            turn = new PlaceTurn(3,0, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(3,0, PieceType.CAPSTONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-            turn = new PlaceTurn(4,0, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(4,0, PieceType.CAPSTONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
-            turn = new PlaceTurn(5,0, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(5,0, PieceType.CAPSTONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
             //Place illegal capstone white
-            turn = new PlaceTurn(6,0, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(6,0, PieceType.CAPSTONE);
             Assert.assertFalse(state.isLegalTurn(turn));
             //Place legal stone white
-            turn = new PlaceTurn(6,0, PieceType.STONE);
+            turn = new TakPlaceTurn(6,0, PieceType.STONE);
             Assert.assertTrue(state.isLegalTurn(turn));
             state.executeTurn(turn);
             //Place illegal capstone black
-            turn = new PlaceTurn(7,0, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(7,0, PieceType.CAPSTONE);
             Assert.assertFalse(state.isLegalTurn(turn));
 
             //Stones
@@ -100,36 +100,36 @@ public class GameEngineTest {
             //Fill up board to get to no stones
             for(int i = 0; i < 2; i++) {
                 for (int y = 1; y < 7; y++) {
-                    turn = new PlaceTurn(0, y, PieceType.STONE);
+                    turn = new TakPlaceTurn(0, y, PieceType.STONE);
                     state.executeTurn(turn);
                     for (int x = 1; x < 8 - i; x++) {
-                        turn = new PlaceTurn(x, y, PieceType.STONE);
+                        turn = new TakPlaceTurn(x, y, PieceType.STONE);
                         state.executeTurn(turn);
-                        MoveTurn move = new MoveTurn(x - 1, y, x, Direction.EAST, new int[]{x});
+                        TakMoveTurn move = new TakMoveTurn(x - 1, y, x, Direction.EAST, new int[]{x});
                         state.executeTurn(move);
                     }
                 }
             }
             for(int i = 0; i < 4; i++) {
-                turn = new PlaceTurn(i * 2,7, PieceType.STONE);
+                turn = new TakPlaceTurn(i * 2,7, PieceType.STONE);
                 state.executeTurn(turn);
-                turn = new PlaceTurn(i * 2 + 1,7, PieceType.STONE);
+                turn = new TakPlaceTurn(i * 2 + 1,7, PieceType.STONE);
                 state.executeTurn(turn);
             }
             //Illegal white move, out of pieces
-            turn = new PlaceTurn(0, 1, PieceType.STONE);
+            turn = new TakPlaceTurn(0, 1, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(0, 1, PieceType.WALL);
+            turn = new TakPlaceTurn(0, 1, PieceType.WALL);
             Assert.assertFalse(state.isLegalTurn(turn));
             //Legal capstone placement to make black turn
-            turn = new PlaceTurn(0, 1, PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(0, 1, PieceType.CAPSTONE);
             state.executeTurn(turn);
             //Illegal black move
-            turn = new PlaceTurn(0, 2, PieceType.STONE);
+            turn = new TakPlaceTurn(0, 2, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(0, 2, PieceType.WALL);
+            turn = new TakPlaceTurn(0, 2, PieceType.WALL);
             Assert.assertFalse(state.isLegalTurn(turn));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -138,30 +138,30 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnPlaceOffBoard() {
         try {
-            GameEngine state = new GameEngine(Player.BLACK, 3);
+            TakEngine state = new TakEngine(Player.BLACK, 3);
             //Black
-            PlaceTurn turn = new PlaceTurn(new BoardLocation(-1,-1), PieceType.STONE);
+            TakPlaceTurn turn = new TakPlaceTurn(new BoardLocation(-1,-1), PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(1,3, PieceType.STONE);
+            turn = new TakPlaceTurn(1,3, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(3,1, PieceType.STONE);
+            turn = new TakPlaceTurn(3,1, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(3,3, PieceType.STONE);
+            turn = new TakPlaceTurn(3,3, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(1,1, PieceType.STONE);
+            turn = new TakPlaceTurn(1,1, PieceType.STONE);
             state.executeTurn(turn);
             //White
-            turn = new PlaceTurn(-1,-1, PieceType.STONE);
+            turn = new TakPlaceTurn(-1,-1, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(1,3, PieceType.STONE);
+            turn = new TakPlaceTurn(1,3, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(3,1, PieceType.STONE);
+            turn = new TakPlaceTurn(3,1, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(3,3, PieceType.STONE);
+            turn = new TakPlaceTurn(3,3, PieceType.STONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(1,2, PieceType.STONE);
+            turn = new TakPlaceTurn(1,2, PieceType.STONE);
             Assert.assertTrue(state.isLegalTurn(turn));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -171,47 +171,47 @@ public class GameEngineTest {
     public void isLegalTurnPlaceOnOtherPieces() {
         try {
             //Initialize with every type of piece
-            GameEngine state = initializeState(8);
-            PlaceTurn turn = new PlaceTurn(1,1,PieceType.STONE);
+            TakEngine state = initializeState(8);
+            TakPlaceTurn turn = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(turn);
-            turn = new PlaceTurn(2,1,PieceType.STONE);
+            turn = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(turn);
-            turn = new PlaceTurn(1,2,PieceType.WALL);
+            turn = new TakPlaceTurn(1,2,PieceType.WALL);
             state.executeTurn(turn);
-            turn = new PlaceTurn(2,2,PieceType.WALL);
+            turn = new TakPlaceTurn(2,2,PieceType.WALL);
             state.executeTurn(turn);
-            turn = new PlaceTurn(1,3,PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(1,3,PieceType.CAPSTONE);
             state.executeTurn(turn);
-            turn = new PlaceTurn(2,3,PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(2,3,PieceType.CAPSTONE);
             state.executeTurn(turn);
 
             //Test white placing
             for(int x = 1; x < 3; x++) {
                 for(int y = 1; y < 4; y++) {
-                    turn = new PlaceTurn(x,y, PieceType.STONE);
+                    turn = new TakPlaceTurn(x,y, PieceType.STONE);
                     Assert.assertFalse(state.isLegalTurn(turn));
-                    turn = new PlaceTurn(x,y, PieceType.WALL);
+                    turn = new TakPlaceTurn(x,y, PieceType.WALL);
                     Assert.assertFalse(state.isLegalTurn(turn));
-                    turn = new PlaceTurn(x,y, PieceType.CAPSTONE);
+                    turn = new TakPlaceTurn(x,y, PieceType.CAPSTONE);
                     Assert.assertFalse(state.isLegalTurn(turn));
                 }
             }
 
-            turn = new PlaceTurn(5,5, PieceType.STONE);
+            turn = new TakPlaceTurn(5,5, PieceType.STONE);
             state.executeTurn(turn);
 
             //Test black placing
             for(int x = 1; x < 3; x++) {
                 for(int y = 1; y < 4; y++) {
-                    turn = new PlaceTurn(x,y, PieceType.STONE);
+                    turn = new TakPlaceTurn(x,y, PieceType.STONE);
                     Assert.assertFalse(state.isLegalTurn(turn));
-                    turn = new PlaceTurn(x,y, PieceType.WALL);
+                    turn = new TakPlaceTurn(x,y, PieceType.WALL);
                     Assert.assertFalse(state.isLegalTurn(turn));
-                    turn = new PlaceTurn(x,y, PieceType.CAPSTONE);
+                    turn = new TakPlaceTurn(x,y, PieceType.CAPSTONE);
                     Assert.assertFalse(state.isLegalTurn(turn));
                 }
             }
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -220,22 +220,22 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnPlaceBadFirstMoves() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 5);
+            TakEngine state = new TakEngine(Player.WHITE, 5);
             //white illegal turns
-            PlaceTurn turn = new PlaceTurn(0,0,PieceType.CAPSTONE);
+            TakPlaceTurn turn = new TakPlaceTurn(0,0,PieceType.CAPSTONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(0,0,PieceType.WALL);
+            turn = new TakPlaceTurn(0,0,PieceType.WALL);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(0,0,PieceType.STONE);
+            turn = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(turn);
             //black illegal turns
-            turn = new PlaceTurn(1,1,PieceType.CAPSTONE);
+            turn = new TakPlaceTurn(1,1,PieceType.CAPSTONE);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(1,1,PieceType.WALL);
+            turn = new TakPlaceTurn(1,1,PieceType.WALL);
             Assert.assertFalse(state.isLegalTurn(turn));
-            turn = new PlaceTurn(1,1,PieceType.STONE);
+            turn = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(turn);
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -244,23 +244,23 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveNormal() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
-            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(0,2,PieceType.WALL);
+            TakPlaceTurn place = new TakPlaceTurn(0,2,PieceType.WALL);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(1,0,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            place = new PlaceTurn(4,4,PieceType.STONE);
+            place = new TakPlaceTurn(4,4,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,2,Direction.SOUTH,new int[]{1,1});
+            move = new TakMoveTurn(0,0,2,Direction.SOUTH,new int[]{1,1});
             Assert.assertTrue(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -269,19 +269,19 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveOffBoard() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
-            PlaceTurn place = new PlaceTurn(1,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            MoveTurn move = new MoveTurn(0,0,1,Direction.EAST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(0,0,1,Direction.EAST,new int[]{1});
             state.executeTurn(move);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,0,2,Direction.NORTH,new int[]{2});
+            move = new TakMoveTurn(1,0,2,Direction.NORTH,new int[]{2});
             Assert.assertFalse(state.isLegalTurn(move));
-            move = new MoveTurn(1,0,2,Direction.WEST,new int[]{1,1});
+            move = new TakMoveTurn(1,0,2,Direction.WEST,new int[]{1,1});
             Assert.assertFalse(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -290,17 +290,17 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveIllegalPickup() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
             //Entire stack is owned by other player
-            MoveTurn move = new MoveTurn(0,0,1,Direction.EAST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(0,0,1,Direction.EAST,new int[]{1});
             Assert.assertFalse(state.isLegalTurn(move));
-            move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
             //Only top of stack is owned by other player
-            move = new MoveTurn(0,0,2,Direction.EAST,new int[]{2});
+            move = new TakMoveTurn(0,0,2,Direction.EAST,new int[]{2});
             Assert.assertFalse(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -309,29 +309,29 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveIllegalCover() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
-            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.WALL);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.WALL);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,1,Direction.SOUTH,new int[]{1});
+            move = new TakMoveTurn(0,0,1,Direction.SOUTH,new int[]{1});
             Assert.assertFalse(state.isLegalTurn(move));
-            place = new PlaceTurn(1,0,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(1,0,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            place = new PlaceTurn(1,0,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(1,0,PieceType.CAPSTONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,2,Direction.SOUTH,new int[]{1,1});
+            move = new TakMoveTurn(0,0,2,Direction.SOUTH,new int[]{1,1});
             Assert.assertFalse(state.isLegalTurn(move));
-            move = new MoveTurn(0,0,2,Direction.SOUTH,new int[]{2});
+            move = new TakMoveTurn(0,0,2,Direction.SOUTH,new int[]{2});
             Assert.assertFalse(state.isLegalTurn(move));
-            move = new MoveTurn(0,0,1,Direction.EAST,new int[]{1});
+            move = new TakMoveTurn(0,0,1,Direction.EAST,new int[]{1});
             Assert.assertFalse(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -340,23 +340,23 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveTooManyPickup() {
         try {
-            GameEngine state = initializeState(3);
+            TakEngine state = initializeState(3);
 
-            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,2,Direction.SOUTH,new int[]{2});
+            move = new TakMoveTurn(0,0,2,Direction.SOUTH,new int[]{2});
             state.executeTurn(move);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,1,3,Direction.EAST,new int[]{3});
+            move = new TakMoveTurn(0,1,3,Direction.EAST,new int[]{3});
             state.executeTurn(move);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,1,4,Direction.EAST,new int[]{4});
+            move = new TakMoveTurn(1,1,4,Direction.EAST,new int[]{4});
             Assert.assertFalse(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -365,16 +365,16 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveEmptySpots() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
-            MoveTurn move = new MoveTurn(1,0,1,Direction.SOUTH,new int[]{0,1});
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.SOUTH,new int[]{0,1});
             Assert.assertFalse(state.isLegalTurn(move));
-            move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(1,1,PieceType.STONE);
-            move = new MoveTurn(0,0,2,Direction.EAST,new int[]{1,0,1});
+            TakPlaceTurn place = new TakPlaceTurn(1,1,PieceType.STONE);
+            move = new TakMoveTurn(0,0,2,Direction.EAST,new int[]{1,0,1});
             Assert.assertFalse(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -383,13 +383,13 @@ public class GameEngineTest {
     @Test
     public void isLegalTurnMoveBadFirstMoves() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,5);
+            TakEngine state = new TakEngine(Player.WHITE,5);
 
-            PlaceTurn place = new PlaceTurn(0,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            MoveTurn move = new MoveTurn(0,0,1,Direction.SOUTH,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(0,0,1,Direction.SOUTH,new int[]{1});
             Assert.assertFalse(state.isLegalTurn(move));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -398,21 +398,21 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerStraightHorizontal() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,3);
+            TakEngine state = new TakEngine(Player.WHITE,3);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,0,PieceType.STONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -421,21 +421,21 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerStraightVertical() {
         try {
-            GameEngine state = new GameEngine(Player.BLACK,3);
+            TakEngine state = new TakEngine(Player.BLACK,3);
 
-            PlaceTurn place = new PlaceTurn(0,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,2,PieceType.STONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.PATH, 16),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.BLACK,WinReason.PATH, 16),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -444,62 +444,62 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerCurvyHorizontal() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,6);
+            TakEngine state = new TakEngine(Player.WHITE,6);
 
-            MoveTurn moveDown = new MoveTurn(5,0,1,Direction.SOUTH,new int[]{1});
-            MoveTurn moveUp = new MoveTurn(5,1,1,Direction.NORTH,new int[]{1});
+            TakMoveTurn moveDown = new TakMoveTurn(5,0,1,Direction.SOUTH,new int[]{1});
+            TakMoveTurn moveUp = new TakMoveTurn(5,1,1,Direction.NORTH,new int[]{1});
 
-            PlaceTurn place = new PlaceTurn(5,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(5,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
-            state.executeTurn(place);
-            state.executeTurn(moveDown);
-            place = new PlaceTurn(2,0,PieceType.STONE);
-            state.executeTurn(place);
-            state.executeTurn(moveUp);
-            place = new PlaceTurn(3,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(3,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(3,2,PieceType.STONE);
+            place = new TakPlaceTurn(3,0,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(3,1,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(1,2,PieceType.STONE);
+            place = new TakPlaceTurn(3,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(0,3,PieceType.STONE);
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(0,4,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(1,4,PieceType.STONE);
+            place = new TakPlaceTurn(0,3,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(2,4,PieceType.STONE);
+            place = new TakPlaceTurn(0,4,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(3,4,PieceType.STONE);
+            place = new TakPlaceTurn(1,4,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(4,4,PieceType.STONE);
+            place = new TakPlaceTurn(2,4,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(5,4,PieceType.STONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(3,4,PieceType.STONE);
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 51),state.checkForWinner());
-        } catch (TakEngineException e) {
+            state.executeTurn(moveDown);
+            place = new TakPlaceTurn(4,4,PieceType.STONE);
+            state.executeTurn(place);
+            state.executeTurn(moveUp);
+            place = new TakPlaceTurn(5,4,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
+            state.executeTurn(place);
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 51),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -508,53 +508,53 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerCurvyVertical() {
         try {
-            GameEngine state = new GameEngine(Player.BLACK,6);
+            TakEngine state = new TakEngine(Player.BLACK,6);
 
-            MoveTurn moveDown = new MoveTurn(5,0,1,Direction.SOUTH,new int[]{1});
-            MoveTurn moveUp = new MoveTurn(5,1,1,Direction.NORTH,new int[]{1});
+            TakMoveTurn moveDown = new TakMoveTurn(5,0,1,Direction.SOUTH,new int[]{1});
+            TakMoveTurn moveUp = new TakMoveTurn(5,1,1,Direction.NORTH,new int[]{1});
 
-            PlaceTurn place = new PlaceTurn(5,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(5,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(2,0,PieceType.STONE);
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(3,0,PieceType.STONE);
+            place = new TakPlaceTurn(3,0,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(3,1,PieceType.STONE);
+            place = new TakPlaceTurn(3,1,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(3,2,PieceType.STONE);
+            place = new TakPlaceTurn(3,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(1,2,PieceType.STONE);
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(0,3,PieceType.STONE);
+            place = new TakPlaceTurn(0,3,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(0,4,PieceType.STONE);
+            place = new TakPlaceTurn(0,4,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveUp);
-            place = new PlaceTurn(1,4,PieceType.STONE);
+            place = new TakPlaceTurn(1,4,PieceType.STONE);
             state.executeTurn(place);
             state.executeTurn(moveDown);
-            place = new PlaceTurn(1,5,PieceType.STONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(1,5,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.PATH, 54),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.BLACK,WinReason.PATH, 54),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -563,21 +563,21 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerWallInPath() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,3);
+            TakEngine state = new TakEngine(Player.WHITE,3);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,0,PieceType.WALL);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(2,0,PieceType.WALL);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -586,29 +586,29 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerCapstoneInPath() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,5);
+            TakEngine state = new TakEngine(Player.WHITE,5);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,0,PieceType.STONE);
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(3,0,PieceType.STONE);
+            place = new TakPlaceTurn(3,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(3,1,PieceType.STONE);
+            place = new TakPlaceTurn(3,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(4,0,PieceType.CAPSTONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(4,0,PieceType.CAPSTONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 42),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 42),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -617,25 +617,25 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerStacks() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,3);
+            TakEngine state = new TakEngine(Player.WHITE,3);
 
-            PlaceTurn place = new PlaceTurn(1,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
-            MoveTurn move = new MoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(move);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -644,22 +644,22 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerDiagonals() {
         try {
-            GameEngine state = new GameEngine(Player.BLACK,3);
+            TakEngine state = new TakEngine(Player.BLACK,3);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -668,25 +668,25 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerFullBoard() {
         try {
-            GameEngine state = initializeState(3);
+            TakEngine state = initializeState(3);
 
-            PlaceTurn place = new PlaceTurn(2,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,2,PieceType.STONE);
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,2,PieceType.STONE);
-            Assert.assertEquals(new GameResult(), state.checkForWinner());
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(), state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.BOARD_FULL, 14), state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.BOARD_FULL, 14), state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -695,38 +695,38 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerOutOfPieces() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,5);
+            TakEngine state = new TakEngine(Player.WHITE,5);
 
-            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
             for(int i = 0; i < 2; i++) {
                 for(int y = 1; y < 5; y++) {
-                    place = new PlaceTurn(0,y,PieceType.STONE);
+                    place = new TakPlaceTurn(0,y,PieceType.STONE);
                     state.executeTurn(place);
                     for(int x = 1; x < 5 - i; x++) {
-                        place = new PlaceTurn(x,y,PieceType.STONE);
+                        place = new TakPlaceTurn(x,y,PieceType.STONE);
                         state.executeTurn(place);
-                        MoveTurn move = new MoveTurn(x-1,y,x,Direction.EAST,new int[]{x});
+                        TakMoveTurn move = new TakMoveTurn(x-1,y,x,Direction.EAST,new int[]{x});
                         state.executeTurn(move);
                     }
                 }
             }
 
-            place = new PlaceTurn(2,0,PieceType.STONE);
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(3,0,PieceType.STONE);
+            place = new TakPlaceTurn(3,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.CAPSTONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(1,1,PieceType.CAPSTONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.BLACK,WinReason.OUT_OF_PIECES, 26),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.BLACK,WinReason.OUT_OF_PIECES, 26),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             System.out.println(e.getCode().name());
             Assert.fail();
         }
@@ -736,29 +736,29 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerDoubleRoad() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,3);
+            TakEngine state = new TakEngine(Player.WHITE,3);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,0,PieceType.STONE);
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,2,PieceType.STONE);
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
             state.executeTurn(place);
-            MoveTurn move = new MoveTurn(2,2,1,Direction.WEST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(2,2,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,2,2,Direction.NORTH,new int[]{1,1});
-            Assert.assertEquals(new GameResult(), state.checkForWinner());
+            move = new TakMoveTurn(1,2,2,Direction.NORTH,new int[]{1,1});
+            Assert.assertEquals(new TakStatus(), state.checkForWinner());
             state.executeTurn(move);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16), state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 16), state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -767,29 +767,29 @@ public class GameEngineTest {
     @Test
     public void checkForWinnerDoesntChangeBoard() {
         try {
-            GameEngine state = initializeState(3);
+            TakEngine state = initializeState(3);
 
-            PlaceTurn place = new PlaceTurn(2,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,2,PieceType.STONE);
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,2,PieceType.STONE);
-            GameEngine toCheck = new GameEngine(state);
-            Assert.assertEquals(new GameResult(), state.checkForWinner());
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
+            TakEngine toCheck = new TakEngine(state);
+            Assert.assertEquals(new TakStatus(), state.checkForWinner());
             Assert.assertEquals(toCheck, state);
             state.executeTurn(place);
-            toCheck = new GameEngine(state);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.BOARD_FULL, 14), state.checkForWinner());
+            toCheck = new TakEngine(state);
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.BOARD_FULL, 14), state.checkForWinner());
             Assert.assertEquals(toCheck, state);
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -798,19 +798,19 @@ public class GameEngineTest {
     @Test
     public void undoTurnUndoPlace() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(0,2,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,2,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(1,2,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,3,PieceType.WALL);
+            place = new TakPlaceTurn(0,3,PieceType.WALL);
             state.executeTurn(place);
-            place = new PlaceTurn(1,3,PieceType.WALL);
+            place = new TakPlaceTurn(1,3,PieceType.WALL);
             state.executeTurn(place);
 
             //Check final state
@@ -859,7 +859,7 @@ public class GameEngineTest {
             Assert.assertEquals(1,state.getWhiteCapstonesLeft());
             Assert.assertEquals(21,state.getBlackNormalPiecesLeft());
             Assert.assertEquals(1,state.getBlackCapstonesLeft());
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -868,25 +868,25 @@ public class GameEngineTest {
     @Test
     public void undoTurnUndoMove() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
 
-            PlaceTurn place = new PlaceTurn(1,1,PieceType.CAPSTONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,1,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,1,PieceType.STONE);
+            place = new TakPlaceTurn(2,1,PieceType.STONE);
             state.executeTurn(place);
-            MoveTurn move = new MoveTurn(1,1,1,Direction.EAST,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(1,1,1,Direction.EAST,new int[]{1});
             state.executeTurn(move);
-            place = new PlaceTurn(2,2,PieceType.STONE);
+            place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(2,1,2,Direction.SOUTH,new int[]{2});
+            move = new TakMoveTurn(2,1,2,Direction.SOUTH,new int[]{2});
             state.executeTurn(move);
-            place = new PlaceTurn(2,3,PieceType.STONE);
+            place = new TakPlaceTurn(2,3,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(2,2,3,Direction.SOUTH,new int[]{3});
+            move = new TakMoveTurn(2,2,3,Direction.SOUTH,new int[]{3});
             state.executeTurn(move);
-            place = new PlaceTurn(2,1,PieceType.WALL);
+            place = new TakPlaceTurn(2,1,PieceType.WALL);
             state.executeTurn(place);
-            move = new MoveTurn(2,3,3,Direction.NORTH,new int[]{2,1});
+            move = new TakMoveTurn(2,3,3,Direction.NORTH,new int[]{2,1});
             state.executeTurn(move);
 
             //Verify final state
@@ -923,7 +923,7 @@ public class GameEngineTest {
             Assert.assertEquals(PieceType.STONE, pieces.get(2).getType());
             Assert.assertEquals(PieceType.CAPSTONE, pieces.get(3).getType());
             Assert.assertTrue(state.isWhiteTurn());
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -932,7 +932,7 @@ public class GameEngineTest {
     @Test
     public void undoTurnFirstTurns() {
         try {
-            GameEngine state = initializeState(3);
+            TakEngine state = initializeState(3);
             state.undoTurn();
             Assert.assertTrue(state.getBoard().getPosition(0,0).getTopPiece().isBlack());
             Assert.assertEquals(1, state.getBoard().getPosition(0,0).getHeight());
@@ -948,7 +948,7 @@ public class GameEngineTest {
             Assert.assertEquals(0,state.getWhiteCapstonesLeft());
             Assert.assertEquals(10,state.getBlackNormalPiecesLeft());
             Assert.assertEquals(0,state.getBlackCapstonesLeft());
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -957,25 +957,25 @@ public class GameEngineTest {
     @Test
     public void undoTurnUndoAndRedoWinningMove() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,3);
+            TakEngine state = new TakEngine(Player.WHITE,3);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,0,PieceType.STONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
             state.undoTurn();
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
-        } catch (TakEngineException e) {
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -984,20 +984,20 @@ public class GameEngineTest {
     @Test
     public void undoTurnUndoAllTurns() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,3);
+            TakEngine state = new TakEngine(Player.WHITE,3);
 
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,0,PieceType.STONE);
+            place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(2,0,PieceType.STONE);
-            Assert.assertEquals(new GameResult(),state.checkForWinner());
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
+            Assert.assertEquals(new TakStatus(),state.checkForWinner());
             state.executeTurn(place);
-            Assert.assertEquals(new GameResult(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
+            Assert.assertEquals(new TakStatus(true,Player.WHITE,WinReason.PATH, 16),state.checkForWinner());
             state.undoTurn();
             Assert.assertEquals(4, state.getTurns().size());
             state.undoTurn();
@@ -1008,7 +1008,7 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getTurns().size());
             state.undoTurn();
             Assert.assertEquals(0, state.getTurns().size());
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1017,15 +1017,15 @@ public class GameEngineTest {
     @Test
     public void undoTurnMakeSureSameState() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 3);
-            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
-            GameEngine toCheck = new GameEngine(state);
-            state.executeTurn(new PlaceTurn(0, 1, PieceType.STONE));
+            TakEngine state = new TakEngine(Player.WHITE, 3);
+            state.executeTurn(new TakPlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 1, PieceType.STONE));
+            TakEngine toCheck = new TakEngine(state);
+            state.executeTurn(new TakPlaceTurn(0, 1, PieceType.STONE));
             state.undoTurn();
             Assert.assertEquals(toCheck, state);
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1036,41 +1036,41 @@ public class GameEngineTest {
     public void initializeTest() {
         try {
             //3x3
-            GameEngine state = new GameEngine(Player.WHITE, 3);
+            TakEngine state = new TakEngine(Player.WHITE, 3);
             Assert.assertEquals(10, state.getWhiteNormalPiecesLeft());
             Assert.assertEquals(0, state.getWhiteCapstonesLeft());
             Assert.assertEquals(10, state.getBlackNormalPiecesLeft());
             Assert.assertEquals(0, state.getBlackCapstonesLeft());
             Assert.assertEquals(3, state.getBoardSize());
             //4x4
-            state = new GameEngine(Player.WHITE, 4);
+            state = new TakEngine(Player.WHITE, 4);
             Assert.assertEquals(15, state.getWhiteNormalPiecesLeft());
             Assert.assertEquals(0, state.getWhiteCapstonesLeft());
             Assert.assertEquals(15, state.getBlackNormalPiecesLeft());
             Assert.assertEquals(0, state.getBlackCapstonesLeft());
             Assert.assertEquals(4, state.getBoardSize());
             //5x5
-            state = new GameEngine(Player.WHITE, 5);
+            state = new TakEngine(Player.WHITE, 5);
             Assert.assertEquals(21, state.getWhiteNormalPiecesLeft());
             Assert.assertEquals(1, state.getWhiteCapstonesLeft());
             Assert.assertEquals(21, state.getBlackNormalPiecesLeft());
             Assert.assertEquals(1, state.getBlackCapstonesLeft());
             Assert.assertEquals(5, state.getBoardSize());
             //6x6
-            state = new GameEngine(Player.WHITE, 6);
+            state = new TakEngine(Player.WHITE, 6);
             Assert.assertEquals(30, state.getWhiteNormalPiecesLeft());
             Assert.assertEquals(1, state.getWhiteCapstonesLeft());
             Assert.assertEquals(30, state.getBlackNormalPiecesLeft());
             Assert.assertEquals(1, state.getBlackCapstonesLeft());
             Assert.assertEquals(6, state.getBoardSize());
             //8x8
-            state = new GameEngine(Player.WHITE, 8);
+            state = new TakEngine(Player.WHITE, 8);
             Assert.assertEquals(50, state.getWhiteNormalPiecesLeft());
             Assert.assertEquals(2, state.getWhiteCapstonesLeft());
             Assert.assertEquals(50, state.getBlackNormalPiecesLeft());
             Assert.assertEquals(2, state.getBlackCapstonesLeft());
             Assert.assertEquals(8, state.getBoardSize());
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1079,8 +1079,8 @@ public class GameEngineTest {
     //all given turns are legal and that there are the right number of them.
     //This gives reasonable certainty of correctness without building large
     //lists and having to sort and compare them
-    private boolean verifyState(GameEngine state, int possible) throws TakEngineException {
-        List<Turn> turns = state.getPossibleTurns();
+    private boolean verifyState(TakEngine state, int possible) throws BoardGameEngineException {
+        List<TakTurn> turns = state.getPossibleTurns();
 
         //makes sure there are the correct number of possible turns
         if(turns.size() != possible) {
@@ -1112,27 +1112,27 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsNormal() {
         try {
-            GameEngine state = initializeState(5);
+            TakEngine state = initializeState(5);
             Assert.assertTrue(verifyState(state, 72));
-            PlaceTurn place = new PlaceTurn(2,2,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(2,2,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state, 68));
-            place = new PlaceTurn(1,2,PieceType.STONE);
+            place = new TakPlaceTurn(1,2,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state, 70));
-            place = new PlaceTurn(2,1,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(2,1,PieceType.CAPSTONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state, 66));
-            place = new PlaceTurn(3,3,PieceType.STONE);
+            place = new TakPlaceTurn(3,3,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state, 48));
-            MoveTurn move = new MoveTurn(2,1,1,Direction.SOUTH,new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(2,1,1,Direction.SOUTH,new int[]{1});
             state.executeTurn(move);
             Assert.assertTrue(verifyState(state, 69));
-            place = new PlaceTurn(2,3,PieceType.STONE);
+            place = new TakPlaceTurn(2,3,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state, 53));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1141,21 +1141,21 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsMaxHeight() {
         try {
-            GameEngine state = initializeState(3);
-            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            TakEngine state = initializeState(3);
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,2,Direction.EAST,new int[]{2});
+            move = new TakMoveTurn(0,0,2,Direction.EAST,new int[]{2});
             state.executeTurn(move);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,0,3,Direction.SOUTH,new int[]{3});
+            move = new TakMoveTurn(1,0,3,Direction.SOUTH,new int[]{3});
             state.executeTurn(move);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state,26));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1165,35 +1165,35 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsBoardEdgeAndPieceInWay() {
         try {
-            GameEngine state = initializeState(5);
-            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            TakEngine state = initializeState(5);
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(0,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,2,Direction.SOUTH,new int[]{2});
+            move = new TakMoveTurn(0,0,2,Direction.SOUTH,new int[]{2});
             state.executeTurn(move);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,1,3,Direction.EAST,new int[]{3});
+            move = new TakMoveTurn(0,1,3,Direction.EAST,new int[]{3});
             state.executeTurn(move);
-            place = new PlaceTurn(4,1,PieceType.STONE);
+            place = new TakPlaceTurn(4,1,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state,105));
-            place = new PlaceTurn(1,0,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(1,0,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(1,3,PieceType.CAPSTONE);
+            place = new TakPlaceTurn(1,3,PieceType.CAPSTONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(3,1,PieceType.WALL);
+            place = new TakPlaceTurn(3,1,PieceType.WALL);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state,54));
-            move = new MoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
+            move = new TakMoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
             state.executeTurn(move);
-            place = new PlaceTurn(4,4,PieceType.STONE);
+            place = new TakPlaceTurn(4,4,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state,64));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1202,35 +1202,35 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsOutOfPieceType() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE,5);
+            TakEngine state = new TakEngine(Player.WHITE,5);
 
-            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
             for(int i = 0; i < 2; i++) {
                 for(int y = 1; y < 5; y++) {
-                    place = new PlaceTurn(0,y,PieceType.STONE);
+                    place = new TakPlaceTurn(0,y,PieceType.STONE);
                     state.executeTurn(place);
                     for(int x = 1; x < 5 - i; x++) {
-                        place = new PlaceTurn(x,y,PieceType.STONE);
+                        place = new TakPlaceTurn(x,y,PieceType.STONE);
                         state.executeTurn(place);
-                        MoveTurn move = new MoveTurn(x-1,y,x,Direction.EAST,new int[]{x});
+                        TakMoveTurn move = new TakMoveTurn(x-1,y,x,Direction.EAST,new int[]{x});
                         state.executeTurn(move);
                     }
                 }
             }
 
-            place = new PlaceTurn(2,0,PieceType.STONE);
+            place = new TakPlaceTurn(2,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(3,0,PieceType.STONE);
+            place = new TakPlaceTurn(3,0,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state,211));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1239,12 +1239,12 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsFirstTurns() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 5);
+            TakEngine state = new TakEngine(Player.WHITE, 5);
             Assert.assertTrue(verifyState(state, 25));
-            PlaceTurn place = new PlaceTurn(1,1,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(verifyState(state, 24));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1253,13 +1253,13 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsNarrowPossibleInTak() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 3, new GameStateConfig(false, true));
-            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
+            TakEngine state = new TakEngine(Player.WHITE, 3, new GameStateConfig(false, true));
+            state.executeTurn(new TakPlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 1, PieceType.STONE));
             //Without flag it should be 14 possible
             Assert.assertTrue(verifyState(state, 3));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1268,14 +1268,14 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsNarrowPossibleCanWin() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 3, new GameStateConfig(false, true));
-            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(2, 0, PieceType.STONE));
+            TakEngine state = new TakEngine(Player.WHITE, 3, new GameStateConfig(false, true));
+            state.executeTurn(new TakPlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 1, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(2, 0, PieceType.STONE));
             //Without flag it should be 17 possible
             Assert.assertTrue(verifyState(state, 1));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1284,14 +1284,14 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsNarrowPossibleCanWinAndInTak() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 3, new GameStateConfig(false, true));
-            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(0, 1, PieceType.STONE));
+            TakEngine state = new TakEngine(Player.WHITE, 3, new GameStateConfig(false, true));
+            state.executeTurn(new TakPlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 1, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(0, 1, PieceType.STONE));
             //Without flag it should be 17 possible
             Assert.assertTrue(verifyState(state, 1));
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1300,14 +1300,14 @@ public class GameEngineTest {
     @Test
     public void getPossibleTurnsDoesntChangeState() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 3, new GameStateConfig(false, true));
-            state.executeTurn(new PlaceTurn(0, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 0, PieceType.STONE));
-            state.executeTurn(new PlaceTurn(1, 1, PieceType.STONE));
-            GameEngine toCheck = new GameEngine(state);
+            TakEngine state = new TakEngine(Player.WHITE, 3, new GameStateConfig(false, true));
+            state.executeTurn(new TakPlaceTurn(0, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 0, PieceType.STONE));
+            state.executeTurn(new TakPlaceTurn(1, 1, PieceType.STONE));
+            TakEngine toCheck = new TakEngine(state);
             state.getPossibleTurns();
             Assert.assertEquals(toCheck, state);
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1316,19 +1316,19 @@ public class GameEngineTest {
     @Test
     public void inTak() {
         try {
-            GameEngine state = new GameEngine(Player.WHITE, 3);
-            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            TakEngine state = new TakEngine(Player.WHITE, 3);
+            TakPlaceTurn place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            GameEngine toCheck = new GameEngine(state);
+            TakEngine toCheck = new TakEngine(state);
             Assert.assertFalse(state.inTak());
             Assert.assertEquals(toCheck, state);
             Assert.assertEquals(1, state.getTurns().size());
             Assert.assertEquals(1, state.getBoard().getPosition(1, 0).getHeight());
             Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
 
-            place = new PlaceTurn(0,0,PieceType.STONE);
+            place = new TakPlaceTurn(0,0,PieceType.STONE);
             state.executeTurn(place);
-            toCheck = new GameEngine(state);
+            toCheck = new TakEngine(state);
             Assert.assertFalse(state.inTak());
             Assert.assertEquals(toCheck, state);
             Assert.assertEquals(2, state.getTurns().size());
@@ -1336,9 +1336,9 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getBoard().getPosition(0, 0).getHeight());
             Assert.assertEquals(Player.WHITE, state.getCurrentPlayer());
 
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
-            toCheck = new GameEngine(state);
+            toCheck = new TakEngine(state);
             Assert.assertTrue(state.inTak());
             Assert.assertEquals(toCheck, state);
             Assert.assertEquals(3, state.getTurns().size());
@@ -1347,9 +1347,9 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getBoard().getPosition(0, 1).getHeight());
             Assert.assertEquals(Player.BLACK, state.getCurrentPlayer());
 
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            toCheck = new GameEngine(state);
+            toCheck = new TakEngine(state);
             Assert.assertTrue(state.inTak());
             Assert.assertEquals(toCheck, state);
             Assert.assertEquals(4, state.getTurns().size());
@@ -1359,10 +1359,10 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getBoard().getPosition(1, 1).getHeight());
             Assert.assertEquals(Player.WHITE, state.getCurrentPlayer());
 
-            place = new PlaceTurn(0,2,PieceType.STONE);
+            place = new TakPlaceTurn(0,2,PieceType.STONE);
             state.executeTurn(place);
             Assert.assertTrue(state.checkForWinner().isFinished());
-            toCheck = new GameEngine(state);
+            toCheck = new TakEngine(state);
             Assert.assertFalse(state.inTak());
             Assert.assertEquals(toCheck, state);
             Assert.assertEquals(5, state.getTurns().size());
@@ -1372,7 +1372,7 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getBoard().getPosition(1, 1).getHeight());
             Assert.assertEquals(1, state.getBoard().getPosition(0, 2).getHeight());
 
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1380,28 +1380,28 @@ public class GameEngineTest {
     @Test
     public void getPointsPlace() {
         try {
-            GameEngine state = initializeState(5);
-            PlaceTurn place = new PlaceTurn(new BoardLocation(1,1), PieceType.STONE);
+            TakEngine state = initializeState(5);
+            TakPlaceTurn place = new TakPlaceTurn(new BoardLocation(1,1), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(2, state.getWhitePoints());
             Assert.assertEquals(1, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(1,2), PieceType.STONE);
+            place = new TakPlaceTurn(new BoardLocation(1,2), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(2, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(2,1), PieceType.WALL);
+            place = new TakPlaceTurn(new BoardLocation(2,1), PieceType.WALL);
             state.executeTurn(place);
             Assert.assertEquals(2, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(2,2), PieceType.WALL);
+            place = new TakPlaceTurn(new BoardLocation(2,2), PieceType.WALL);
             state.executeTurn(place);
             Assert.assertEquals(2, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(3,1), PieceType.CAPSTONE);
+            place = new TakPlaceTurn(new BoardLocation(3,1), PieceType.CAPSTONE);
             state.executeTurn(place);
             Assert.assertEquals(2, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(3,2), PieceType.CAPSTONE);
+            place = new TakPlaceTurn(new BoardLocation(3,2), PieceType.CAPSTONE);
             state.executeTurn(place);
             Assert.assertEquals(2, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
@@ -1424,7 +1424,7 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getWhitePoints());
             Assert.assertEquals(1, state.getBlackPoints());
         }
-        catch(TakEngineException e) {
+        catch(BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1432,24 +1432,24 @@ public class GameEngineTest {
     @Test
     public void getPointsMove() {
         try {
-            GameEngine state = initializeState(5);
-            PlaceTurn place = new PlaceTurn(new BoardLocation(1, 1), PieceType.WALL);
+            TakEngine state = initializeState(5);
+            TakPlaceTurn place = new TakPlaceTurn(new BoardLocation(1, 1), PieceType.WALL);
             state.executeTurn(place);
             Assert.assertEquals(1, state.getWhitePoints());
             Assert.assertEquals(1, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(2, 0), PieceType.STONE);
+            place = new TakPlaceTurn(new BoardLocation(2, 0), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(1, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
-            MoveTurn move = new MoveTurn(new BoardLocation(1, 1), 1, Direction.NORTH, new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(new BoardLocation(1, 1), 1, Direction.NORTH, new int[]{1});
             state.executeTurn(move);
             Assert.assertEquals(0, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
-            place = new PlaceTurn(new BoardLocation(2, 2), PieceType.STONE);
+            place = new TakPlaceTurn(new BoardLocation(2, 2), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(0, state.getWhitePoints());
             Assert.assertEquals(3, state.getBlackPoints());
-            move = new MoveTurn(new BoardLocation(1, 0), 2, Direction.EAST, new int[]{1, 1});
+            move = new TakMoveTurn(new BoardLocation(1, 0), 2, Direction.EAST, new int[]{1, 1});
             state.executeTurn(move);
             Assert.assertEquals(1, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
@@ -1463,7 +1463,7 @@ public class GameEngineTest {
             Assert.assertEquals(1, state.getWhitePoints());
             Assert.assertEquals(2, state.getBlackPoints());
         }
-        catch(TakEngineException e) {
+        catch(BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1471,14 +1471,14 @@ public class GameEngineTest {
     @Test
     public void getBoardLocationsFilledPlace() {
         try {
-            GameEngine state = initializeState(5);
-            PlaceTurn place = new PlaceTurn(new BoardLocation(1, 1), PieceType.STONE);
+            TakEngine state = initializeState(5);
+            TakPlaceTurn place = new TakPlaceTurn(new BoardLocation(1, 1), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(3, state.getBoardLocationsFilled());
-            place = new PlaceTurn(new BoardLocation(2, 1), PieceType.WALL);
+            place = new TakPlaceTurn(new BoardLocation(2, 1), PieceType.WALL);
             state.executeTurn(place);
             Assert.assertEquals(4, state.getBoardLocationsFilled());
-            place = new PlaceTurn(new BoardLocation(3, 1), PieceType.CAPSTONE);
+            place = new TakPlaceTurn(new BoardLocation(3, 1), PieceType.CAPSTONE);
             state.executeTurn(place);
             Assert.assertEquals(5, state.getBoardLocationsFilled());
             state.undoTurn();
@@ -1488,7 +1488,7 @@ public class GameEngineTest {
             state.undoTurn();
             Assert.assertEquals(2, state.getBoardLocationsFilled());
         }
-        catch(TakEngineException e) {
+        catch(BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1496,20 +1496,20 @@ public class GameEngineTest {
     @Test
     public void getBoardLocationsFilledMove() {
         try {
-            GameEngine state = initializeState(5);
-            PlaceTurn place = new PlaceTurn(new BoardLocation(1, 1), PieceType.WALL);
+            TakEngine state = initializeState(5);
+            TakPlaceTurn place = new TakPlaceTurn(new BoardLocation(1, 1), PieceType.WALL);
             state.executeTurn(place);
             Assert.assertEquals(3, state.getBoardLocationsFilled());
-            place = new PlaceTurn(new BoardLocation(2, 0), PieceType.STONE);
+            place = new TakPlaceTurn(new BoardLocation(2, 0), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(4, state.getBoardLocationsFilled());
-            MoveTurn move = new MoveTurn(new BoardLocation(1, 1), 1, Direction.NORTH, new int[]{1});
+            TakMoveTurn move = new TakMoveTurn(new BoardLocation(1, 1), 1, Direction.NORTH, new int[]{1});
             state.executeTurn(move);
             Assert.assertEquals(3, state.getBoardLocationsFilled());
-            place = new PlaceTurn(new BoardLocation(2, 2), PieceType.STONE);
+            place = new TakPlaceTurn(new BoardLocation(2, 2), PieceType.STONE);
             state.executeTurn(place);
             Assert.assertEquals(4, state.getBoardLocationsFilled());
-            move = new MoveTurn(new BoardLocation(1, 0), 2, Direction.EAST, new int[]{1, 1});
+            move = new TakMoveTurn(new BoardLocation(1, 0), 2, Direction.EAST, new int[]{1, 1});
             state.executeTurn(move);
             Assert.assertEquals(4, state.getBoardLocationsFilled());
             state.undoTurn();
@@ -1519,7 +1519,7 @@ public class GameEngineTest {
             state.undoTurn();
             Assert.assertEquals(4, state.getBoardLocationsFilled());
         }
-        catch(TakEngineException e) {
+        catch(BoardGameEngineException e) {
             Assert.fail();
         }
     }
@@ -1527,23 +1527,23 @@ public class GameEngineTest {
     @Test
     public void importAndExportState() {
         try {
-            GameEngine state = initializeState(3);
-            MoveTurn move = new MoveTurn(1,0,1,Direction.WEST,new int[]{1});
+            TakEngine state = initializeState(3);
+            TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.WEST,new int[]{1});
             state.executeTurn(move);
-            PlaceTurn place = new PlaceTurn(1,0,PieceType.STONE);
+            TakPlaceTurn place = new TakPlaceTurn(1,0,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(0,0,2,Direction.EAST,new int[]{2});
+            move = new TakMoveTurn(0,0,2,Direction.EAST,new int[]{2});
             state.executeTurn(move);
-            place = new PlaceTurn(1,1,PieceType.STONE);
+            place = new TakPlaceTurn(1,1,PieceType.STONE);
             state.executeTurn(place);
-            move = new MoveTurn(1,0,3,Direction.SOUTH,new int[]{3});
+            move = new TakMoveTurn(1,0,3,Direction.SOUTH,new int[]{3});
             state.executeTurn(move);
-            place = new PlaceTurn(0,1,PieceType.STONE);
+            place = new TakPlaceTurn(0,1,PieceType.STONE);
             state.executeTurn(place);
             JSONObject stateJson = state.exportToJson();
-            GameEngine newState = new GameEngine(stateJson);
+            TakEngine newState = new TakEngine(stateJson);
             Assert.assertEquals(state, newState);
-        } catch (TakEngineException e) {
+        } catch (BoardGameEngineException e) {
             Assert.fail();
         }
     }

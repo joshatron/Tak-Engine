@@ -1,7 +1,7 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.exception.TakEngineException;
 import io.joshatron.tak.engine.game.Player;
 import org.json.JSONArray;
 
@@ -32,9 +32,9 @@ public class PieceStack {
         pieces.add(piece);
     }
 
-    public List<Piece> removePieces(int toRemove) throws TakEngineException {
+    public List<Piece> removePieces(int toRemove) throws BoardGameEngineException {
         if(toRemove > pieces.size()) {
-            throw new TakEngineException(TakEngineErrorCode.TOO_MANY_PIECES_SPECIFIED);
+            throw new BoardGameEngineException(TakEngineErrorCode.TOO_MANY_PIECES_SPECIFIED);
         }
 
         int pieceLoc = pieces.size() - toRemove;
@@ -46,9 +46,9 @@ public class PieceStack {
         return removed;
     }
 
-    public List<Piece> getTopPieces(int num) throws TakEngineException {
+    public List<Piece> getTopPieces(int num) throws BoardGameEngineException {
         if(num > pieces.size()) {
-            throw new TakEngineException(TakEngineErrorCode.TOO_MANY_PIECES_SPECIFIED);
+            throw new BoardGameEngineException(TakEngineErrorCode.TOO_MANY_PIECES_SPECIFIED);
         }
 
         ArrayList<Piece> top = new ArrayList<>();

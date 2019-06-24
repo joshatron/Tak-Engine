@@ -6,7 +6,7 @@ import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class MoveTurn extends Turn {
+public class TakMoveTurn extends TakTurn {
 
     private BoardLocation startLocation;
     private int pickedUp;
@@ -14,8 +14,8 @@ public class MoveTurn extends Turn {
     private int[] placed;
     private boolean flattened;
 
-    public MoveTurn(BoardLocation startLocation, int pickedUp,
-                    Direction direction, int[] placed) {
+    public TakMoveTurn(BoardLocation startLocation, int pickedUp,
+                       Direction direction, int[] placed) {
         super(TurnType.MOVE);
         this.startLocation = startLocation;
         this.pickedUp = pickedUp;
@@ -24,8 +24,8 @@ public class MoveTurn extends Turn {
         this.flattened = false;
     }
 
-    public MoveTurn(int x, int y, int pickedUp,
-                    Direction direction, int[] placed) {
+    public TakMoveTurn(int x, int y, int pickedUp,
+                       Direction direction, int[] placed) {
         super(TurnType.MOVE);
         this.startLocation = new BoardLocation(x, y);
         this.pickedUp = pickedUp;
@@ -34,7 +34,7 @@ public class MoveTurn extends Turn {
         this.flattened = false;
     }
 
-    public MoveTurn(JSONObject turn) {
+    public TakMoveTurn(JSONObject turn) {
         super(TurnType.MOVE);
         this.startLocation = new BoardLocation(turn.getJSONObject("location"));
         this.pickedUp = turn.getInt("pickedUp");
@@ -46,7 +46,7 @@ public class MoveTurn extends Turn {
         this.flattened = false;
     }
 
-    public MoveTurn(MoveTurn turn) {
+    public TakMoveTurn(TakMoveTurn turn) {
         super(TurnType.MOVE);
         this.startLocation = new BoardLocation(turn.getStartLocation());
         this.pickedUp = turn.getPickedUp();
@@ -131,8 +131,8 @@ public class MoveTurn extends Turn {
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof MoveTurn) {
-            MoveTurn other = (MoveTurn) o;
+        if(o instanceof TakMoveTurn) {
+            TakMoveTurn other = (TakMoveTurn) o;
             int[] otherPlaced = other.getPlaced();
             for(int i = 0; i < placed.length; i++) {
                 if(placed[i] != otherPlaced[i]) {

@@ -1,8 +1,7 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.exception.TakEngineException;
-import org.json.JSONArray;
 
 public class GameBoard {
 
@@ -10,13 +9,13 @@ public class GameBoard {
     private PieceStack[][] board;
     private int boardSize;
 
-    public GameBoard(int boardSize) throws TakEngineException {
+    public GameBoard(int boardSize) throws BoardGameEngineException {
         this.boardSize = boardSize;
         if(boardSize >= 3 && (boardSize <= 6 || boardSize == 8)) {
             this.board = new PieceStack[boardSize][boardSize];
         }
         else {
-            throw new TakEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
+            throw new BoardGameEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
 
         for(int x = 0; x < boardSize; x++) {
@@ -26,7 +25,7 @@ public class GameBoard {
         }
     }
 
-    public GameBoard(GameBoard gameBoard) throws TakEngineException {
+    public GameBoard(GameBoard gameBoard) throws BoardGameEngineException {
         this.boardSize = gameBoard.getBoardSize();
         this.board = new PieceStack[this.boardSize][this.boardSize];
 
@@ -84,19 +83,19 @@ public class GameBoard {
         return boardSize;
     }
 
-    public PieceStack getPosition(BoardLocation location) throws TakEngineException {
+    public PieceStack getPosition(BoardLocation location) throws BoardGameEngineException {
         validateOnBoard(location.getX(), location.getY());
         return board[location.getX()][location.getY()];
     }
 
-    public PieceStack getPosition(int x, int y) throws TakEngineException {
+    public PieceStack getPosition(int x, int y) throws BoardGameEngineException {
         validateOnBoard(x, y);
         return board[x][y];
     }
 
-    private void validateOnBoard(int x, int y) throws TakEngineException {
+    private void validateOnBoard(int x, int y) throws BoardGameEngineException {
         if(x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
-            throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
+            throw new BoardGameEngineException(TakEngineErrorCode.INVALID_LOCATION);
         }
     }
 
@@ -114,7 +113,7 @@ public class GameBoard {
                         if(!board[i][j].equals(other.getPosition(i, j))) {
                             return false;
                         }
-                    } catch(TakEngineException e) {
+                    } catch(BoardGameEngineException e) {
                         //Won't reach here
                     }
                 }

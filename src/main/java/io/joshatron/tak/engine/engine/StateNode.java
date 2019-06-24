@@ -1,6 +1,6 @@
 package io.joshatron.tak.engine.engine;
 
-import io.joshatron.tak.engine.game.GameState;
+import io.joshatron.tak.engine.game.TakState;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,10 +13,10 @@ import java.util.Set;
 public class StateNode {
     private StateNode parent;
     private Set<StateNode> children;
-    private GameState state;
+    private TakState state;
     private boolean childrenFull;
 
-    public StateNode(GameState state) {
+    public StateNode(TakState state) {
         this.parent = null;
         this.children = new HashSet<>();
         this.state = state;
