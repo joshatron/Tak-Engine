@@ -118,9 +118,29 @@ public class TakEngine implements GameEngine {
         }
     }
 
-    //TODO: implement
     @Override
     public List<Turn> getPossibleTurns(GameState gameState) throws BoardGameEngineException {
+        if(!(gameState instanceof TakState)) {
+            throw new BoardGameEngineException(TakEngineErrorCode.ILLEGAL_TYPE);
+        }
+        TakState state = (TakState)gameState;
+
+        List<BoardLocation> locations = new ArrayList<>();
+
+        for(int x = 0; x < state.getSize(); x++) {
+            for(int y = 0; y < state.getSize(); y++) {
+                locations.add(new BoardLocation(x, y));
+            }
+        }
+
+        List<Turn> turns = new ArrayList<>();
+        locations.parallelStream().forEach(loc -> turns.addAll(getTurnsForLocation(state, loc)));
+
+        return turns;
+    }
+
+    //TODO: implement
+    private List<Turn> getTurnsForLocation(TakState state, BoardLocation location) {
         return null;
     }
 
