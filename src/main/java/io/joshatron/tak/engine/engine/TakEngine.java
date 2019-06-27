@@ -134,14 +134,76 @@ public class TakEngine implements GameEngine {
         }
 
         List<Turn> turns = new ArrayList<>();
-        locations.parallelStream().forEach(loc -> turns.addAll(getTurnsForLocation(state, loc)));
+        locations.parallelStream().forEach(loc -> {
+            try {
+                turns.addAll(getTurnsForLocation(state, loc));
+            } catch(BoardGameEngineException e) {
+                e.printStackTrace();
+            }
+        });
 
         return turns;
     }
 
-    //TODO: implement
-    private List<Turn> getTurnsForLocation(TakState state, BoardLocation location) {
-        return null;
+    private List<Turn> getTurnsForLocation(TakState state, BoardLocation location) throws BoardGameEngineException {
+        if(state.getBoard().getPosition(location).getHeight() == 0) {
+            return getPlaceTurns(state, location);
+        }
+        else {
+            return getMoveTurns(state, location);
+        }
+    }
+
+    private List<Turn> getPlaceTurns(TakState state, BoardLocation location) {
+        List<Turn> turns = new ArrayList<>();
+
+        if(state.getCurrent() == Player.WHITE) {
+            if(state.getWhiteStones() > 0) {
+                turns.add(new TakPlaceTurn(location, PieceType.STONE));
+                if(state.getTurns().size() > 2) {
+                    turns.add(new TakPlaceTurn(location, PieceType.WALL));
+                }
+            }
+            if(state.getWhiteCapstones() > 0) {
+                turns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
+            }
+        }
+        else {
+            if(state.getBlackStones() > 0) {
+                turns.add(new TakPlaceTurn(location, PieceType.STONE));
+                if(state.getTurns().size() > 2) {
+                    turns.add(new TakPlaceTurn(location, PieceType.WALL));
+                }
+            }
+            if(state.getBlackCapstones() > 0) {
+                turns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
+            }
+        }
+
+        return turns;
+    }
+
+    private List<Turn> getMoveTurns(TakState state, BoardLocation location) throws BoardGameEngineException {
+        List<Turn> turns = new ArrayList<>();
+
+        if(state.getCurrent() == state.getBoard().getPosition(location).getStackOwner()) {
+            int height = Math.min(state.getSize(), state.getBoard().getPosition(location).getHeight());
+
+            for(int i = 1; i <= height; i++) {
+                turns.addAll(getMovesInDirection(state, location, i, Direction.NORTH));
+                turns.addAll(getMovesInDirection(state, location, i, Direction.SOUTH));
+                turns.addAll(getMovesInDirection(state, location, i, Direction.EAST));
+                turns.addAll(getMovesInDirection(state, location, i, Direction.WEST));
+            }
+        }
+
+        return turns;
+    }
+
+    private List<Turn> getMovesInDirection(TakState state, BoardLocation location, int height, Direction direction) {
+        List<Turn> turns = new ArrayList<>();
+
+        return turns;
     }
 
     private void fillOutStatus(TakState state) throws BoardGameEngineException {
