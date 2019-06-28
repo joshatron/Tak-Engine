@@ -188,20 +188,37 @@ public class TakEngine implements GameEngine {
 
         if(state.getCurrent() == state.getBoard().getPosition(location).getStackOwner()) {
             int height = Math.min(state.getSize(), state.getBoard().getPosition(location).getHeight());
+            boolean topCap = state.getBoard().getPosition(location).getTopPiece().getType() == PieceType.CAPSTONE;
 
             for(int i = 1; i <= height; i++) {
-                turns.addAll(getMovesInDirection(state, location, i, Direction.NORTH));
-                turns.addAll(getMovesInDirection(state, location, i, Direction.SOUTH));
-                turns.addAll(getMovesInDirection(state, location, i, Direction.EAST));
-                turns.addAll(getMovesInDirection(state, location, i, Direction.WEST));
+                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.NORTH));
+                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.SOUTH));
+                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.EAST));
+                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.WEST));
             }
         }
 
         return turns;
     }
 
-    private List<Turn> getMovesInDirection(TakState state, BoardLocation location, int height, Direction direction) {
+    private List<Turn> getMovesInDirection(TakState state, BoardLocation location, int height, boolean topCap, Direction direction) throws BoardGameEngineException {
         List<Turn> turns = new ArrayList<>();
+
+        if(height > 1) {
+            BoardLocation newLoc = new BoardLocation(location);
+            newLoc.move(direction);
+
+            if(state.getBoard().isValidLocation(newLoc)) {
+                PieceStack stack = state.getBoard().getPosition(newLoc);
+                if(stack.getStackOwner() == Player.NONE || stack.getTopPiece().getType() == PieceType.STONE) {
+                    for(int i = 1; i < height; i++) {
+                        turns.addAll(getMovesInDirection(state, newLoc, height - i, topCap, direction));
+                    }
+                } else if(stack.getHeight() > 0 && stack.getTopPiece().getType() == PieceType.WALL && height == 1 && topCap) {
+                    turns.addAll(getMovesInDirection(state, newLoc, 1, topCap, direction));
+                }
+            }
+        }
 
         return turns;
     }

@@ -93,6 +93,15 @@ public class GameBoard {
         return board[x][y];
     }
 
+    public boolean isValidLocation(BoardLocation location) {
+        try {
+            validateOnBoard(location.getX(), location.getY());
+            return true;
+        } catch(BoardGameEngineException e) {
+            return false;
+        }
+    }
+
     private void validateOnBoard(int x, int y) throws BoardGameEngineException {
         if(x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
             throw new BoardGameEngineException(TakEngineErrorCode.INVALID_LOCATION);
