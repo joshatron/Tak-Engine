@@ -187,40 +187,28 @@ public class TakEngine implements GameEngine {
         List<Turn> turns = new ArrayList<>();
 
         if(state.getCurrent() == state.getBoard().getPosition(location).getStackOwner()) {
-            int height = Math.min(state.getSize(), state.getBoard().getPosition(location).getHeight());
-            boolean topCap = state.getBoard().getPosition(location).getTopPiece().getType() == PieceType.CAPSTONE;
+            int maxHeight = Math.min(state.getSize(), state.getBoard().getPosition(location).getHeight());
 
-            for(int i = 1; i <= height; i++) {
-                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.NORTH));
-                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.SOUTH));
-                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.EAST));
-                turns.addAll(getMovesInDirection(state, location, i, topCap, Direction.WEST));
+            for(int i = 1; i <= maxHeight; i++) {
+                for(Direction direction : Direction.values()) {
+                    List<int[]> places = getPlaces(i, getDistance(state, location, direction));
+                    for(int[] place : places) {
+                        turns.add(new TakMoveTurn(location, i, direction, place));
+                    }
+                }
             }
         }
 
         return turns;
     }
 
-    private List<Turn> getMovesInDirection(TakState state, BoardLocation location, int height, boolean topCap, Direction direction) throws BoardGameEngineException {
-        List<Turn> turns = new ArrayList<>();
+    private int getDistance(TakState state, BoardLocation location, Direction direction) throws BoardGameEngineException {
+        boolean topCap = state.getBoard().getPosition(location).getTopPiece().getType() == PieceType.CAPSTONE;
+        return 0;
+    }
 
-        if(height > 1) {
-            BoardLocation newLoc = new BoardLocation(location);
-            newLoc.move(direction);
-
-            if(state.getBoard().isValidLocation(newLoc)) {
-                PieceStack stack = state.getBoard().getPosition(newLoc);
-                if(stack.getStackOwner() == Player.NONE || stack.getTopPiece().getType() == PieceType.STONE) {
-                    for(int i = 1; i < height; i++) {
-                        turns.addAll(getMovesInDirection(state, newLoc, height - i, topCap, direction));
-                    }
-                } else if(stack.getHeight() > 0 && stack.getTopPiece().getType() == PieceType.WALL && height == 1 && topCap) {
-                    turns.addAll(getMovesInDirection(state, newLoc, 1, topCap, direction));
-                }
-            }
-        }
-
-        return turns;
+    private List<int[]> getPlaces(int height, int distance) {
+        return null;
     }
 
     private void fillOutStatus(TakState state) throws BoardGameEngineException {
