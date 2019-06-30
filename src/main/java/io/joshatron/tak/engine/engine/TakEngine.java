@@ -127,49 +127,61 @@ public class TakEngine implements GameEngine {
         TakState s = (TakState) state;
         ArrayList<Turn> possibleTurns = new ArrayList<>();
 
-        if(s.getTurns().size() < 2) {
-            for(int x = 0; x < s.getSize(); x++) {
-                for(int y = 0; y < s.getSize(); y++) {
-                    if(s.getBoard().getPosition(x, y).getHeight() == 0) {
-                        possibleTurns.add(new TakPlaceTurn(x, y, PieceType.STONE));
+        List<BoardLocation> locations = new ArrayList<>();
+
+        for(int x = 0; x < s.getSize(); x++) {
+            for(int y = 0; y < s.getSize(); y++) {
+                locations.add(new BoardLocation(x, y));
+            }
+        }
+
+        locations.parallelStream().forEach(loc -> {
+            try {
+                possibleTurns.addAll(getPossibleForLocation(s, loc));
+            } catch(BoardGameEngineException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return possibleTurns;
+    }
+
+    private List<Turn> getPossibleForLocation(TakState state, BoardLocation location) throws BoardGameEngineException {
+        ArrayList<Turn> possibleTurns = new ArrayList<>();
+
+        if(state.getTurns().size() < 2) {
+            if(state.getBoard().getPosition(location).getHeight() == 0) {
+                possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
+            }
+        }
+        else {
+            //If it is empty, add possible places
+            if (state.getBoard().getPosition(location).getHeight() == 0) {
+                if(state.getCurrent() == Player.WHITE) {
+                    if(state.getWhiteStones() > 0) {
+                        possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
+                        possibleTurns.add(new TakPlaceTurn(location, PieceType.WALL));
+                    }
+                    if(state.getWhiteCapstones() > 0) {
+                        possibleTurns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
+                    }
+                }
+                else {
+                    if(state.getBlackStones() > 0) {
+                        possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
+                        possibleTurns.add(new TakPlaceTurn(location, PieceType.WALL));
+                    }
+                    if(state.getBlackCapstones() > 0) {
+                        possibleTurns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
                     }
                 }
             }
-
-        }
-        else {
-            //Iterate through each position to process possible moves
-            for (int x = 0; x < s.getSize(); x++) {
-                for (int y = 0; y < s.getSize(); y++) {
-                    //If it is empty, add possible places
-                    if (s.getBoard().getPosition(x, y).getHeight() == 0) {
-                        if(s.getCurrent() == Player.WHITE) {
-                            if(s.getWhiteStones() > 0) {
-                                possibleTurns.add(new TakPlaceTurn(x, y, PieceType.STONE));
-                                possibleTurns.add(new TakPlaceTurn(x, y, PieceType.WALL));
-                            }
-                            if(s.getWhiteCapstones() > 0) {
-                                possibleTurns.add(new TakPlaceTurn(x, y, PieceType.CAPSTONE));
-                            }
-                        }
-                        else {
-                            if(s.getBlackStones() > 0) {
-                                possibleTurns.add(new TakPlaceTurn(x, y, PieceType.STONE));
-                                possibleTurns.add(new TakPlaceTurn(x, y, PieceType.WALL));
-                            }
-                            if(s.getBlackCapstones() > 0) {
-                                possibleTurns.add(new TakPlaceTurn(x, y, PieceType.CAPSTONE));
-                            }
-                        }
-                    }
-                    //Otherwise iterate through possible moves if player owns the stack
-                    else if (s.getBoard().getPosition(x, y).getTopPiece().getPlayer() == s.getCurrent()) {
-                        possibleTurns.addAll(getMoves(s, x, y, Direction.NORTH));
-                        possibleTurns.addAll(getMoves(s, x, y, Direction.SOUTH));
-                        possibleTurns.addAll(getMoves(s, x, y, Direction.EAST));
-                        possibleTurns.addAll(getMoves(s, x, y, Direction.WEST));
-                    }
-                }
+            //Otherwise iterate through possible moves if player owns the stack
+            else if (state.getBoard().getPosition(location).getTopPiece().getPlayer() == state.getCurrent()) {
+                possibleTurns.addAll(getMoves(state, location, Direction.NORTH));
+                possibleTurns.addAll(getMoves(state, location, Direction.SOUTH));
+                possibleTurns.addAll(getMoves(state, location, Direction.EAST));
+                possibleTurns.addAll(getMoves(state, location, Direction.WEST));
             }
         }
 
@@ -177,12 +189,12 @@ public class TakEngine implements GameEngine {
     }
 
 
-    private ArrayList<Turn> getMoves(TakState state, int x, int y, Direction dir) throws BoardGameEngineException {
+    private ArrayList<Turn> getMoves(TakState state, BoardLocation location, Direction dir) throws BoardGameEngineException {
         ArrayList<Turn> possibleTurns = new ArrayList<>();
 
-        int numPieces = Math.min(state.getBoard().getPosition(x, y).getHeight(), state.getSize());
+        int numPieces = Math.min(state.getBoard().getPosition(location).getHeight(), state.getSize());
         int distToBlock = 0;
-        BoardLocation loc = new BoardLocation(x, y);
+        BoardLocation loc = new BoardLocation(location);
         loc.move(dir);
         while(state.getBoard().isValidLocation(loc) &&
                 (state.getBoard().getPosition(loc).getHeight() == 0 ||
@@ -193,13 +205,13 @@ public class TakEngine implements GameEngine {
         boolean canFlatten = false;
         if(state.getBoard().isValidLocation(loc) && state.getBoard().getPosition(loc).getHeight() > 0 &&
                 state.getBoard().getPosition(loc).getTopPiece().getType() == PieceType.WALL &&
-                state.getBoard().getPosition(x, y).getTopPiece().getType() == PieceType.CAPSTONE) {
+                state.getBoard().getPosition(location).getTopPiece().getType() == PieceType.CAPSTONE) {
             canFlatten = true;
         }
 
         if(distToBlock > 0) {
             while (numPieces > 0) {
-                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<>(), x, y, dir, numPieces));
+                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<>(), location, dir, numPieces));
                 numPieces--;
             }
         }
@@ -207,23 +219,23 @@ public class TakEngine implements GameEngine {
         return possibleTurns;
     }
 
-    private ArrayList<Turn> getMovesInner(int distToBlock, boolean canFlatten, int numPieces, ArrayList<Integer> drops, int x, int y, Direction dir, int pickup) {
+    private ArrayList<Turn> getMovesInner(int distToBlock, boolean canFlatten, int numPieces, ArrayList<Integer> drops, BoardLocation location, Direction dir, int pickup) {
         ArrayList<Turn> possibleTurns = new ArrayList<>();
         //at last spot
         if(distToBlock == 0) {
-            possibleTurns.add(buildMove(x, y, pickup, dir, drops, numPieces));
+            possibleTurns.add(buildMove(location, pickup, dir, drops, numPieces));
             if(canFlatten && numPieces > 1) {
                 drops.add(numPieces - 1);
-                possibleTurns.add(buildMove(x, y, pickup, dir, drops, 1));
+                possibleTurns.add(buildMove(location, pickup, dir, drops, 1));
             }
         }
         //iterate through everything else
         else {
-            possibleTurns.add(buildMove(x, y, pickup, dir, drops, numPieces));
+            possibleTurns.add(buildMove(location, pickup, dir, drops, numPieces));
             int piecesLeft = numPieces - 1;
             while(piecesLeft > 0) {
                 drops.add(piecesLeft);
-                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<>(drops), x, y, dir, pickup));
+                possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces - piecesLeft, new ArrayList<>(drops), location, dir, pickup));
                 drops.remove(drops.size() - 1);
                 piecesLeft--;
             }
@@ -232,13 +244,13 @@ public class TakEngine implements GameEngine {
         return possibleTurns;
     }
 
-    private TakMoveTurn buildMove(int x, int y, int pickup, Direction dir, ArrayList<Integer> drops, int current) {
+    private TakMoveTurn buildMove(BoardLocation location, int pickup, Direction dir, ArrayList<Integer> drops, int current) {
         int[] drop = new int[drops.size() + 1];
         for(int i = 0; i < drops.size(); i++) {
             drop[i] = drops.get(i);
         }
         drop[drop.length - 1] = current;
-        return new TakMoveTurn(x, y, pickup, dir, drop);
+        return new TakMoveTurn(location, pickup, dir, drop);
     }
 
     private void fillOutStatus(TakState state) throws BoardGameEngineException {
