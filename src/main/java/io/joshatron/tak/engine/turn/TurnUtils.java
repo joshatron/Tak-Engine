@@ -1,10 +1,10 @@
 package io.joshatron.tak.engine.turn;
 
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.Direction;
 import io.joshatron.tak.engine.board.PieceType;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONObject;
 
 public class TurnUtils {
@@ -13,7 +13,7 @@ public class TurnUtils {
         throw new IllegalStateException("This is a utility class");
     }
 
-    public static TakTurn turnFromJson(JSONObject turn) throws TakEngineException {
+    public static TakTurn turnFromJson(JSONObject turn) throws BoardGameEngineException {
         TurnType type = TurnType.valueOf(turn.getString("type"));
         if(type == TurnType.PLACE) {
             return new TakPlaceTurn(turn);
@@ -22,10 +22,10 @@ public class TurnUtils {
             return new TakMoveTurn(turn);
         }
 
-        throw new TakEngineException(TakEngineErrorCode.INVALID_TURN_TYPE);
+        throw new BoardGameEngineException(TakEngineErrorCode.INVALID_TURN_TYPE);
     }
 
-    public static TakTurn turnFromString(String str) throws TakEngineException {
+    public static TakTurn turnFromString(String str) throws BoardGameEngineException {
         str = str.toLowerCase();
         if(str.charAt(0) == 'p') {
             PieceType type = null;
@@ -40,7 +40,7 @@ public class TurnUtils {
                     type = PieceType.CAPSTONE;
                     break;
                 default:
-                    throw new TakEngineException(TakEngineErrorCode.INVALID_PIECE_TYPE);
+                    throw new BoardGameEngineException(TakEngineErrorCode.INVALID_PIECE_TYPE);
             }
 
             int x = xToNum(str.charAt(3));
@@ -66,7 +66,7 @@ public class TurnUtils {
                     dir = Direction.WEST;
                     break;
                 default:
-                    throw new TakEngineException(TakEngineErrorCode.INVALID_DIRECTION);
+                    throw new BoardGameEngineException(TakEngineErrorCode.INVALID_DIRECTION);
             }
 
             int x = xToNum(str.charAt(3));
@@ -88,7 +88,7 @@ public class TurnUtils {
         return null;
     }
 
-    private static int xToNum(char c) throws TakEngineException {
+    private static int xToNum(char c) throws BoardGameEngineException {
         switch(c) {
             case 'a':
                 return 0;
@@ -107,11 +107,11 @@ public class TurnUtils {
             case 'h':
                 return 7;
             default:
-                throw new TakEngineException(TakEngineErrorCode.INVALID_LOCATION);
+                throw new BoardGameEngineException(TakEngineErrorCode.INVALID_LOCATION);
         }
     }
 
-    private static int charToNum(char c) throws TakEngineException {
+    private static int charToNum(char c) throws BoardGameEngineException {
         switch(c) {
             case '0':
                 return 0;
@@ -134,7 +134,7 @@ public class TurnUtils {
             case '9':
                 return 9;
             default:
-                throw new TakEngineException(TakEngineErrorCode.INVALID_NUMBER);
+                throw new BoardGameEngineException(TakEngineErrorCode.INVALID_NUMBER);
         }
     }
 }

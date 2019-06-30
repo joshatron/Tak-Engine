@@ -188,12 +188,17 @@ public class TakEngine implements GameEngine {
 
         if(state.getCurrent() == state.getBoard().getPosition(location).getStackOwner()) {
             int maxHeight = Math.min(state.getSize(), state.getBoard().getPosition(location).getHeight());
+            Direction[] directions = Direction.values();
+            int[] distances = new int[directions.length];
+            for(int i = 0; i < directions.length; i++) {
+                distances[i] = getDistance(state, location, directions[i]);
+            }
 
             for(int i = 1; i <= maxHeight; i++) {
-                for(Direction direction : Direction.values()) {
-                    List<int[]> places = getPlaces(i, getDistance(state, location, direction));
+                for(int j = 0; j < directions.length; j++) {
+                    List<int[]> places = getPlaces(i, distances[j]);
                     for(int[] place : places) {
-                        turns.add(new TakMoveTurn(location, i, direction, place));
+                        turns.add(new TakMoveTurn(location, i, directions[j], place));
                     }
                 }
             }
@@ -204,11 +209,39 @@ public class TakEngine implements GameEngine {
 
     private int getDistance(TakState state, BoardLocation location, Direction direction) throws BoardGameEngineException {
         boolean topCap = state.getBoard().getPosition(location).getTopPiece().getType() == PieceType.CAPSTONE;
-        return 0;
+        BoardLocation current = new BoardLocation(location);
+        current.move(direction);
+        int distance = 0;
+
+        while(state.getBoard().isValidLocation(current)) {
+            PieceStack stack = state.getBoard().getPosition(current);
+            if(stack.getHeight() > 0) {
+                if(stack.getTopPiece().getType() == PieceType.CAPSTONE) {
+                    break;
+                }
+                if(stack.getTopPiece().getType() == PieceType.WALL && topCap) {
+                    distance++;
+                    distance *= -1;
+                    break;
+                }
+            }
+
+            distance++;
+            current.move(direction);
+        }
+
+        return distance;
     }
 
     private List<int[]> getPlaces(int height, int distance) {
-        return null;
+        List<int[]> places = new ArrayList<>();
+        boolean endCap = false;
+        if(distance < 0) {
+            endCap = true;
+            distance *= -1;
+        }
+
+        return places;
     }
 
     private void fillOutStatus(TakState state) throws BoardGameEngineException {

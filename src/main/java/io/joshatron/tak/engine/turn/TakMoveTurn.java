@@ -1,8 +1,8 @@
 package io.joshatron.tak.engine.turn;
 
+import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.BoardLocation;
 import io.joshatron.tak.engine.board.Direction;
-import io.joshatron.tak.engine.exception.TakEngineException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -58,22 +58,6 @@ public class TakMoveTurn extends TakTurn {
         this.flattened = turn.flattened;
     }
 
-    public JSONObject exportToJson() {
-        JSONObject toReturn = new JSONObject();
-        toReturn.put("type", TurnType.MOVE.name());
-        toReturn.put("location", startLocation.exportToJson());
-        toReturn.put("pickedUp", pickedUp);
-        toReturn.put("direction", direction.name());
-
-        JSONArray place = new JSONArray();
-        for(int i = 0; i < placed.length; i++) {
-            place.put(placed[i]);
-        }
-        toReturn.put("placed", place);
-
-        return toReturn;
-    }
-
     public BoardLocation getStartLocation() {
         return startLocation;
     }
@@ -117,7 +101,7 @@ public class TakMoveTurn extends TakTurn {
 
         try {
             str.append(" ").append(startLocation.toBoardString());
-        } catch(TakEngineException e) {
+        } catch(BoardGameEngineException e) {
             e.printStackTrace();
         }
 

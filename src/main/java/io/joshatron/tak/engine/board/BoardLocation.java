@@ -58,14 +58,6 @@ public class BoardLocation {
         }
     }
 
-    public JSONObject exportToJson() {
-        JSONObject location = new JSONObject();
-        location.put("x", x);
-        location.put("y", y);
-
-        return location;
-    }
-
     public int getX() {
         return x;
     }
