@@ -1,4 +1,4 @@
-package io.joshatron.tak.engine.engine;
+package io.joshatron.tak.engine.game;
 
 import io.joshatron.bgt.engine.GameEngine;
 import io.joshatron.bgt.engine.dtos.GameState;
