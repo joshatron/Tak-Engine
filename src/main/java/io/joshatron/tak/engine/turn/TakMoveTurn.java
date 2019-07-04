@@ -118,9 +118,11 @@ public class TakMoveTurn extends TakTurn {
         if(o instanceof TakMoveTurn) {
             TakMoveTurn other = (TakMoveTurn) o;
             int[] otherPlaced = other.getPlaced();
-            for(int i = 0; i < placed.length; i++) {
-                if(placed[i] != otherPlaced[i]) {
-                    return false;
+            if(placed.length == otherPlaced.length) {
+                for(int i = 0; i < placed.length; i++) {
+                    if(placed[i] != otherPlaced[i]) {
+                        return false;
+                    }
                 }
             }
 

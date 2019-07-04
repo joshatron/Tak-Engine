@@ -10,8 +10,6 @@ import io.joshatron.tak.engine.board.Piece;
 import io.joshatron.tak.engine.board.PieceType;
 import io.joshatron.tak.engine.turn.TakMoveTurn;
 import io.joshatron.tak.engine.turn.TakPlaceTurn;
-import io.joshatron.tak.engine.turn.TakTurn;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -425,7 +423,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(1,1,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,0,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -449,7 +447,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(0,1,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(1,2,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.BLACK,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -514,7 +512,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             engine.executeTurn(state, moveUp);
             place = new TakPlaceTurn(5,4,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 51),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -570,7 +568,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             engine.executeTurn(state, moveDown);
             place = new TakPlaceTurn(1,5,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.BLACK,WinReason.PATH, 54),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -594,9 +592,9 @@ public class TakEngineTest {
             place = new TakPlaceTurn(1,1,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,0,PieceType.WALL);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -626,7 +624,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(3,1,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(4,0,PieceType.CAPSTONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 42),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -654,7 +652,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(0,2,PieceType.STONE);
             engine.executeTurn(state, place);
             TakMoveTurn move = new TakMoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, move);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -681,7 +679,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,2,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -707,7 +705,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(1,2,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,2,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(), state.getStatus());
+            Assert.assertEquals(new TakStatus(), state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.BOARD_FULL, 14), state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -748,7 +746,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(0,2,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(1,1,PieceType.CAPSTONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.BLACK,WinReason.OUT_OF_PIECES, 26),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -780,7 +778,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(0,2,PieceType.STONE);
             engine.executeTurn(state, place);
             move = new TakMoveTurn(1,2,2,Direction.NORTH,new int[]{1,1});
-            Assert.assertEquals(new GameStatus(), state.getStatus());
+            Assert.assertEquals(new TakStatus(), state.getStatus());
             engine.executeTurn(state, move);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 16), state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -809,7 +807,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,2,PieceType.STONE);
             TakState toCheck = new TakState(state);
-            Assert.assertEquals(new GameStatus(), state.getStatus());
+            Assert.assertEquals(new TakStatus(), state.getStatus());
             Assert.assertEquals(toCheck, state);
             engine.executeTurn(state, place);
             toCheck = new TakState(state);
@@ -998,11 +996,11 @@ public class TakEngineTest {
             place = new TakPlaceTurn(1,1,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,0,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 16),state.getStatus());
             engine.undoTurn(state);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
@@ -1026,7 +1024,7 @@ public class TakEngineTest {
             place = new TakPlaceTurn(1,1,PieceType.STONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(2,0,PieceType.STONE);
-            Assert.assertEquals(new GameStatus(),state.getStatus());
+            Assert.assertEquals(new TakStatus(),state.getStatus());
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,Player.WHITE,WinReason.PATH, 16),state.getStatus());
             engine.undoTurn(state);
@@ -1132,7 +1130,7 @@ public class TakEngineTest {
 
             //verify that no two possible moves are the same
             for(int j = i + 1; j < turns.size(); j++) {
-                if(turns.get(i).toString().equals(turns.get(j).toString())) {
+                if(turns.get(i).equals(turns.get(j))) {
                     System.out.println("Verify getPossibleTurns failed on: duplicate");
                     return false;
                 }

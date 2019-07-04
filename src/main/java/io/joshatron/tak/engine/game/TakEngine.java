@@ -7,11 +7,11 @@ import io.joshatron.bgt.engine.dtos.Turn;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.*;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.game.*;
 import io.joshatron.tak.engine.turn.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TakEngine implements GameEngine {
 
@@ -135,57 +135,58 @@ public class TakEngine implements GameEngine {
             }
         }
 
-        locations.parallelStream().forEach(loc -> {
-            try {
-                possibleTurns.addAll(getPossibleForLocation(s, loc));
-            } catch(BoardGameEngineException e) {
-                e.printStackTrace();
-            }
-        });
+        List<List<Turn>> turns = locations.parallelStream().map(loc -> getPossibleForLocation(s, loc)).collect(Collectors.toList());
+
+        for(List<Turn> turns1 : turns) {
+            possibleTurns.addAll(turns1);
+        }
 
         return possibleTurns;
     }
 
-    private List<Turn> getPossibleForLocation(TakState state, BoardLocation location) throws BoardGameEngineException {
-        ArrayList<Turn> possibleTurns = new ArrayList<>();
+    private List<Turn> getPossibleForLocation(TakState state, BoardLocation location) {
+        try {
+            ArrayList<Turn> possibleTurns = new ArrayList<>();
 
-        if(state.getTurns().size() < 2) {
-            if(state.getBoard().getPosition(location).getHeight() == 0) {
-                possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
-            }
-        }
-        else {
-            //If it is empty, add possible places
-            if (state.getBoard().getPosition(location).getHeight() == 0) {
-                if(state.getCurrent() == Player.WHITE) {
-                    if(state.getWhiteStones() > 0) {
-                        possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
-                        possibleTurns.add(new TakPlaceTurn(location, PieceType.WALL));
-                    }
-                    if(state.getWhiteCapstones() > 0) {
-                        possibleTurns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
+            if(state.getTurns().size() < 2) {
+                if(state.getBoard().getPosition(location).getHeight() == 0) {
+                    possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
+                }
+            } else {
+                //If it is empty, add possible places
+                if(state.getBoard().getPosition(location).getHeight() == 0) {
+                    if(state.getCurrent() == Player.WHITE) {
+                        if(state.getWhiteStones() > 0) {
+                            possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
+                            possibleTurns.add(new TakPlaceTurn(location, PieceType.WALL));
+                        }
+                        if(state.getWhiteCapstones() > 0) {
+                            possibleTurns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
+                        }
+                    } else {
+                        if(state.getBlackStones() > 0) {
+                            possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
+                            possibleTurns.add(new TakPlaceTurn(location, PieceType.WALL));
+                        }
+                        if(state.getBlackCapstones() > 0) {
+                            possibleTurns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
+                        }
                     }
                 }
-                else {
-                    if(state.getBlackStones() > 0) {
-                        possibleTurns.add(new TakPlaceTurn(location, PieceType.STONE));
-                        possibleTurns.add(new TakPlaceTurn(location, PieceType.WALL));
-                    }
-                    if(state.getBlackCapstones() > 0) {
-                        possibleTurns.add(new TakPlaceTurn(location, PieceType.CAPSTONE));
-                    }
+                //Otherwise iterate through possible moves if player owns the stack
+                else if(state.getBoard().getPosition(location).getTopPiece().getPlayer() == state.getCurrent()) {
+                    possibleTurns.addAll(getMoves(state, location, Direction.NORTH));
+                    possibleTurns.addAll(getMoves(state, location, Direction.SOUTH));
+                    possibleTurns.addAll(getMoves(state, location, Direction.EAST));
+                    possibleTurns.addAll(getMoves(state, location, Direction.WEST));
                 }
             }
-            //Otherwise iterate through possible moves if player owns the stack
-            else if (state.getBoard().getPosition(location).getTopPiece().getPlayer() == state.getCurrent()) {
-                possibleTurns.addAll(getMoves(state, location, Direction.NORTH));
-                possibleTurns.addAll(getMoves(state, location, Direction.SOUTH));
-                possibleTurns.addAll(getMoves(state, location, Direction.EAST));
-                possibleTurns.addAll(getMoves(state, location, Direction.WEST));
-            }
-        }
 
-        return possibleTurns;
+            return possibleTurns;
+        } catch(BoardGameEngineException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
 
@@ -309,12 +310,14 @@ public class TakEngine implements GameEngine {
 
         for(int x = 0; x < state.getSize(); x++) {
             for(int y = 0; y < state.getSize(); y++) {
-                Player owner = state.getBoard().getPosition(x, y).getStackOwner();
-                if(owner == Player.WHITE) {
-                    whitePoints++;
-                }
-                else if(owner == Player.BLACK) {
-                    blackPoints++;
+                if(state.getBoard().getPosition(x, y).getHeight() > 0 &&
+                   state.getBoard().getPosition(x, y).getTopPiece().getType() == PieceType.STONE) {
+                    Player owner = state.getBoard().getPosition(x, y).getStackOwner();
+                    if(owner == Player.WHITE) {
+                        whitePoints++;
+                    } else if(owner == Player.BLACK) {
+                        blackPoints++;
+                    }
                 }
             }
         }
@@ -336,14 +339,13 @@ public class TakEngine implements GameEngine {
         }
     }
 
-    private int getScore(TakState state, Player player) throws BoardGameEngineException {
-        int points = 0;
-        for(int x = 0; x < state.getSize(); x++) {
-            for(int y = 0; y < state.getSize(); y++) {
-                if(state.getBoard().getPosition(x, y).getStackOwner() == player) {
-                    points++;
-                }
-            }
+    private int getScore(TakState state, Player player) {
+        int points;
+        if(player == Player.WHITE) {
+            points = state.getWhiteStones() + state.getWhiteCapstones();
+        }
+        else {
+            points = state.getBlackStones() + state.getBlackCapstones();
         }
 
         return state.getSize() * state.getSize() + points;
@@ -383,6 +385,7 @@ public class TakEngine implements GameEngine {
         }
         validateTurn((TakState)state, (TakTurn)turn);
         applyTurn((TakState)state, (TakTurn)turn);
+        state.setStatus(null);
         fillOutStatus((TakState)state);
 
         return state;
@@ -463,7 +466,7 @@ public class TakEngine implements GameEngine {
             undoMove(s, (TakMoveTurn) turn);
         }
 
-        s.setStatus(null);
+        s.setStatus(new TakStatus());
 
         return state;
     }
@@ -480,11 +483,19 @@ public class TakEngine implements GameEngine {
             }
         }
         else {
-            if(state.getCurrent() == Player.WHITE) {
-                state.setWhiteStones(state.getWhiteStones() + 1);
+            if(state.getTurns().size() < 2) {
+                if(state.getCurrent() == Player.WHITE) {
+                    state.setBlackStones(state.getBlackStones() + 1);
+                } else {
+                    state.setWhiteStones(state.getWhiteStones() + 1);
+                }
             }
             else {
-                state.setBlackStones(state.getBlackStones() + 1);
+                if(state.getCurrent() == Player.WHITE) {
+                    state.setWhiteStones(state.getWhiteStones() + 1);
+                } else {
+                    state.setBlackStones(state.getBlackStones() + 1);
+                }
             }
         }
     }

@@ -3,8 +3,10 @@ package io.joshatron.tak.engine.game;
 import io.joshatron.bgt.engine.dtos.GameStatus;
 import io.joshatron.bgt.engine.dtos.Status;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @EqualsAndHashCode
+@ToString
 public class TakStatus extends GameStatus {
     private Player winner;
     private WinReason reason;

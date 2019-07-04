@@ -27,6 +27,7 @@ public class TakState extends GameState {
     public TakState(Player first, int size) throws BoardGameEngineException {
         super();
 
+        this.size = size;
         this.first = first;
         this.current = first;
 
