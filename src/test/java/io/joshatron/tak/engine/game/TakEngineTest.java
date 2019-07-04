@@ -1110,34 +1110,29 @@ public class TakEngineTest {
     //all given turns are legal and that there are the right number of them.
     //This gives reasonable certainty of correctness without building large
     //lists and having to sort and compare them
-    private boolean verifyState(TakState state, int possible) throws BoardGameEngineException {
+    private void verifyState(TakState state, int possible) throws BoardGameEngineException {
         TakEngine engine = new TakEngine();
         List<Turn> turns = engine.getPossibleTurns(state);
 
         //makes sure there are the correct number of possible turns
         if(turns.size() != possible) {
-            System.out.println("Verify getPossibleTurns failed on: illegal size (" + turns.size() + ")");
-            return false;
+            Assert.fail("Verify getPossibleTurns failed on: illegal size (" + turns.size() + ")");
         }
 
         //verify each possible turn
         for(int i = 0; i < turns.size(); i++) {
             //make sure the possible turn is legal
             if(!engine.isLegalTurn(state, turns.get(i))) {
-                System.out.println("Verify getPossibleTurns failed on: illegal turn");
-                return false;
+                Assert.fail("Verify getPossibleTurns failed on: illegal turn");
             }
 
             //verify that no two possible moves are the same
             for(int j = i + 1; j < turns.size(); j++) {
                 if(turns.get(i).equals(turns.get(j))) {
-                    System.out.println("Verify getPossibleTurns failed on: duplicate");
-                    return false;
+                    Assert.fail("Verify getPossibleTurns failed on: duplicate");
                 }
             }
         }
-
-        return true;
     }
 
     //Tests basic operation of getPossibleTurns
@@ -1146,25 +1141,25 @@ public class TakEngineTest {
         try {
             TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
-            Assert.assertTrue(verifyState(state, 72));
+            verifyState(state, 72);
             TakPlaceTurn place = new TakPlaceTurn(2,2,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state, 68));
+            verifyState(state, 68);
             place = new TakPlaceTurn(1,2,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state, 70));
+            verifyState(state, 70);
             place = new TakPlaceTurn(2,1,PieceType.CAPSTONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state, 66));
+            verifyState(state, 66);
             place = new TakPlaceTurn(3,3,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state, 48));
+            verifyState(state, 48);
             TakMoveTurn move = new TakMoveTurn(2,1,1,Direction.SOUTH,new int[]{1});
             engine.executeTurn(state, move);
-            Assert.assertTrue(verifyState(state, 69));
+            verifyState(state, 69);
             place = new TakPlaceTurn(2,3,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state, 53));
+            verifyState(state, 53);
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1188,7 +1183,7 @@ public class TakEngineTest {
             engine.executeTurn(state, move);
             place = new TakPlaceTurn(0,1,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state,26));
+            verifyState(state,26);
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1213,7 +1208,7 @@ public class TakEngineTest {
             engine.executeTurn(state, move);
             place = new TakPlaceTurn(4,1,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state,105));
+            verifyState(state,105);
             place = new TakPlaceTurn(1,0,PieceType.CAPSTONE);
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(1,3,PieceType.CAPSTONE);
@@ -1222,12 +1217,12 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(3,1,PieceType.WALL);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state,54));
+            verifyState(state,54);
             move = new TakMoveTurn(1,0,1,Direction.SOUTH,new int[]{1});
             engine.executeTurn(state, move);
             place = new TakPlaceTurn(4,4,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state,64));
+            verifyState(state,64);
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1265,7 +1260,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             place = new TakPlaceTurn(0,2,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state,211));
+            verifyState(state,211);
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1277,10 +1272,10 @@ public class TakEngineTest {
         try {
             TakEngine engine = new TakEngine();
             TakState state = new TakState(Player.WHITE, 5);
-            Assert.assertTrue(verifyState(state, 25));
+            verifyState(state, 25);
             TakPlaceTurn place = new TakPlaceTurn(1,1,PieceType.STONE);
             engine.executeTurn(state, place);
-            Assert.assertTrue(verifyState(state, 24));
+            verifyState(state, 24);
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1297,7 +1292,7 @@ public class TakEngineTest {
             engine.executeTurn(state, new TakPlaceTurn(1, 0, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(1, 1, PieceType.STONE));
             //Without flag it should be 14 possible
-            Assert.assertTrue(verifyState(state, 3));
+            verifyState(state, 3));
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1314,7 +1309,7 @@ public class TakEngineTest {
             engine.executeTurn(state, new TakPlaceTurn(1, 1, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(2, 0, PieceType.STONE));
             //Without flag it should be 17 possible
-            Assert.assertTrue(verifyState(state, 1));
+            verifyState(state, 1));
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }
@@ -1331,7 +1326,7 @@ public class TakEngineTest {
             engine.executeTurn(state, new TakPlaceTurn(1, 1, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(0, 1, PieceType.STONE));
             //Without flag it should be 17 possible
-            Assert.assertTrue(verifyState(state, 1));
+            verifyState(state, 1));
         } catch (BoardGameEngineException e) {
             Assert.fail();
         }

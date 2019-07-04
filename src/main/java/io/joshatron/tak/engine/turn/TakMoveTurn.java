@@ -125,6 +125,9 @@ public class TakMoveTurn extends TakTurn {
                     }
                 }
             }
+            else {
+                return false;
+            }
 
             return startLocation.equals(other.startLocation) && pickedUp == other.getPickedUp() && direction == other.getDirection();
         }
