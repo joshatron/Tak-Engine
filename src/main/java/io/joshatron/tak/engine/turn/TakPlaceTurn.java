@@ -1,47 +1,29 @@
 package io.joshatron.tak.engine.turn;
 
-import io.joshatron.bgt.engine.exception.BoardGameEngineException;
-import io.joshatron.tak.engine.board.BoardLocation;
+import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
+import io.joshatron.bgt.engine.state.Turn;
 import io.joshatron.tak.engine.board.PieceType;
-import org.json.JSONObject;
+import lombok.Data;
 
-public class TakPlaceTurn extends TakTurn {
-
-    private BoardLocation location;
+@Data
+public class TakPlaceTurn extends Turn {
+    private final TurnType type = TurnType.PLACE;
+    private GridBoardLocation location;
     private PieceType pieceType;
 
-    public TakPlaceTurn(BoardLocation location, PieceType pieceType) {
-        super(TurnType.PLACE);
+    public TakPlaceTurn(String player, GridBoardLocation location, PieceType pieceType) {
+        super(player);
         this.location = location;
         this.pieceType = pieceType;
     }
 
-    public TakPlaceTurn(int x, int y, PieceType pieceType) {
-        super(TurnType.PLACE);
-        this.location = new BoardLocation(x, y);
+    public TakPlaceTurn(String player, int x, int y, PieceType pieceType) {
+        super(player);
+        this.location = new GridBoardLocation(x, y);
         this.pieceType = pieceType;
     }
 
-    public TakPlaceTurn(JSONObject turn) {
-        super(TurnType.PLACE);
-        this.location = new BoardLocation(turn.getJSONObject("location"));
-        this.pieceType = PieceType.valueOf(turn.getString("pieceType"));
-    }
-
-    public TakPlaceTurn(TakPlaceTurn turn) {
-        super(TurnType.PLACE);
-        this.location = new BoardLocation(turn.getLocation());
-        this.pieceType = turn.getPieceType();
-    }
-
-    public BoardLocation getLocation() {
-        return location;
-    }
-
-    public PieceType getPieceType() {
-        return pieceType;
-    }
-
+    @Override
     public String toString() {
         String str = "p";
         switch(pieceType) {
@@ -57,22 +39,8 @@ public class TakPlaceTurn extends TakTurn {
         }
 
         str += " ";
-        try {
-            str += location.toBoardString();
-        } catch(BoardGameEngineException e) {
-            e.printStackTrace();
-        }
+        str += location.toString();
 
         return str;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if(o instanceof TakPlaceTurn) {
-            TakPlaceTurn other = (TakPlaceTurn) o;
-            return location.equals(other.getLocation()) && pieceType == other.getPieceType();
-        }
-
-        return false;
     }
 }

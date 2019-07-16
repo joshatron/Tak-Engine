@@ -1,31 +1,21 @@
 package io.joshatron.tak.engine.game;
 
-import io.joshatron.bgt.engine.dtos.GameState;
-import io.joshatron.bgt.engine.dtos.Turn;
+import io.joshatron.bgt.engine.board.grid.GridBoard;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
-import io.joshatron.tak.engine.board.GameBoard;
+import io.joshatron.bgt.engine.state.GameState;
+import io.joshatron.tak.engine.board.PieceStack;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.turn.TakMoveTurn;
-import io.joshatron.tak.engine.turn.TakPlaceTurn;
-import io.joshatron.tak.engine.turn.TakTurn;
-import io.joshatron.tak.engine.turn.TurnType;
 import lombok.Data;
-
-import java.util.ArrayList;
 
 @Data
 public class TakState extends GameState {
     private int size;
-    private int whiteStones;
-    private int whiteCapstones;
-    private int blackStones;
-    private int blackCapstones;
     private Player first;
     private Player current;
-    private GameBoard board;
+    private GridBoard board;
 
     public TakState(Player first, int size) throws BoardGameEngineException {
-        super();
+        super(new TakStatus());
 
         this.size = size;
         this.first = first;
@@ -33,67 +23,37 @@ public class TakState extends GameState {
 
         switch(size) {
             case 3:
-                board = new GameBoard(size);
-                whiteStones = 10;
-                whiteCapstones = 0;
-                blackStones = 10;
-                blackCapstones = 0;
+                board = new GridBoard(size, size, new PieceStack());
+                getPlayers().add(new TakPlayerInfo("WHITE", 10, 0));
+                getPlayers().add(new TakPlayerInfo("BLACK", 10, 0));
                 break;
             case 4:
-                board = new GameBoard(size);
-                whiteStones = 15;
-                whiteCapstones = 0;
-                blackStones = 15;
-                blackCapstones = 0;
+                board = new GridBoard(size, size, new PieceStack());
+                getPlayers().add(new TakPlayerInfo("WHITE", 15, 0));
+                getPlayers().add(new TakPlayerInfo("BLACK", 15, 0));
                 break;
             case 5:
-                board = new GameBoard(size);
-                whiteStones = 21;
-                whiteCapstones = 1;
-                blackStones = 21;
-                blackCapstones = 1;
+                board = new GridBoard(size, size, new PieceStack());
+                getPlayers().add(new TakPlayerInfo("WHITE", 21, 1));
+                getPlayers().add(new TakPlayerInfo("BLACK", 21, 1));
                 break;
             case 6:
-                board = new GameBoard(size);
-                whiteStones = 30;
-                whiteCapstones = 1;
-                blackStones = 30;
-                blackCapstones = 1;
+                board = new GridBoard(size, size, new PieceStack());
+                getPlayers().add(new TakPlayerInfo("WHITE", 30, 1));
+                getPlayers().add(new TakPlayerInfo("BLACK", 30, 1));
                 break;
             case 8:
-                board = new GameBoard(size);
-                whiteStones = 50;
-                whiteCapstones = 2;
-                blackStones = 50;
-                blackCapstones = 2;
+                board = new GridBoard(size, size, new PieceStack());
+                getPlayers().add(new TakPlayerInfo("WHITE", 50, 2));
+                getPlayers().add(new TakPlayerInfo("BLACK", 50, 2));
                 break;
             default:
                 throw new BoardGameEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);
         }
     }
 
-    public TakState(TakState state) throws BoardGameEngineException {
-        this.size = state.getSize();
-        this.whiteStones = state.getWhiteStones();
-        this.whiteCapstones = state.getWhiteCapstones();
-        this.blackStones = state.getBlackStones();
-        this.blackCapstones = state.getBlackCapstones();
-        this.first = state.getFirst();
-        this.current = state.getCurrent();
-        this.turns = new ArrayList<>();
-        for(Turn turn : state.getTurns()) {
-            if(((TakTurn)turn).getType() == TurnType.PLACE) {
-                turns.add(new TakPlaceTurn((TakPlaceTurn)turn));
-            }
-            else {
-                turns.add(new TakMoveTurn((TakMoveTurn)turn));
-            }
-        }
-        this.board = new GameBoard(state.getBoard());
-    }
-
-    public void printBoard() {
-        System.out.println("WS: " + whiteStones + " WC: " + whiteCapstones + " BS: " + blackStones + " BC: " + blackCapstones);
-        board.printBoard();
+    @Override
+    public String getDisplayForPlayer(String player) {
+        return getPlayers().get(0).toString() + "\n" + getPlayers().get(1).toString() + "\n" + board.toString();
     }
 }

@@ -1,5 +1,6 @@
 package io.joshatron.tak.engine.board;
 
+import io.joshatron.bgt.engine.board.BoardTile;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import io.joshatron.tak.engine.game.Player;
@@ -7,7 +8,7 @@ import io.joshatron.tak.engine.game.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PieceStack {
+public class PieceStack implements BoardTile {
 
     //from bottom to top
     private ArrayList<Piece> pieces;

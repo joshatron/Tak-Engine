@@ -1,11 +1,11 @@
 package io.joshatron.tak.engine.turn;
 
+import io.joshatron.bgt.engine.board.grid.Direction;
+import io.joshatron.bgt.engine.exception.BoardGameCommonErrorCode;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
-import io.joshatron.tak.engine.board.BoardLocation;
-import io.joshatron.tak.engine.board.Direction;
+import io.joshatron.bgt.engine.state.Turn;
 import io.joshatron.tak.engine.board.PieceType;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import org.json.JSONObject;
 
 public class TurnUtils {
 
@@ -13,22 +13,10 @@ public class TurnUtils {
         throw new IllegalStateException("This is a utility class");
     }
 
-    public static TakTurn turnFromJson(JSONObject turn) throws BoardGameEngineException {
-        TurnType type = TurnType.valueOf(turn.getString("type"));
-        if(type == TurnType.PLACE) {
-            return new TakPlaceTurn(turn);
-        }
-        else if(type == TurnType.MOVE) {
-            return new TakMoveTurn(turn);
-        }
-
-        throw new BoardGameEngineException(TakEngineErrorCode.INVALID_TURN_TYPE);
-    }
-
-    public static TakTurn turnFromString(String str) throws BoardGameEngineException {
+    public static Turn turnFromString(String player, String str) throws BoardGameEngineException {
         str = str.toLowerCase();
         if(str.charAt(0) == 'p') {
-            PieceType type = null;
+            PieceType type;
             switch(str.charAt(1)) {
                 case 's':
                     type = PieceType.STONE;
@@ -46,12 +34,10 @@ public class TurnUtils {
             int x = xToNum(str.charAt(3));
             int y = charToNum(str.charAt(4)) - 1;
 
-            if(type != null && x != -1 && y != -1) {
-                return new TakPlaceTurn(new BoardLocation(x, y), type);
-            }
+            return new TakPlaceTurn(player, x, y, type);
         }
         else if(str.charAt(0) == 'm') {
-            Direction dir = null;
+            Direction dir;
             switch(str.charAt(1)) {
                 case 'n':
                     dir = Direction.NORTH;
@@ -66,7 +52,7 @@ public class TurnUtils {
                     dir = Direction.WEST;
                     break;
                 default:
-                    throw new BoardGameEngineException(TakEngineErrorCode.INVALID_DIRECTION);
+                    throw new BoardGameEngineException(BoardGameCommonErrorCode.INVALID_DIRECTION);
             }
 
             int x = xToNum(str.charAt(3));
@@ -80,9 +66,7 @@ public class TurnUtils {
                 drop[i] = charToNum(str.charAt(8 + (2 * i) + 1));
             }
 
-            if(dir != null && x != -1 && y != -1 && pickUp != -1) {
-                return new TakMoveTurn(new BoardLocation(x, y), pickUp, dir, drop);
-            }
+            return new TakMoveTurn(player, x, y, pickUp, dir, drop);
         }
 
         return null;
@@ -107,7 +91,7 @@ public class TurnUtils {
             case 'h':
                 return 7;
             default:
-                throw new BoardGameEngineException(TakEngineErrorCode.INVALID_LOCATION);
+                throw new BoardGameEngineException(BoardGameCommonErrorCode.OFF_BOARD);
         }
     }
 
@@ -131,10 +115,8 @@ public class TurnUtils {
                 return 7;
             case '8':
                 return 8;
-            case '9':
-                return 9;
             default:
-                throw new BoardGameEngineException(TakEngineErrorCode.INVALID_NUMBER);
+                throw new BoardGameEngineException(BoardGameCommonErrorCode.OFF_BOARD);
         }
     }
 }

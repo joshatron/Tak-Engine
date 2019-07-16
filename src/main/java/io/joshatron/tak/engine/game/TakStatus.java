@@ -1,7 +1,7 @@
 package io.joshatron.tak.engine.game;
 
-import io.joshatron.bgt.engine.dtos.GameStatus;
-import io.joshatron.bgt.engine.dtos.Status;
+import io.joshatron.bgt.engine.state.GameStatus;
+import io.joshatron.bgt.engine.state.Status;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
