@@ -3,7 +3,6 @@ package io.joshatron.tak.engine.board;
 import io.joshatron.bgt.engine.board.BoardTile;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
-import io.joshatron.tak.engine.game.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +14,6 @@ public class PieceStack implements BoardTile {
 
     public PieceStack() {
         pieces = new ArrayList<>();
-    }
-
-    public PieceStack(PieceStack stack) {
-        this.pieces = new ArrayList<>();
-        for(Piece piece : stack.getPieces()) {
-            this.pieces.add(new Piece(piece));
-        }
     }
 
     public void addPieces(List<Piece> pieces) {
@@ -76,9 +68,9 @@ public class PieceStack implements BoardTile {
         return pieces.get(pieces.size() - 1);
     }
 
-    public Player getStackOwner() {
+    public String getStackOwner() {
         if(pieces.isEmpty()) {
-            return Player.NONE;
+            return null;
         }
         return pieces.get(pieces.size() - 1).getPlayer();
     }
@@ -91,6 +83,10 @@ public class PieceStack implements BoardTile {
         return pieces.size();
     }
 
+    public boolean isEmpty() {
+        return pieces.size() == 0;
+    }
+
     // Prints top to bottom according to tak by mail rules
     public String toString() {
         if(pieces.isEmpty()) {
@@ -100,7 +96,7 @@ public class PieceStack implements BoardTile {
         StringBuilder str = new StringBuilder();
 
         for(int i = pieces.size() - 1; i >= 0; i--) {
-            if(pieces.get(i).isWhite()) {
+            if(pieces.get(i).getPlayer().equalsIgnoreCase("WHITE")) {
                 switch(pieces.get(i).getType()) {
                     case STONE:
                         str.append("s");
