@@ -3,16 +3,18 @@ package io.joshatron.tak.engine.game;
 import io.joshatron.bgt.engine.state.GameStatus;
 import io.joshatron.bgt.engine.state.Status;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 @EqualsAndHashCode
+@Getter
 @ToString
 public class TakStatus extends GameStatus {
-    private Player winner;
+    private String winner;
     private WinReason reason;
     private int score;
 
-    public TakStatus(Status status, Player winner, WinReason reason, int score) {
+    public TakStatus(Status status, String winner, WinReason reason, int score) {
         this.status = status;
         this.winner = winner;
         this.reason = reason;
@@ -21,20 +23,8 @@ public class TakStatus extends GameStatus {
 
     public TakStatus() {
         super();
-        winner = Player.NONE;
+        winner = null;
         reason = WinReason.NONE;
         score = 0;
-    }
-
-    public Player getWinner() {
-        return winner;
-    }
-
-    public WinReason getReason() {
-        return reason;
-    }
-
-    public int getScore() {
-        return score;
     }
 }
