@@ -56,7 +56,7 @@ public class TakState extends InOrderGameState {
     }
 
     @Override
-    public String getDisplayForPlayer(String player) {
+    public String getDisplayForPlayer(PlayerIndicator player) {
         return getPlayers().get(0).toString() + "\n" + getPlayers().get(1).toString() + "\n" + board.toString();
     }
 }

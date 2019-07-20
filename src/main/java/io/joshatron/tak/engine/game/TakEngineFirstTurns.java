@@ -22,7 +22,7 @@ public class TakEngineFirstTurns extends InOrderGameEngine {
             if(gameState instanceof TakState && turn instanceof TakPlaceTurn) {
                 TakState state = (TakState) gameState;
                 TakPlaceTurn t = (TakPlaceTurn) turn;
-                if(((PieceStack) state.getBoard().getTile(t.getLocation())).isEmpty()) {
+                if(t.getPieceType() == PieceType.STONE && ((PieceStack) state.getBoard().getTile(t.getLocation())).isEmpty()) {
                     return true;
                 }
             }
@@ -37,7 +37,10 @@ public class TakEngineFirstTurns extends InOrderGameEngine {
     @Override
     protected void updateState(GameState gameState, Turn turn) {
         try {
-            ((PieceStack)((TakState)gameState).getBoard().getTile(((TakPlaceTurn)turn).getLocation())).addPiece(new Piece(turn.getPlayer(), PieceType.STONE));
+            TakPlayerInfo otherInfo = (TakPlayerInfo) ((TakState)gameState).getNextPlayerInfo();
+            ((PieceStack)((TakState)gameState).getBoard().getTile(((TakPlaceTurn)turn).getLocation()))
+                    .addPiece(new Piece(otherInfo.getIdentifier(), PieceType.STONE));
+            otherInfo.getStones().removePieces(1);
             gameState.getGameLog().add(new TurnLog(turn, null));
         } catch(BoardGameEngineException e) {
             e.printStackTrace();

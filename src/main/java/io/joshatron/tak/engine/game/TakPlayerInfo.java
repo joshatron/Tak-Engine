@@ -18,6 +18,6 @@ public class TakPlayerInfo extends PlayerInfo {
 
     @Override
     public String toString() {
-        return getIdentifier().name().charAt(0) + "S: " + stones + ", " + getIdentifier().name().charAt(0) + "C: " + capstones;
+        return getIdentifier().name().charAt(0) + "S: " + stones.getPiecesLeft() + ", " + getIdentifier().name().charAt(0) + "C: " + capstones.getPiecesLeft();
     }
 }

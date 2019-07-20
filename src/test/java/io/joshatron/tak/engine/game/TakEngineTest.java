@@ -23,7 +23,7 @@ public class TakEngineTest {
 
     //Initialize state and get first 2 moves out of the way
     private TakState initializeState(int size) throws BoardGameEngineException {
-        GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+        AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
         TakState state = new TakState(PlayerIndicator.WHITE, size);
         TakPlaceTurn turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), new GridBoardLocation(0, 0), PieceType.STONE);
         engine.executeTurn(state, turn);
@@ -37,8 +37,9 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnPlaceNormal() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(8);
+            engine.updateEngine(state);
 
             //Test stone placement for each color
             TakPlaceTurn turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1, 1, PieceType.STONE);
@@ -64,7 +65,7 @@ public class TakEngineTest {
             Assert.assertTrue(engine.isLegalTurn(state, turn));
             engine.executeTurn(state, turn);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -74,8 +75,9 @@ public class TakEngineTest {
 
         try {
             //Capstones
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(8);
+            engine.updateEngine(state);
             //Place legal
             TakPlaceTurn turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 2,0, PieceType.CAPSTONE);
             Assert.assertTrue(engine.isLegalTurn(state, turn));
@@ -135,7 +137,7 @@ public class TakEngineTest {
             turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0, 2, PieceType.WALL);
             Assert.assertFalse(engine.isLegalTurn(state, turn));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -143,7 +145,7 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnPlaceOffBoard() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.BLACK, 3);
             //Black
             TakPlaceTurn turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), new GridBoardLocation(-1,-1), PieceType.STONE);
@@ -168,7 +170,7 @@ public class TakEngineTest {
             turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,2, PieceType.STONE);
             Assert.assertTrue(engine.isLegalTurn(state, turn));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -177,8 +179,9 @@ public class TakEngineTest {
     public void isLegalTurnPlaceOnOtherPieces() {
         try {
             //Initialize with every type of piece
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(8);
+            engine.updateEngine(state);
             TakPlaceTurn turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
             engine.executeTurn(state, turn);
             turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 2,1,PieceType.STONE);
@@ -219,7 +222,7 @@ public class TakEngineTest {
                 }
             }
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -227,7 +230,7 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnPlaceBadFirstMoves() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 5);
             //white illegal turns
             TakPlaceTurn turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,PieceType.CAPSTONE);
@@ -244,7 +247,7 @@ public class TakEngineTest {
             turn = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
             engine.executeTurn(state, turn);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -252,8 +255,9 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveNormal() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
 
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.executeTurn(state, move);
@@ -270,7 +274,7 @@ public class TakEngineTest {
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,2,Direction.SOUTH,new int[]{1,1});
             Assert.assertTrue(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -278,8 +282,9 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveOffBoard() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
             engine.executeTurn(state, place);
@@ -292,7 +297,7 @@ public class TakEngineTest {
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,2,Direction.WEST,new int[]{1,1});
             Assert.assertFalse(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -300,10 +305,12 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveIllegalPickup() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
 
             //Entire stack is owned by other player
+            System.out.println(state.getDisplayForPlayer(PlayerIndicator.WHITE));
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,1,Direction.EAST,new int[]{1});
             Assert.assertFalse(engine.isLegalTurn(state, move));
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
@@ -312,7 +319,7 @@ public class TakEngineTest {
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,2,Direction.EAST,new int[]{2});
             Assert.assertFalse(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -320,8 +327,9 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveIllegalCover() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
 
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1, Direction.WEST,new int[]{1});
             engine.executeTurn(state, move);
@@ -344,7 +352,7 @@ public class TakEngineTest {
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,1,Direction.EAST,new int[]{1});
             Assert.assertFalse(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -352,8 +360,9 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveTooManyPickup() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(3);
+            engine.updateEngine(state);
 
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.executeTurn(state, move);
@@ -370,7 +379,7 @@ public class TakEngineTest {
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,1,4,Direction.EAST,new int[]{4});
             Assert.assertFalse(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -378,8 +387,9 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveEmptySpots() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
 
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.SOUTH,new int[]{0,1});
             Assert.assertFalse(engine.isLegalTurn(state, move));
@@ -389,7 +399,7 @@ public class TakEngineTest {
             move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,2,Direction.EAST,new int[]{1,0,1});
             Assert.assertFalse(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -397,7 +407,7 @@ public class TakEngineTest {
     @Test
     public void isLegalTurnMoveBadFirstMoves() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,PieceType.STONE);
@@ -405,7 +415,7 @@ public class TakEngineTest {
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,1,Direction.SOUTH,new int[]{1});
             Assert.assertFalse(engine.isLegalTurn(state, move));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -413,7 +423,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerStraightHorizontal() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -429,7 +439,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -437,7 +447,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerStraightVertical() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.BLACK,3);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,0,PieceType.STONE);
@@ -453,7 +463,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.BLACK,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -461,7 +471,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerCurvyHorizontal() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,6);
 
             TakMoveTurn moveDown = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 5,0,1,Direction.SOUTH,new int[]{1});
@@ -518,7 +528,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.PATH, 51),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -526,7 +536,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerCurvyVertical() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.BLACK,6);
 
             TakMoveTurn moveDown = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 5,0,1,Direction.SOUTH,new int[]{1});
@@ -574,7 +584,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.BLACK,WinReason.PATH, 54),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -582,7 +592,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerWallInPath() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -598,7 +608,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -606,7 +616,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerCapstoneInPath() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -630,7 +640,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.PATH, 42),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -638,7 +648,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerStacks() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
@@ -658,7 +668,7 @@ public class TakEngineTest {
             engine.executeTurn(state, move);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.PATH, 16),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -666,7 +676,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerDiagonals() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.BLACK,3);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -683,7 +693,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -691,8 +701,9 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerFullBoard() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(3);
+            engine.updateEngine(state);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 2,0,PieceType.STONE);
             engine.executeTurn(state, place);
@@ -711,7 +722,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.BOARD_FULL, 14), state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -719,7 +730,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerOutOfPieces() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,PieceType.STONE);
@@ -752,7 +763,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.BLACK,WinReason.OUT_OF_PIECES, 26),state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -760,7 +771,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerDoubleRoad() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -784,7 +795,7 @@ public class TakEngineTest {
             engine.executeTurn(state, move);
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.PATH, 16), state.getStatus());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -792,8 +803,9 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerDoesntChangeBoard() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(3);
+            engine.updateEngine(state);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 2,0,PieceType.STONE);
             engine.executeTurn(state, place);
@@ -816,7 +828,7 @@ public class TakEngineTest {
             Assert.assertEquals(new TakStatus(Status.COMPLETE,PlayerIndicator.WHITE,WinReason.BOARD_FULL, 14), state.getStatus());
             Assert.assertEquals(toCheck, state);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -824,7 +836,7 @@ public class TakEngineTest {
     @Test
     public void initializeTest() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             //3x3
             TakState state = new TakState(PlayerIndicator.WHITE, 3);
             TakPlayerInfo whiteInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.WHITE);
@@ -871,7 +883,7 @@ public class TakEngineTest {
             Assert.assertEquals(2, blackInfo.getCapstones().getPiecesLeft());
             Assert.assertEquals(8, state.getSize());
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -880,7 +892,7 @@ public class TakEngineTest {
     //This gives reasonable certainty of correctness without building large
     //lists and having to sort and compare them
     private void verifyState(TakState state, int possible) throws BoardGameEngineException {
-        GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+        AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager(), state);
         List<Turn> turns = engine.getPossibleTurns(state);
 
         //makes sure there are the correct number of possible turns
@@ -908,8 +920,9 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsNormal() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
             verifyState(state, 72);
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 2,2,PieceType.STONE);
             engine.executeTurn(state, place);
@@ -930,7 +943,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             verifyState(state, 53);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -938,8 +951,9 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsMaxHeight() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(3);
+            engine.updateEngine(state);
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.executeTurn(state, move);
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,PieceType.STONE);
@@ -954,7 +968,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             verifyState(state,26);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -963,8 +977,9 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsBoardEdgeAndPieceInWay() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = initializeState(5);
+            engine.updateEngine(state);
             TakMoveTurn move = new TakMoveTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.executeTurn(state, move);
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -993,7 +1008,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             verifyState(state,64);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1001,7 +1016,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsOutOfPieceType() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,0,PieceType.STONE);
@@ -1031,7 +1046,7 @@ public class TakEngineTest {
             engine.executeTurn(state, place);
             verifyState(state,211);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1039,14 +1054,14 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsFirstTurns() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 5);
             verifyState(state, 25);
             TakPlaceTurn place = new TakPlaceTurn(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
             engine.executeTurn(state, place);
             verifyState(state, 24);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1055,7 +1070,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsNarrowPossibleInTak() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.executeTurn(state, new TakPlaceTurn(0, 0, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(1, 0, PieceType.STONE));
@@ -1063,7 +1078,7 @@ public class TakEngineTest {
             //Without flag it should be 14 possible
             verifyState(state, 3));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1071,7 +1086,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsNarrowPossibleCanWin() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.executeTurn(state, new TakPlaceTurn(0, 0, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(1, 0, PieceType.STONE));
@@ -1080,7 +1095,7 @@ public class TakEngineTest {
             //Without flag it should be 17 possible
             verifyState(state, 1));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1088,7 +1103,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsNarrowPossibleCanWinAndInTak() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.executeTurn(state, new TakPlaceTurn(0, 0, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(1, 0, PieceType.STONE));
@@ -1097,7 +1112,7 @@ public class TakEngineTest {
             //Without flag it should be 17 possible
             verifyState(state, 1));
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1105,7 +1120,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleTurnsDoesntChangeState() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.executeTurn(state, new TakPlaceTurn(0, 0, PieceType.STONE));
             engine.executeTurn(state, new TakPlaceTurn(1, 0, PieceType.STONE));
@@ -1114,7 +1129,7 @@ public class TakEngineTest {
             engine.getPossibleTurns(state);
             Assert.assertEquals(toCheck, state);
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
 
@@ -1122,7 +1137,7 @@ public class TakEngineTest {
     @Test
     public void inTak() {
         try {
-            GameEngine engine = new AggregateGameEngine(new TakEngineManager());
+            AggregateGameEngine engine = new AggregateGameEngine(new TakEngineManager());
             TakState state = new TakState(PlayerIndicator.WHITE, 3);
             TakPlaceTurn place = new TakPlaceTurn(1,0,PieceType.STONE);
             engine.executeTurn(state, place);
@@ -1180,7 +1195,7 @@ public class TakEngineTest {
             Assert.assertEquals(1, state.getBoard().getPosition(0, 2).getHeight());
 
         } catch (BoardGameEngineException e) {
-            Assert.fail();
+            Assert.fail(e.getCode().getName());
         }
     }
     */

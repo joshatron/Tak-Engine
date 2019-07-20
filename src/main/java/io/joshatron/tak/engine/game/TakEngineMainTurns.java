@@ -30,6 +30,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
             validateTurn((TakState)state, turn);
             return true;
         } catch (BoardGameEngineException e) {
+            System.out.println(e.getCode().getName());
             return false;
         }
     }
