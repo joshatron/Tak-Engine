@@ -3,6 +3,7 @@ package io.joshatron.tak.engine.board;
 import io.joshatron.bgt.engine.board.BoardLocation;
 import io.joshatron.bgt.engine.board.BoardTile;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
+import io.joshatron.bgt.engine.player.PlayerIndicator;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class PieceStack extends BoardTile {
         return pieces.get(pieces.size() - 1);
     }
 
-    public String getStackOwner() {
+    public PlayerIndicator getStackOwner() {
         if(pieces.isEmpty()) {
             return null;
         }
@@ -98,7 +99,7 @@ public class PieceStack extends BoardTile {
         StringBuilder str = new StringBuilder();
 
         for(int i = pieces.size() - 1; i >= 0; i--) {
-            if(pieces.get(i).getPlayer().equalsIgnoreCase("WHITE")) {
+            if(pieces.get(i).getPlayer() == PlayerIndicator.WHITE) {
                 switch(pieces.get(i).getType()) {
                     case STONE:
                         str.append("s");

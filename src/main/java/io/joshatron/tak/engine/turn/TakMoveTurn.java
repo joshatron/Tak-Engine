@@ -4,6 +4,7 @@ import io.joshatron.bgt.engine.board.grid.Direction;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.exception.BoardGameCommonErrorCode;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
+import io.joshatron.bgt.engine.player.PlayerIndicator;
 import io.joshatron.bgt.engine.state.Turn;
 import lombok.Data;
 
@@ -16,7 +17,7 @@ public class TakMoveTurn extends Turn {
     private int[] placed;
     private boolean flattened;
 
-    public TakMoveTurn(String player, GridBoardLocation startLocation, int pickedUp, Direction direction, int[] placed) throws BoardGameEngineException {
+    public TakMoveTurn(PlayerIndicator player, GridBoardLocation startLocation, int pickedUp, Direction direction, int[] placed) throws BoardGameEngineException {
         super(player);
         if(direction.isDiagonal()) {
             throw new BoardGameEngineException(BoardGameCommonErrorCode.INVALID_DIRECTION);
@@ -28,7 +29,7 @@ public class TakMoveTurn extends Turn {
         this.flattened = false;
     }
 
-    public TakMoveTurn(String player, int x, int y, int pickedUp, Direction direction, int[] placed) throws BoardGameEngineException {
+    public TakMoveTurn(PlayerIndicator player, int x, int y, int pickedUp, Direction direction, int[] placed) throws BoardGameEngineException {
         super(player);
         if(direction.isDiagonal()) {
             throw new BoardGameEngineException(BoardGameCommonErrorCode.INVALID_DIRECTION);
