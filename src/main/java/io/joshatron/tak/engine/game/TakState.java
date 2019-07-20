@@ -1,20 +1,22 @@
 package io.joshatron.tak.engine.game;
 
 import io.joshatron.bgt.engine.board.grid.GridBoard;
+import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
-import io.joshatron.bgt.engine.state.GameState;
+import io.joshatron.bgt.engine.player.Pieces;
+import io.joshatron.bgt.engine.state.InOrderGameState;
 import io.joshatron.tak.engine.board.PieceStack;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import lombok.Data;
 
 @Data
-public class TakState extends GameState {
+public class TakState extends InOrderGameState {
     private int size;
-    private Player first;
-    private Player current;
+    private String first;
+    private String current;
     private GridBoard board;
 
-    public TakState(Player first, int size) throws BoardGameEngineException {
+    public TakState(String first, int size) throws BoardGameEngineException {
         super(new TakStatus());
 
         this.size = size;
@@ -23,29 +25,29 @@ public class TakState extends GameState {
 
         switch(size) {
             case 3:
-                board = new GridBoard(size, size, new PieceStack());
-                getPlayers().add(new TakPlayerInfo("WHITE", 10, 0));
-                getPlayers().add(new TakPlayerInfo("BLACK", 10, 0));
+                board = new GridBoard(size, size, new PieceStack(new GridBoardLocation(0,0)));
+                getPlayers().add(new TakPlayerInfo("WHITE", new Pieces("STONE", 10), new Pieces("CAPSTONE", 0)));
+                getPlayers().add(new TakPlayerInfo("BLACK", new Pieces("STONE", 10), new Pieces("CAPSTONE", 0)));
                 break;
             case 4:
-                board = new GridBoard(size, size, new PieceStack());
-                getPlayers().add(new TakPlayerInfo("WHITE", 15, 0));
-                getPlayers().add(new TakPlayerInfo("BLACK", 15, 0));
+                board = new GridBoard(size, size, new PieceStack(new GridBoardLocation(0, 0)));
+                getPlayers().add(new TakPlayerInfo("WHITE", new Pieces("STONE", 15), new Pieces("CAPSTONE", 0)));
+                getPlayers().add(new TakPlayerInfo("BLACK", new Pieces("STONE", 15), new Pieces("CAPSTONE", 0)));
                 break;
             case 5:
-                board = new GridBoard(size, size, new PieceStack());
-                getPlayers().add(new TakPlayerInfo("WHITE", 21, 1));
-                getPlayers().add(new TakPlayerInfo("BLACK", 21, 1));
+                board = new GridBoard(size, size, new PieceStack(new GridBoardLocation(0, 0)));
+                getPlayers().add(new TakPlayerInfo("WHITE", new Pieces("STONE", 21), new Pieces("CAPSTONE", 1)));
+                getPlayers().add(new TakPlayerInfo("BLACK", new Pieces("STONE", 21), new Pieces("CAPSTONE", 1)));
                 break;
             case 6:
-                board = new GridBoard(size, size, new PieceStack());
-                getPlayers().add(new TakPlayerInfo("WHITE", 30, 1));
-                getPlayers().add(new TakPlayerInfo("BLACK", 30, 1));
+                board = new GridBoard(size, size, new PieceStack(new GridBoardLocation(0, 0)));
+                getPlayers().add(new TakPlayerInfo("WHITE", new Pieces("STONE", 30), new Pieces("CAPSTONE", 1)));
+                getPlayers().add(new TakPlayerInfo("BLACK", new Pieces("STONE", 30), new Pieces("CAPSTONE", 1)));
                 break;
             case 8:
-                board = new GridBoard(size, size, new PieceStack());
-                getPlayers().add(new TakPlayerInfo("WHITE", 50, 2));
-                getPlayers().add(new TakPlayerInfo("BLACK", 50, 2));
+                board = new GridBoard(size, size, new PieceStack(new GridBoardLocation(0, 0)));
+                getPlayers().add(new TakPlayerInfo("WHITE", new Pieces("STONE", 50), new Pieces("CAPSTONE", 2)));
+                getPlayers().add(new TakPlayerInfo("BLACK", new Pieces("STONE", 50), new Pieces("CAPSTONE", 2)));
                 break;
             default:
                 throw new BoardGameEngineException(TakEngineErrorCode.INVALID_BOARD_SIZE);

@@ -1,11 +1,11 @@
 package io.joshatron.tak.engine.game;
 
-import io.joshatron.bgt.engine.GameEngine;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
+import io.joshatron.bgt.engine.engines.InOrderGameEngine;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.state.GameState;
 import io.joshatron.bgt.engine.state.Turn;
-import io.joshatron.bgt.engine.state.TurnStyle;
+import io.joshatron.bgt.engine.state.TurnLog;
 import io.joshatron.tak.engine.board.Piece;
 import io.joshatron.tak.engine.board.PieceStack;
 import io.joshatron.tak.engine.board.PieceType;
@@ -14,11 +14,7 @@ import io.joshatron.tak.engine.turn.TakPlaceTurn;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TakEngineFirstTurns extends GameEngine {
-
-    public TakEngineFirstTurns() {
-        super(TurnStyle.IN_ORDER);
-    }
+public class TakEngineFirstTurns extends InOrderGameEngine {
 
     @Override
     protected boolean isTurnValid(GameState gameState, Turn turn) {
@@ -42,6 +38,7 @@ public class TakEngineFirstTurns extends GameEngine {
     protected void updateState(GameState gameState, Turn turn) {
         try {
             ((PieceStack)((TakState)gameState).getBoard().getTile(((TakPlaceTurn)turn).getLocation())).addPiece(new Piece(turn.getPlayer(), PieceType.STONE));
+            gameState.getGameLog().add(new TurnLog(turn, null));
         } catch(BoardGameEngineException e) {
             e.printStackTrace();
         }
@@ -53,7 +50,7 @@ public class TakEngineFirstTurns extends GameEngine {
                 .filter(boardTile -> ((PieceStack)boardTile).isEmpty())
                 .map(boardTile -> {
                     try {
-                        return new TakPlaceTurn(gameState.getCurrentPlayerInfo().getIdentifier(),
+                        return new TakPlaceTurn(((TakState)gameState).getCurrentPlayerInfo().getIdentifier(),
                                 (GridBoardLocation) boardTile.getLocation(), PieceType.STONE);
                     } catch(BoardGameEngineException e) {
                         return null;

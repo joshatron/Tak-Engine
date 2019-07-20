@@ -3,6 +3,7 @@ package io.joshatron.tak.engine.turn;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.state.Turn;
 import io.joshatron.tak.engine.board.PieceType;
+import io.joshatron.tak.engine.game.TakState;
 import lombok.Data;
 
 @Data
