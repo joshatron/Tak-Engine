@@ -30,7 +30,6 @@ public class TakEngineMainTurns extends InOrderGameEngine {
             validateTurn((TakState)state, turn);
             return true;
         } catch (BoardGameEngineException e) {
-            System.out.println(e.getCode().getName());
             return false;
         }
     }
@@ -82,7 +81,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
         }
 
         // Check that the player owns the stack
-        if (((PieceStack)state.getBoard().getTile(move.getStartLocation())).getTopPiece().getPlayer() == state.getCurrentPlayerInfo().getIdentifier()) {
+        if (((PieceStack)state.getBoard().getTile(move.getStartLocation())).getStackOwner() != state.getCurrentPlayerInfo().getIdentifier()) {
             throw new BoardGameEngineException(TakEngineErrorCode.DO_NOT_OWN_STACK);
         }
 
@@ -269,7 +268,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
                tile.getTopPiece().getType() != PieceType.WALL &&
                isWinPath(state.getBoard(), new GridBoardLocation(0, i), new boolean[state.getSize()][state.getSize()],
                        true, tile.getTopPiece().getPlayer())) {
-                state.setStatus(new TakStatus(Status.COMPLETE, state.getNextPlayerInfo().getIdentifier(), WinReason.PATH, getScore(state, state.getCurrentPlayerInfo().getIdentifier())));
+                state.setStatus(new TakStatus(Status.COMPLETE, state.getCurrentPlayerInfo().getIdentifier(), WinReason.PATH, getScore(state, state.getCurrentPlayerInfo().getIdentifier())));
                 return;
             }
             tile = (PieceStack) state.getBoard().getTile(i, 0);
@@ -277,7 +276,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
                tile.getTopPiece().getType() != PieceType.WALL &&
                isWinPath(state.getBoard(), new GridBoardLocation(i, 0), new boolean[state.getSize()][state.getSize()],
                        false, tile.getTopPiece().getPlayer())) {
-                state.setStatus(new TakStatus(Status.COMPLETE, state.getNextPlayerInfo().getIdentifier(), WinReason.PATH, getScore(state, state.getNextPlayerInfo().getIdentifier())));
+                state.setStatus(new TakStatus(Status.COMPLETE, state.getCurrentPlayerInfo().getIdentifier(), WinReason.PATH, getScore(state, state.getNextPlayerInfo().getIdentifier())));
                 return;
             }
         }
