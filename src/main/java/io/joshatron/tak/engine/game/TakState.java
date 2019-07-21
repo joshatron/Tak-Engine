@@ -14,7 +14,6 @@ import lombok.Data;
 public class TakState extends InOrderGameState {
     private int size;
     private PlayerIndicator first;
-    private PlayerIndicator current;
     private GridBoard board;
 
     public TakState(PlayerIndicator first, int size) throws BoardGameEngineException {
@@ -22,7 +21,9 @@ public class TakState extends InOrderGameState {
 
         this.size = size;
         this.first = first;
-        this.current = first;
+        if(first == PlayerIndicator.BLACK) {
+            setCurrentPlayer(1);
+        }
 
         switch(size) {
             case 3:

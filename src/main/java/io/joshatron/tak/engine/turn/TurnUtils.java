@@ -4,7 +4,7 @@ import io.joshatron.bgt.engine.board.grid.Direction;
 import io.joshatron.bgt.engine.exception.BoardGameCommonErrorCode;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
-import io.joshatron.bgt.engine.state.Turn;
+import io.joshatron.bgt.engine.turn.Action;
 import io.joshatron.tak.engine.board.PieceType;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 
@@ -14,7 +14,7 @@ public class TurnUtils {
         throw new IllegalStateException("This is a utility class");
     }
 
-    public static Turn turnFromString(PlayerIndicator player, String str) throws BoardGameEngineException {
+    public static Action turnFromString(PlayerIndicator player, String str) throws BoardGameEngineException {
         str = str.toLowerCase();
         if(str.charAt(0) == 'p') {
             PieceType type;
@@ -35,7 +35,7 @@ public class TurnUtils {
             int x = xToNum(str.charAt(3));
             int y = charToNum(str.charAt(4)) - 1;
 
-            return new TakPlaceTurn(player, x, y, type);
+            return new TakPlaceAction(player, x, y, type);
         }
         else if(str.charAt(0) == 'm') {
             Direction dir;
@@ -67,7 +67,7 @@ public class TurnUtils {
                 drop[i] = charToNum(str.charAt(8 + (2 * i) + 1));
             }
 
-            return new TakMoveTurn(player, x, y, pickUp, dir, drop);
+            return new TakMoveAction(player, x, y, pickUp, dir, drop);
         }
 
         return null;

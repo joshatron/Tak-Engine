@@ -1,6 +1,6 @@
 package io.joshatron.tak.engine.turn;
 
-public enum TurnType {
+public enum ActionType {
     PLACE,
     MOVE,
     SURRENDER,

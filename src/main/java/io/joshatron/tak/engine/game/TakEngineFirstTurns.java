@@ -4,12 +4,13 @@ import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.engines.InOrderGameEngine;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.state.GameState;
-import io.joshatron.bgt.engine.state.Turn;
-import io.joshatron.bgt.engine.state.TurnLog;
+import io.joshatron.bgt.engine.state.InOrderGameState;
+import io.joshatron.bgt.engine.turn.Action;
+import io.joshatron.bgt.engine.turn.ActionResult;
 import io.joshatron.tak.engine.board.Piece;
 import io.joshatron.tak.engine.board.PieceStack;
 import io.joshatron.tak.engine.board.PieceType;
-import io.joshatron.tak.engine.turn.TakPlaceTurn;
+import io.joshatron.tak.engine.turn.TakPlaceAction;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,11 +18,11 @@ import java.util.stream.Collectors;
 public class TakEngineFirstTurns extends InOrderGameEngine {
 
     @Override
-    protected boolean isTurnValid(GameState gameState, Turn turn) {
+    protected boolean isActionValid(InOrderGameState gameState, Action action) {
         try {
-            if(gameState instanceof TakState && turn instanceof TakPlaceTurn) {
+            if(gameState instanceof TakState && action instanceof TakPlaceAction) {
                 TakState state = (TakState) gameState;
-                TakPlaceTurn t = (TakPlaceTurn) turn;
+                TakPlaceAction t = (TakPlaceAction) action;
                 if(t.getPieceType() == PieceType.STONE && ((PieceStack) state.getBoard().getTile(t.getLocation())).isEmpty()) {
                     return true;
                 }
@@ -35,25 +36,31 @@ public class TakEngineFirstTurns extends InOrderGameEngine {
     }
 
     @Override
-    protected void updateState(GameState gameState, Turn turn) {
+    protected ActionResult updateState(InOrderGameState gameState, Action action) {
         try {
             TakPlayerInfo otherInfo = (TakPlayerInfo) ((TakState)gameState).getNextPlayerInfo();
-            ((PieceStack)((TakState)gameState).getBoard().getTile(((TakPlaceTurn)turn).getLocation()))
+            ((PieceStack)((TakState)gameState).getBoard().getTile(((TakPlaceAction)action).getLocation()))
                     .addPiece(new Piece(otherInfo.getIdentifier(), PieceType.STONE));
             otherInfo.getStones().removePieces(1);
-            gameState.getGameLog().add(new TurnLog(turn, null));
         } catch(BoardGameEngineException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
     @Override
-    public List<Turn> getPossibleTurns(GameState gameState) throws BoardGameEngineException {
+    protected boolean isTurnDone(InOrderGameState inOrderGameState) {
+        return true;
+    }
+
+    @Override
+    public List<Action> getPossibleActions(GameState gameState) throws BoardGameEngineException {
         return ((TakState)gameState).getBoard().getAllTiles().parallelStream()
                 .filter(boardTile -> ((PieceStack)boardTile).isEmpty())
                 .map(boardTile -> {
                     try {
-                        return new TakPlaceTurn(((TakState)gameState).getCurrentPlayerInfo().getIdentifier(),
+                        return new TakPlaceAction(((TakState)gameState).getCurrentPlayerInfo().getIdentifier(),
                                 (GridBoardLocation) boardTile.getLocation(), PieceType.STONE);
                     } catch(BoardGameEngineException e) {
                         return null;
