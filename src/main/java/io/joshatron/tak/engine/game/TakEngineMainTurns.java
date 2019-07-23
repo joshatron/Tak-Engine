@@ -12,8 +12,6 @@ import io.joshatron.bgt.engine.exception.BoardGameCommonErrorCode;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.player.Pieces;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
-import io.joshatron.bgt.engine.state.GameState;
-import io.joshatron.bgt.engine.state.InOrderGameState;
 import io.joshatron.bgt.engine.state.Status;
 import io.joshatron.tak.engine.board.*;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
@@ -23,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TakEngineMainTurns extends InOrderGameEngine {
+public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
     @Override
-    public boolean isActionValid(InOrderGameState state, Action action) {
+    public boolean isActionValid(TakState state, Action action) {
         try {
             if(!(state instanceof TakState) || !(action instanceof TakPlaceAction || action instanceof TakMoveAction)) {
                 throw new BoardGameEngineException(TakEngineErrorCode.ILLEGAL_TYPE);
@@ -94,7 +92,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
     private void validateMovePlacements(TakState state, TakMoveAction move) throws BoardGameEngineException {
         // Check that each position of move is legal
         GridBoardLocation currentLocation = new GridBoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
-        boolean topCapstone = ((TakPiece)(((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece())).getType() == PieceType.CAPSTONE;
+        boolean topCapstone = state.getBoard().getTile(currentLocation).getTopPiece().getType() == PieceType.CAPSTONE;
         int piecesLeft = move.getPickedUp();
         for(int i = 0; i < move.getPlaced().length; i++) {
             // Check that at least one piece was placed
@@ -123,7 +121,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
     }
 
     @Override
-    public List<Action> getPossibleActions(GameState state) throws BoardGameEngineException {
+    public List<Action> getPossibleActions(TakState state) throws BoardGameEngineException {
         if(!(state instanceof TakState)) {
             throw new BoardGameEngineException(TakEngineErrorCode.ILLEGAL_TYPE);
         }
@@ -360,7 +358,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
     }
 
     @Override
-    public ActionResult updateState(InOrderGameState state, Action action) {
+    public ActionResult updateState(TakState state, Action action) {
         try {
             validateAction((TakState)state, action);
             applyAction((TakState) state, action);
@@ -374,7 +372,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
     }
 
     @Override
-    protected boolean isTurnDone(InOrderGameState inOrderGameState) {
+    protected boolean isTurnDone(TakState inOrderGameState) {
         return true;
     }
 

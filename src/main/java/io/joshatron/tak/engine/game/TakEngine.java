@@ -2,9 +2,8 @@ package io.joshatron.tak.engine.game;
 
 import io.joshatron.bgt.engine.engines.AggregateGameEngine;
 import io.joshatron.bgt.engine.engines.GameEngine;
-import io.joshatron.bgt.engine.state.GameState;
 
-public class TakEngine extends AggregateGameEngine {
+public class TakEngine extends AggregateGameEngine<TakState> {
     private TakEngineFirstTurns firstTurns;
     private TakEngineMainTurns mainTurns;
 
@@ -14,7 +13,7 @@ public class TakEngine extends AggregateGameEngine {
     }
 
     @Override
-    public GameEngine getEngineForState(GameState gameState) {
+    public GameEngine<TakState> getEngineForState(TakState gameState) {
         if(gameState.getGameLog().size() < 2) {
             return firstTurns;
         }
