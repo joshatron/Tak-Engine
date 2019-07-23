@@ -1,5 +1,9 @@
 package io.joshatron.tak.engine.game;
 
+import io.joshatron.bgt.engine.action.Action;
+import io.joshatron.bgt.engine.action.ActionResult;
+import io.joshatron.bgt.engine.board.Piece;
+import io.joshatron.bgt.engine.board.PieceStack;
 import io.joshatron.bgt.engine.board.grid.Direction;
 import io.joshatron.bgt.engine.board.grid.GridBoard;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
@@ -11,8 +15,6 @@ import io.joshatron.bgt.engine.player.PlayerIndicator;
 import io.joshatron.bgt.engine.state.GameState;
 import io.joshatron.bgt.engine.state.InOrderGameState;
 import io.joshatron.bgt.engine.state.Status;
-import io.joshatron.bgt.engine.turn.Action;
-import io.joshatron.bgt.engine.turn.ActionResult;
 import io.joshatron.tak.engine.board.*;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import io.joshatron.tak.engine.turn.*;
@@ -82,7 +84,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
         }
 
         // Check that the player owns the stack
-        if (((PieceStack)state.getBoard().getTile(move.getStartLocation())).getStackOwner() != state.getCurrentPlayerInfo().getIdentifier()) {
+        if (((PieceStack)state.getBoard().getTile(move.getStartLocation())).getTopPiece().getOwner() != state.getCurrentPlayerInfo().getIdentifier()) {
             throw new BoardGameEngineException(TakEngineErrorCode.DO_NOT_OWN_STACK);
         }
 
@@ -92,7 +94,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
     private void validateMovePlacements(TakState state, TakMoveAction move) throws BoardGameEngineException {
         // Check that each position of move is legal
         GridBoardLocation currentLocation = new GridBoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
-        boolean topCapstone = ((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece().getType() == PieceType.CAPSTONE;
+        boolean topCapstone = ((TakPiece)(((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece())).getType() == PieceType.CAPSTONE;
         int piecesLeft = move.getPickedUp();
         for(int i = 0; i < move.getPlaced().length; i++) {
             // Check that at least one piece was placed
@@ -105,12 +107,12 @@ public class TakEngineMainTurns extends InOrderGameEngine {
             //Check that it is okay to place there
             if(!((PieceStack)state.getBoard().getTile(currentLocation)).getPieces().isEmpty()) {
                 // If there is a capstone, fail
-                if(((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece().getType() == PieceType.CAPSTONE) {
+                if(((TakPiece)(((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece())).getType() == PieceType.CAPSTONE) {
                     throw new BoardGameEngineException(TakEngineErrorCode.BLOCKED_FROM_PLACING);
                 }
 
                 // If there is a wall and you don't have only a capstone, fail
-                if(((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece().getType() == PieceType.WALL &&
+                if(((TakPiece)(((PieceStack)state.getBoard().getTile(currentLocation)).getTopPiece())).getType() == PieceType.WALL &&
                    (piecesLeft != 1 || !topCapstone)) {
                     throw new BoardGameEngineException(TakEngineErrorCode.BLOCKED_FROM_PLACING);
                 }
@@ -155,7 +157,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
                 }
             }
             //Otherwise iterate through possible moves if player owns the stack
-            else if(tile.getTopPiece().getPlayer() == state.getCurrentPlayerInfo().getIdentifier()) {
+            else if(tile.getTopPiece().getOwner() == state.getCurrentPlayerInfo().getIdentifier()) {
                 possibleTurns.addAll(getMoves(state, tile, Direction.NORTH));
                 possibleTurns.addAll(getMoves(state, tile, Direction.SOUTH));
                 possibleTurns.addAll(getMoves(state, tile, Direction.EAST));
@@ -179,14 +181,14 @@ public class TakEngineMainTurns extends InOrderGameEngine {
         loc.move(dir, 1);
         while(state.getBoard().onBoard(loc) &&
                 (((PieceStack)state.getBoard().getTile(loc)).getHeight() == 0 ||
-                        ((PieceStack)state.getBoard().getTile(loc)).getTopPiece().getType() == PieceType.STONE)) {
+                        ((TakPiece)(((PieceStack)state.getBoard().getTile(loc)).getTopPiece())).getType() == PieceType.STONE)) {
             distToBlock++;
             loc.move(dir, 1);
         }
         boolean canFlatten = false;
         if(state.getBoard().onBoard(loc) && ((PieceStack)state.getBoard().getTile(loc)).getHeight() > 0 &&
-                ((PieceStack)state.getBoard().getTile(loc)).getTopPiece().getType() == PieceType.WALL &&
-                tile.getTopPiece().getType() == PieceType.CAPSTONE) {
+                ((TakPiece)(((PieceStack)state.getBoard().getTile(loc)).getTopPiece())).getType() == PieceType.WALL &&
+                ((TakPiece)tile.getTopPiece()).getType() == PieceType.CAPSTONE) {
             canFlatten = true;
         }
 
@@ -265,18 +267,18 @@ public class TakEngineMainTurns extends InOrderGameEngine {
         //Check for each possible path
         for(int i = 0; i < state.getSize(); i++) {
             PieceStack tile = (PieceStack) state.getBoard().getTile(0, i);
-            if(tile.getTopPiece() != null && tile.getStackOwner() == player.getIdentifier() &&
-               tile.getTopPiece().getType() != PieceType.WALL &&
+            if(tile.getTopPiece() != null && tile.getTopPiece().getOwner() == player.getIdentifier() &&
+               ((TakPiece)tile.getTopPiece()).getType() != PieceType.WALL &&
                isWinPath(state.getBoard(), new GridBoardLocation(0, i), new boolean[state.getSize()][state.getSize()],
-                       true, tile.getTopPiece().getPlayer())) {
+                       true, tile.getTopPiece().getOwner())) {
                 state.setStatus(new TakStatus(Status.COMPLETE, player.getIdentifier(), WinReason.PATH, getScore(state, player.getIdentifier())));
                 return;
             }
             tile = (PieceStack) state.getBoard().getTile(i, 0);
-            if(tile.getTopPiece() != null && tile.getStackOwner() == player.getIdentifier() &&
-               tile.getTopPiece().getType() != PieceType.WALL &&
+            if(tile.getTopPiece() != null && tile.getTopPiece().getOwner() == player.getIdentifier() &&
+               ((TakPiece)tile.getTopPiece()).getType() != PieceType.WALL &&
                isWinPath(state.getBoard(), new GridBoardLocation(i, 0), new boolean[state.getSize()][state.getSize()],
-                       false, tile.getTopPiece().getPlayer())) {
+                       false, tile.getTopPiece().getOwner())) {
                 state.setStatus(new TakStatus(Status.COMPLETE, player.getIdentifier(), WinReason.PATH, getScore(state, player.getIdentifier())));
                 return;
             }
@@ -292,8 +294,8 @@ public class TakEngineMainTurns extends InOrderGameEngine {
         for(int x = 0; x < state.getSize(); x++) {
             for(int y = 0; y < state.getSize(); y++) {
                 if(((PieceStack)state.getBoard().getTile(x, y)).getHeight() > 0 &&
-                   ((PieceStack)state.getBoard().getTile(x, y)).getTopPiece().getType() == PieceType.STONE) {
-                    PlayerIndicator owner = ((PieceStack)state.getBoard().getTile(x, y)).getStackOwner();
+                   ((TakPiece)(((PieceStack)state.getBoard().getTile(x, y)).getTopPiece())).getType() == PieceType.STONE) {
+                    PlayerIndicator owner = ((PieceStack)state.getBoard().getTile(x, y)).getTopPiece().getOwner();
                     if(owner == PlayerIndicator.WHITE) {
                         whitePoints++;
                     } else if(owner == PlayerIndicator.BLACK) {
@@ -342,8 +344,8 @@ public class TakEngineMainTurns extends InOrderGameEngine {
             current.move(dirs[i], 1);
             if (current.getY() >= 0 && current.getY() < board.getWidth() &&
                 current.getX() >= 0 && current.getX() < board.getWidth()) {
-                Piece topPiece = ((PieceStack)board.getTile(current)).getTopPiece();
-                if(topPiece != null && !checked[current.getX()][current.getY()] && topPiece.getPlayer() == player &&
+                TakPiece topPiece = (TakPiece) ((PieceStack)board.getTile(current)).getTopPiece();
+                if(topPiece != null && !checked[current.getX()][current.getY()] && topPiece.getOwner() == player &&
                    (topPiece.getType() == PieceType.CAPSTONE || topPiece.getType() == PieceType.STONE)) {
                     checked[current.getX()][current.getY()] = true;
                     if (isWinPath(board, current, checked, horizontal, player)) {
@@ -387,7 +389,7 @@ public class TakEngineMainTurns extends InOrderGameEngine {
 
     private void applyPlace(TakState state, TakPlaceAction place) throws BoardGameEngineException {
         TakPlayerInfo player = (TakPlayerInfo) state.getCurrentPlayerInfo();
-        ((PieceStack)state.getBoard().getTile(place.getLocation())).addPiece(new Piece(player.getIdentifier(), place.getPieceType()));
+        ((PieceStack)state.getBoard().getTile(place.getLocation())).addPiece(new TakPiece(player.getIdentifier(), place.getPieceType()));
 
         if(place.getPieceType() == PieceType.CAPSTONE) {
             player.getCapstones().removePieces(1);
@@ -402,15 +404,15 @@ public class TakEngineMainTurns extends InOrderGameEngine {
         GridBoardLocation current = new GridBoardLocation(move.getStartLocation().getX(), move.getStartLocation().getY());
         for(int i = 0; i < move.getPlaced().length; i++) {
             current.move(move.getDirection(), 1);
-            PieceStack tile = (PieceStack) state.getBoard().getTile(current);
+            TakPiece topPiece = (TakPiece) ((PieceStack)state.getBoard().getTile(current)).getTopPiece();
             // If there is a wall, collapse it
-            if(!tile.getPieces().isEmpty() && tile.getTopPiece().getType() == PieceType.WALL) {
-                tile.collapseTopPiece();
+            if(topPiece != null && topPiece.getType() == PieceType.WALL) {
+                topPiece.setType(PieceType.STONE);
                 move.flatten();
             }
             // Place the right number of pieces in
             for(int j = 0; j < move.getPlaced()[i]; j++) {
-                tile.addPiece(pieces.remove(0));
+                ((PieceStack)state.getBoard().getTile(current)).addPiece(pieces.remove(0));
             }
         }
     }

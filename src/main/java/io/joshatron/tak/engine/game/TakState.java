@@ -1,12 +1,12 @@
 package io.joshatron.tak.engine.game;
 
+import io.joshatron.bgt.engine.board.PieceStack;
 import io.joshatron.bgt.engine.board.grid.GridBoard;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.player.Pieces;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
 import io.joshatron.bgt.engine.state.InOrderGameState;
-import io.joshatron.tak.engine.board.PieceStack;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import lombok.Data;
 

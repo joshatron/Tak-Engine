@@ -1,8 +1,8 @@
 package io.joshatron.tak.engine.turn;
 
+import io.joshatron.bgt.engine.action.Action;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
-import io.joshatron.bgt.engine.turn.Action;
 import io.joshatron.tak.engine.board.PieceType;
 import lombok.Data;
 
