@@ -3,7 +3,6 @@ package io.joshatron.tak.engine.game;
 import io.joshatron.bgt.engine.action.Action;
 import io.joshatron.bgt.engine.board.grid.Direction;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
-import io.joshatron.bgt.engine.engines.AggregateGameEngine;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
 import io.joshatron.bgt.engine.state.Status;
@@ -22,7 +21,7 @@ public class TakEngineTest {
 
     //Initialize state and get first 2 moves out of the way
     private TakState initializeState(int size) throws BoardGameEngineException {
-        AggregateGameEngine engine = new TakEngine();
+        TakEngine engine = new TakEngine();
         TakState state = new TakState(PlayerIndicator.WHITE, size);
         TakPlaceAction turn = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), new GridBoardLocation(0, 0), PieceType.STONE);
         engine.submitAction(state, turn);
@@ -36,7 +35,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionPlaceNormal() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(8);
 
             //Test stone placement for each color
@@ -73,7 +72,7 @@ public class TakEngineTest {
 
         try {
             //Capstones
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(8);
             //Place legal
             TakPlaceAction turn = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 2,0, PieceType.CAPSTONE);
@@ -142,7 +141,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionPlaceOffBoard() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.BLACK, 3);
             //Black
             TakPlaceAction turn = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), new GridBoardLocation(-1,-1), PieceType.STONE);
@@ -176,7 +175,7 @@ public class TakEngineTest {
     public void isLegalActionPlaceOnOtherPieces() {
         try {
             //Initialize with every type of piece
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(8);
             TakPlaceAction turn = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
             engine.submitAction(state, turn);
@@ -226,7 +225,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionPlaceBadFirstMoves() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 5);
             //white illegal turns
             TakPlaceAction turn = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,0,PieceType.CAPSTONE);
@@ -251,7 +250,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveNormal() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
 
             TakMoveAction move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
@@ -277,7 +276,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveOffBoard() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
@@ -299,7 +298,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveIllegalPickup() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
 
             //Entire stack is owned by other player
@@ -319,7 +318,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveIllegalCover() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
 
             TakMoveAction move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1, Direction.WEST,new int[]{1});
@@ -351,7 +350,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveTooManyPickup() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(3);
 
             TakMoveAction move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
@@ -377,14 +376,13 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveEmptySpots() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
 
             TakMoveAction move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.SOUTH,new int[]{0,1});
             Assert.assertFalse(engine.isLegalAction(state, move));
             move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.submitAction(state, move);
-            TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
             move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 0,0,2,Direction.EAST,new int[]{1,0,1});
             Assert.assertFalse(engine.isLegalAction(state, move));
         } catch (BoardGameEngineException e) {
@@ -396,7 +394,7 @@ public class TakEngineTest {
     @Test
     public void isLegalActionMoveBadFirstMoves() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,0,PieceType.STONE);
@@ -412,7 +410,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerStraightHorizontal() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -436,7 +434,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerStraightVertical() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.BLACK,3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,0,PieceType.STONE);
@@ -460,7 +458,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerCurvyHorizontal() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,6);
 
             TakMoveAction moveDown = new TakMoveAction(PlayerIndicator.BLACK, 5,0,1,Direction.SOUTH,new int[]{1});
@@ -525,7 +523,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerCurvyVertical() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.BLACK,6);
 
             TakMoveAction moveDown = new TakMoveAction(PlayerIndicator.WHITE, 5,0,1,Direction.SOUTH,new int[]{1});
@@ -581,7 +579,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerWallInPath() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -605,7 +603,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerCapstoneInPath() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -637,7 +635,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerStacks() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
@@ -665,7 +663,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerDiagonals() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.BLACK,3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -690,7 +688,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerFullBoard() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 2,0,PieceType.STONE);
@@ -718,7 +716,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerOutOfPieces() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,PieceType.STONE);
@@ -759,7 +757,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerDoubleRoad() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 0,1,PieceType.STONE);
@@ -791,7 +789,7 @@ public class TakEngineTest {
     @Test
     public void checkForWinnerDoesntChangeBoard() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(3);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 2,0,PieceType.STONE);
@@ -823,11 +821,10 @@ public class TakEngineTest {
     @Test
     public void initializeTest() {
         try {
-            AggregateGameEngine engine = new TakEngine();
             //3x3
             TakState state = new TakState(PlayerIndicator.WHITE, 3);
-            TakPlayerInfo whiteInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.WHITE);
-            TakPlayerInfo blackInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.BLACK);
+            TakPlayerInfo whiteInfo = state.getPlayerInfo(PlayerIndicator.WHITE);
+            TakPlayerInfo blackInfo = state.getPlayerInfo(PlayerIndicator.BLACK);
             Assert.assertEquals(10, whiteInfo.getStones().getPiecesLeft());
             Assert.assertEquals(0, whiteInfo.getCapstones().getPiecesLeft());
             Assert.assertEquals(10, blackInfo.getStones().getPiecesLeft());
@@ -835,8 +832,8 @@ public class TakEngineTest {
             Assert.assertEquals(3, state.getSize());
             //4x4
             state = new TakState(PlayerIndicator.WHITE, 4);
-            whiteInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.WHITE);
-            blackInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.BLACK);
+            whiteInfo = state.getPlayerInfo(PlayerIndicator.WHITE);
+            blackInfo = state.getPlayerInfo(PlayerIndicator.BLACK);
             Assert.assertEquals(15, whiteInfo.getStones().getPiecesLeft());
             Assert.assertEquals(0, whiteInfo.getCapstones().getPiecesLeft());
             Assert.assertEquals(15, blackInfo.getStones().getPiecesLeft());
@@ -844,8 +841,8 @@ public class TakEngineTest {
             Assert.assertEquals(4, state.getSize());
             //5x5
             state = new TakState(PlayerIndicator.WHITE, 5);
-            whiteInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.WHITE);
-            blackInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.BLACK);
+            whiteInfo = state.getPlayerInfo(PlayerIndicator.WHITE);
+            blackInfo = state.getPlayerInfo(PlayerIndicator.BLACK);
             Assert.assertEquals(21, whiteInfo.getStones().getPiecesLeft());
             Assert.assertEquals(1, whiteInfo.getCapstones().getPiecesLeft());
             Assert.assertEquals(21, blackInfo.getStones().getPiecesLeft());
@@ -853,8 +850,8 @@ public class TakEngineTest {
             Assert.assertEquals(5, state.getSize());
             //6x6
             state = new TakState(PlayerIndicator.WHITE, 6);
-            whiteInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.WHITE);
-            blackInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.BLACK);
+            whiteInfo = state.getPlayerInfo(PlayerIndicator.WHITE);
+            blackInfo = state.getPlayerInfo(PlayerIndicator.BLACK);
             Assert.assertEquals(30, whiteInfo.getStones().getPiecesLeft());
             Assert.assertEquals(1, whiteInfo.getCapstones().getPiecesLeft());
             Assert.assertEquals(30, blackInfo.getStones().getPiecesLeft());
@@ -862,8 +859,8 @@ public class TakEngineTest {
             Assert.assertEquals(6, state.getSize());
             //8x8
             state = new TakState(PlayerIndicator.WHITE, 8);
-            whiteInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.WHITE);
-            blackInfo = (TakPlayerInfo) state.getPlayerInfo(PlayerIndicator.BLACK);
+            whiteInfo = state.getPlayerInfo(PlayerIndicator.WHITE);
+            blackInfo = state.getPlayerInfo(PlayerIndicator.BLACK);
             Assert.assertEquals(50, whiteInfo.getStones().getPiecesLeft());
             Assert.assertEquals(2, whiteInfo.getCapstones().getPiecesLeft());
             Assert.assertEquals(50, blackInfo.getStones().getPiecesLeft());
@@ -879,7 +876,7 @@ public class TakEngineTest {
     //This gives reasonable certainty of correctness without building large
     //lists and having to sort and compare them
     private void verifyState(TakState state, int possible) throws BoardGameEngineException {
-        AggregateGameEngine engine = new TakEngine();
+        TakEngine engine = new TakEngine();
         List<Action> actions = engine.getPossibleActions(state);
 
         //makes sure there are the correct number of possible actions
@@ -907,7 +904,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsNormal() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
             verifyState(state, 72);
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 2,2,PieceType.STONE);
@@ -937,7 +934,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsMaxHeight() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(3);
             TakMoveAction move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.submitAction(state, move);
@@ -962,7 +959,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsBoardEdgeAndPieceInWay() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = initializeState(5);
             TakMoveAction move = new TakMoveAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,1,Direction.WEST,new int[]{1});
             engine.submitAction(state, move);
@@ -1000,7 +997,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsOutOfPieceType() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE,5);
 
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,0,PieceType.STONE);
@@ -1038,7 +1035,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsFirstTurns() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 5);
             verifyState(state, 25);
             TakPlaceAction place = new TakPlaceAction(state.getCurrentPlayerInfo().getIdentifier(), 1,1,PieceType.STONE);
@@ -1054,7 +1051,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsNarrowPossibleInTak() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.submitAction(state, new TakPlaceAction(0, 0, PieceType.STONE));
             engine.submitAction(state, new TakPlaceAction(1, 0, PieceType.STONE));
@@ -1070,7 +1067,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsNarrowPossibleCanWin() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.submitAction(state, new TakPlaceAction(0, 0, PieceType.STONE));
             engine.submitAction(state, new TakPlaceAction(1, 0, PieceType.STONE));
@@ -1087,7 +1084,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsNarrowPossibleCanWinAndInTak() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.submitAction(state, new TakPlaceAction(0, 0, PieceType.STONE));
             engine.submitAction(state, new TakPlaceAction(1, 0, PieceType.STONE));
@@ -1104,7 +1101,7 @@ public class TakEngineTest {
     @Test
     public void getPossibleActionsDoesntChangeState() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 3, new GameStateConfig(false, true));
             engine.submitAction(state, new TakPlaceAction(0, 0, PieceType.STONE));
             engine.submitAction(state, new TakPlaceAction(1, 0, PieceType.STONE));
@@ -1121,7 +1118,7 @@ public class TakEngineTest {
     @Test
     public void inTak() {
         try {
-            AggregateGameEngine engine = new TakEngine();
+            TakEngine engine = new TakEngine();
             TakState state = new TakState(PlayerIndicator.WHITE, 3);
             TakPlaceAction place = new TakPlaceAction(1,0,PieceType.STONE);
             engine.submitAction(state, place);
