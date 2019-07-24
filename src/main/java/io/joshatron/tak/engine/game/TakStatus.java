@@ -16,7 +16,7 @@ public class TakStatus extends GameStatus {
     private int score;
 
     public TakStatus(Status status, PlayerIndicator winner, WinReason reason, int score) {
-        this.status = status;
+        super(status);
         this.winner = winner;
         this.reason = reason;
         this.score = score;
