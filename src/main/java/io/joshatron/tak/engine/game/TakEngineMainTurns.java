@@ -2,14 +2,14 @@ package io.joshatron.tak.engine.game;
 
 import io.joshatron.bgt.engine.action.Action;
 import io.joshatron.bgt.engine.action.ActionResult;
-import io.joshatron.bgt.engine.board.PieceStack;
 import io.joshatron.bgt.engine.board.grid.Direction;
 import io.joshatron.bgt.engine.board.grid.GridBoard;
 import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
+import io.joshatron.bgt.engine.component.PiecePile;
+import io.joshatron.bgt.engine.component.PieceStack;
 import io.joshatron.bgt.engine.engines.InOrderGameEngine;
 import io.joshatron.bgt.engine.exception.BoardGameCommonErrorCode;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
-import io.joshatron.bgt.engine.player.Pieces;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
 import io.joshatron.bgt.engine.state.Status;
 import io.joshatron.tak.engine.board.*;
@@ -298,8 +298,8 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
             }
         }
 
-        Pieces whiteCapstones = state.getPlayerInfo(PlayerIndicator.WHITE).getCapstones();
-        Pieces blackCapstones = state.getPlayerInfo(PlayerIndicator.BLACK).getCapstones();
+        PiecePile whiteCapstones = state.getPlayerInfo(PlayerIndicator.WHITE).getCapstones();
+        PiecePile blackCapstones = state.getPlayerInfo(PlayerIndicator.BLACK).getCapstones();
         if(whitePoints > blackPoints) {
             return new TakStatus(Status.COMPLETE, PlayerIndicator.WHITE, reason, getScore(state, PlayerIndicator.WHITE));
         }

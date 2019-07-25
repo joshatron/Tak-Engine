@@ -2,7 +2,7 @@ package io.joshatron.tak.engine.game;
 
 import io.joshatron.bgt.engine.action.Action;
 import io.joshatron.bgt.engine.action.ActionResult;
-import io.joshatron.bgt.engine.board.PieceStack;
+import io.joshatron.bgt.engine.component.PieceStack;
 import io.joshatron.bgt.engine.engines.InOrderGameEngine;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.TakPiece;

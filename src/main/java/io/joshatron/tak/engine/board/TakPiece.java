@@ -1,6 +1,6 @@
 package io.joshatron.tak.engine.board;
 
-import io.joshatron.bgt.engine.board.Piece;
+import io.joshatron.bgt.engine.component.Piece;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
 import lombok.Data;
 
