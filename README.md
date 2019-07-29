@@ -3,10 +3,9 @@ Tak Engine
 
 The tak engine contains the simulator for a tak game.
 
-The main class to interface with it is GameState.
-You can initialize the board, check legality of turns, make moves, and check for win states.
-
-The engine also provides an interface for playing games.
-The Games class runs through a specified number of games.
-You can implement GameHooks that allows you to run code before and after each turn.
-You can also implement players that can either be implementations of AI players or human ones.
+The main engine is TakEngine.
+It is an aggregate engine that uses TakEngineFirstTurns for the first 2 turns
+and takEngineMainTurns for the turns after.
+They manipulate a TakState, which is the current state of the game.
+The engines contain no config, and are stateless.
+They used the BGT-Engine as a base.
