@@ -20,6 +20,7 @@ public enum TakEngineErrorCode implements BoardGameErrorCode {
     INVALID_PIECE_TYPE,
     INVALID_DIRECTION,
     INVALID_NUMBER,
+    INVALID_TURN_STRING,
     ILLEGAL_TYPE;
 
     @Override
