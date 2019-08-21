@@ -353,15 +353,11 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
     }
 
     @Override
-    public ActionResult updateState(TakState state, Action action) {
-        try {
-            validateAction(state, action);
-            applyAction(state, action);
-            state.setStatus(null);
-            fillOutStatus(state);
-        } catch(BoardGameEngineException e) {
-            e.printStackTrace();
-        }
+    public ActionResult updateState(TakState state, Action action) throws BoardGameEngineException {
+        validateAction(state, action);
+        applyAction(state, action);
+        state.setStatus(null);
+        fillOutStatus(state);
 
         return null;
     }

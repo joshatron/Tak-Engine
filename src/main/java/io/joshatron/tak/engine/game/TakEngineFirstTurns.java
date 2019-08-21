@@ -7,6 +7,7 @@ import io.joshatron.bgt.engine.engines.InOrderGameEngine;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.tak.engine.board.TakPiece;
 import io.joshatron.tak.engine.board.PieceType;
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import io.joshatron.tak.engine.turn.TakPlaceAction;
 
 import java.util.List;
@@ -32,15 +33,15 @@ public class TakEngineFirstTurns extends InOrderGameEngine<TakState> {
     }
 
     @Override
-    protected ActionResult updateState(TakState gameState, Action action) {
-        try {
-            TakPlayerInfo otherInfo = gameState.getNextPlayerInfo();
-            gameState.getBoard().getTile(((TakPlaceAction)action).getLocation())
-                    .addPiece(new TakPiece(otherInfo.getIdentifier(), PieceType.STONE));
-            otherInfo.getStones().removePieces(1);
-        } catch(BoardGameEngineException e) {
-            e.printStackTrace();
+    protected ActionResult updateState(TakState gameState, Action action) throws BoardGameEngineException {
+        if(!(action instanceof TakPlaceAction)) {
+            throw new BoardGameEngineException(TakEngineErrorCode.CANT_MOVE_IN_FIRST_TURN);
         }
+
+        TakPlayerInfo otherInfo = gameState.getNextPlayerInfo();
+        gameState.getBoard().getTile(((TakPlaceAction)action).getLocation())
+                .addPiece(new TakPiece(otherInfo.getIdentifier(), PieceType.STONE));
+        otherInfo.getStones().removePieces(1);
 
         return null;
     }
