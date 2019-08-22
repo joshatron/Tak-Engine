@@ -6,8 +6,11 @@ import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.exception.BoardGameCommonErrorCode;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
 import io.joshatron.bgt.engine.player.PlayerIndicator;
+import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Arrays;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -29,6 +32,8 @@ public class TakMoveAction extends Action {
         this.direction = direction;
         this.placed = placed;
         this.flattened = false;
+
+        validatePickedUpVsPlaced();
     }
 
     public TakMoveAction(PlayerIndicator player, int x, int y, int pickedUp, Direction direction, int[] placed) throws BoardGameEngineException {
@@ -41,6 +46,8 @@ public class TakMoveAction extends Action {
         this.direction = direction;
         this.placed = placed;
         this.flattened = false;
+
+        validatePickedUpVsPlaced();
     }
 
     //Pattern is "m[direction] [start location] g[picked up] [place 1] ... [place n]
@@ -59,6 +66,14 @@ public class TakMoveAction extends Action {
 
         for(int i = 0; i < placed.length; i++) {
             placed[i] = Integer.parseInt(parts[i + 3]);
+        }
+
+        validatePickedUpVsPlaced();
+    }
+
+    private void validatePickedUpVsPlaced() throws BoardGameEngineException {
+        if(pickedUp != Arrays.stream(placed).reduce(0, Integer::sum)) {
+            throw new BoardGameEngineException(TakEngineErrorCode.PICK_UP_AND_PLACED_DO_NOT_MATCH);
         }
     }
 
