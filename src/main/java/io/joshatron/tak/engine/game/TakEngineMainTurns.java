@@ -123,7 +123,7 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
     public List<Action> getPossibleActions(TakState state) throws BoardGameEngineException {
         ArrayList<Action> possibleActions = new ArrayList<>();
 
-        List<List<Action>> actions = state.getBoard().getAllTiles().parallelStream()
+        List<List<Action>> actions = state.getBoard().getAllLocations().parallelStream()
                 .map(tile -> getPossibleForLocation(state, tile)).collect(Collectors.toList());
 
         for(List<Action> a : actions) {
@@ -133,27 +133,28 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
         return possibleActions;
     }
 
-    private List<Action> getPossibleForLocation(TakState state, PieceStack<GridBoardLocation,TakPiece> tile) {
+    private List<Action> getPossibleForLocation(TakState state, GridBoardLocation location) {
         try {
+            PieceStack<TakPiece> tile = state.getBoard().getTile(location);
             ArrayList<Action> possibleTurns = new ArrayList<>();
 
             //If it is empty, add possible places
             if(tile.getHeight() == 0) {
                 TakPlayerInfo info = state.getCurrentPlayerInfo();
                 if(!info.getStones().outOfPieces()) {
-                    possibleTurns.add(new TakPlaceAction(info.getIdentifier(), tile.getLocation(), PieceType.STONE));
-                    possibleTurns.add(new TakPlaceAction(info.getIdentifier(), tile.getLocation(), PieceType.WALL));
+                    possibleTurns.add(new TakPlaceAction(info.getIdentifier(), location, PieceType.STONE));
+                    possibleTurns.add(new TakPlaceAction(info.getIdentifier(), location, PieceType.WALL));
                 }
                 if(!info.getCapstones().outOfPieces()) {
-                    possibleTurns.add(new TakPlaceAction(info.getIdentifier(), tile.getLocation(), PieceType.CAPSTONE));
+                    possibleTurns.add(new TakPlaceAction(info.getIdentifier(), location, PieceType.CAPSTONE));
                 }
             }
             //Otherwise iterate through possible moves if player owns the stack
             else if(tile.getTopPiece().getOwner() == state.getCurrentPlayerInfo().getIdentifier()) {
-                possibleTurns.addAll(getMoves(state, tile, Direction.NORTH));
-                possibleTurns.addAll(getMoves(state, tile, Direction.SOUTH));
-                possibleTurns.addAll(getMoves(state, tile, Direction.EAST));
-                possibleTurns.addAll(getMoves(state, tile, Direction.WEST));
+                possibleTurns.addAll(getMoves(state, location, Direction.NORTH));
+                possibleTurns.addAll(getMoves(state, location, Direction.SOUTH));
+                possibleTurns.addAll(getMoves(state, location, Direction.EAST));
+                possibleTurns.addAll(getMoves(state, location, Direction.WEST));
             }
 
             return possibleTurns;
@@ -164,12 +165,13 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
     }
 
 
-    private ArrayList<Action> getMoves(TakState state, PieceStack<GridBoardLocation,TakPiece> tile, Direction dir) throws BoardGameEngineException {
+    private ArrayList<Action> getMoves(TakState state, GridBoardLocation location, Direction dir) throws BoardGameEngineException {
+        PieceStack<TakPiece> tile = state.getBoard().getTile(location);
         ArrayList<Action> possibleTurns = new ArrayList<>();
 
         int numPieces = Math.min(tile.getHeight(), state.getSize());
         int distToBlock = 0;
-        GridBoardLocation loc = new GridBoardLocation(tile.getLocation().getX(), tile.getLocation().getY());
+        GridBoardLocation loc = new GridBoardLocation(location);
         loc.move(dir, 1);
         while(state.getBoard().onBoard(loc) &&
                 (state.getBoard().getTile(loc).getHeight() == 0 ||
@@ -187,7 +189,7 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
         if(distToBlock > 0) {
             while (numPieces > 0) {
                 possibleTurns.addAll(getMovesInner(distToBlock - 1, canFlatten, numPieces, new ArrayList<>(),
-                        tile.getLocation(), dir, numPieces, state.getCurrentPlayerInfo().getIdentifier()));
+                        location, dir, numPieces, state.getCurrentPlayerInfo().getIdentifier()));
                 numPieces--;
             }
         }
@@ -259,7 +261,7 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
 
         //Check for each possible path
         for(int i = 0; i < state.getSize(); i++) {
-            PieceStack<GridBoardLocation,TakPiece> tile = state.getBoard().getTile(0, i);
+            PieceStack<TakPiece> tile = state.getBoard().getTile(0, i);
             if(tile.getTopPiece() != null && tile.getTopPiece().getOwner() == player.getIdentifier() &&
                tile.getTopPiece().getType() != PieceType.WALL &&
                isWinPath(state.getBoard(), new GridBoardLocation(0, i), new boolean[state.getSize()][state.getSize()],
@@ -325,7 +327,7 @@ public class TakEngineMainTurns extends InOrderGameEngine<TakState> {
         return state.getSize() * state.getSize() + points;
     }
 
-    private boolean isWinPath(GridBoard<PieceStack<GridBoardLocation,TakPiece>> board, GridBoardLocation current, boolean[][] checked, boolean horizontal, PlayerIndicator player) throws BoardGameEngineException {
+    private boolean isWinPath(GridBoard<PieceStack<TakPiece>> board, GridBoardLocation current, boolean[][] checked, boolean horizontal, PlayerIndicator player) throws BoardGameEngineException {
         if((horizontal && current.getX() == board.getWidth() - 1) ||
            (!horizontal && current.getY() == board.getWidth() - 1)) {
             return true;

@@ -13,4 +13,14 @@ public class TakPiece extends Piece {
         super(owner);
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        if(getOwner() == PlayerIndicator.WHITE) {
+            return type.getAcronym().toLowerCase();
+        }
+        else {
+            return type.getAcronym().toUpperCase();
+        }
+    }
 }

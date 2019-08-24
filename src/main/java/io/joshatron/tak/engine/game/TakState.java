@@ -1,7 +1,6 @@
 package io.joshatron.tak.engine.game;
 
 import io.joshatron.bgt.engine.board.grid.GridBoard;
-import io.joshatron.bgt.engine.board.grid.GridBoardLocation;
 import io.joshatron.bgt.engine.component.PiecePile;
 import io.joshatron.bgt.engine.component.PieceStack;
 import io.joshatron.bgt.engine.exception.BoardGameEngineException;
@@ -11,12 +10,14 @@ import io.joshatron.tak.engine.board.PieceType;
 import io.joshatron.tak.engine.board.TakPiece;
 import io.joshatron.tak.engine.exception.TakEngineErrorCode;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class TakState extends InOrderGameState<TakStatus,TakPlayerInfo> {
     private int size;
     private PlayerIndicator first;
-    private GridBoard<PieceStack<GridBoardLocation, TakPiece>> board;
+    private GridBoard<PieceStack<TakPiece>> board;
 
     public TakState(PlayerIndicator first, int size) throws BoardGameEngineException {
         super(new TakStatus());
@@ -29,7 +30,7 @@ public class TakState extends InOrderGameState<TakStatus,TakPlayerInfo> {
 
         switch(size) {
             case 3:
-                board = new GridBoard<>(size, size, new PieceStack<>(new GridBoardLocation(0,0)));
+                board = new GridBoard<>(size, size, new PieceStack<>());
                 getPlayers().add(new TakPlayerInfo(PlayerIndicator.WHITE,
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.STONE), 10),
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.CAPSTONE), 0)));
@@ -38,7 +39,7 @@ public class TakState extends InOrderGameState<TakStatus,TakPlayerInfo> {
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.CAPSTONE), 0)));
                 break;
             case 4:
-                board = new GridBoard<>(size, size, new PieceStack<>(new GridBoardLocation(0, 0)));
+                board = new GridBoard<>(size, size, new PieceStack<>());
                 getPlayers().add(new TakPlayerInfo(PlayerIndicator.WHITE,
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.STONE), 15),
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.CAPSTONE), 0)));
@@ -47,7 +48,7 @@ public class TakState extends InOrderGameState<TakStatus,TakPlayerInfo> {
                         new PiecePile<>(new TakPiece(PlayerIndicator.BLACK, PieceType.CAPSTONE), 0)));
                 break;
             case 5:
-                board = new GridBoard<>(size, size, new PieceStack<>(new GridBoardLocation(0, 0)));
+                board = new GridBoard<>(size, size, new PieceStack<>());
                 getPlayers().add(new TakPlayerInfo(PlayerIndicator.WHITE,
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.STONE), 21),
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.CAPSTONE), 1)));
@@ -56,7 +57,7 @@ public class TakState extends InOrderGameState<TakStatus,TakPlayerInfo> {
                         new PiecePile<>(new TakPiece(PlayerIndicator.BLACK, PieceType.CAPSTONE), 1)));
                 break;
             case 6:
-                board = new GridBoard<>(size, size, new PieceStack<>(new GridBoardLocation(0, 0)));
+                board = new GridBoard<>(size, size, new PieceStack<>());
                 getPlayers().add(new TakPlayerInfo(PlayerIndicator.WHITE,
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.STONE), 30),
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.CAPSTONE), 1)));
@@ -65,7 +66,7 @@ public class TakState extends InOrderGameState<TakStatus,TakPlayerInfo> {
                         new PiecePile<>(new TakPiece(PlayerIndicator.BLACK, PieceType.CAPSTONE), 1)));
                 break;
             case 8:
-                board = new GridBoard<>(size, size, new PieceStack<>(new GridBoardLocation(0, 0)));
+                board = new GridBoard<>(size, size, new PieceStack<>());
                 getPlayers().add(new TakPlayerInfo(PlayerIndicator.WHITE,
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.STONE), 50),
                         new PiecePile<>(new TakPiece(PlayerIndicator.WHITE, PieceType.CAPSTONE), 2)));

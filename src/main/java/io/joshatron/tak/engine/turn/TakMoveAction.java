@@ -88,8 +88,8 @@ public class TakMoveAction extends Action {
         str.append(" ").append(startLocation.toString());
         str.append(" g").append(pickedUp);
 
-        for(int i = 0; i < placed.length; i++) {
-            str.append(" ").append(placed[i]);
+        for(int place : placed) {
+            str.append(" ").append(place);
         }
 
         return str.toString();

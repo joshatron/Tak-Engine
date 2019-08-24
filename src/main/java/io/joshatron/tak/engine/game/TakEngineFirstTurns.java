@@ -53,12 +53,18 @@ public class TakEngineFirstTurns extends InOrderGameEngine<TakState> {
 
     @Override
     public List<Action> getPossibleActions(TakState gameState) throws BoardGameEngineException {
-        return gameState.getBoard().getAllTiles().parallelStream()
-                .filter(PieceStack::isEmpty)
-                .map(boardTile -> {
+        return gameState.getBoard().getAllLocations().parallelStream()
+                .filter(l -> {
+                    try {
+                        return gameState.getBoard().getTile(l).isEmpty();
+                    } catch(BoardGameEngineException e) {
+                        return false;
+                    }
+                })
+                .map(location -> {
                     try {
                         return new TakPlaceAction(gameState.getCurrentPlayerInfo().getIdentifier(),
-                                boardTile.getLocation(), PieceType.STONE);
+                                location, PieceType.STONE);
                     } catch(BoardGameEngineException e) {
                         return null;
                     }})
